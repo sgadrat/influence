@@ -388,6 +388,11 @@ function unselect() {
 	guiHideSelection();
 }
 
+function center(o) {
+	rtge.camera.x = o.x - rtge.canvas.width / 2;
+	rtge.camera.y = o.y - rtge.canvas.height / 2;
+}
+
 function action_goto() {
 	var from = null;
 	var to = null;
