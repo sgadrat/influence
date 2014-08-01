@@ -1,4 +1,4 @@
-var influance = {
+var influence = {
 	selected: null,
 	currentCharacter: null,
 	maze: null,
@@ -201,9 +201,9 @@ function init() {
 		new Case(17*16, 39*16),
 	];
 
-	influance.currentCharacter = new Citizen('0', 81*16, 48*16);
-	guiShowCharacter(influance.currentCharacter);
-	objects.push(influance.currentCharacter);
+	influence.currentCharacter = new Citizen('0', 81*16, 48*16);
+	guiShowCharacter(influence.currentCharacter);
+	objects.push(influence.currentCharacter);
 
 	rtge.init(
 		'view',
@@ -238,8 +238,8 @@ function init() {
 		}
 	);
 
-	influance.maze = new pathfinder.Maze();
-	influance.maze.waypoints = [
+	influence.maze = new pathfinder.Maze();
+	influence.maze.waypoints = [
 		new pathfinder.Waypoint(58*16, 10*16),
 		new pathfinder.Waypoint(73*16, 10*16),
 		new pathfinder.Waypoint(48*16, 12*16),
@@ -282,92 +282,92 @@ function init() {
 		new pathfinder.Waypoint(73*16, 48*16),
 		new pathfinder.Waypoint(81*16, 48*16),
 	];
-	influance.maze.waypoints[0].addNeighbor(influance.maze.waypoints[3]);
-	influance.maze.waypoints[1].addNeighbor(influance.maze.waypoints[4]);
-	influance.maze.waypoints[2].addNeighbor(influance.maze.waypoints[3]);
-	influance.maze.waypoints[2].addNeighbor(influance.maze.waypoints[15]);
-	influance.maze.waypoints[3].addNeighbor(influance.maze.waypoints[0]);
-	influance.maze.waypoints[3].addNeighbor(influance.maze.waypoints[2]);
-	influance.maze.waypoints[3].addNeighbor(influance.maze.waypoints[4]);
-	influance.maze.waypoints[4].addNeighbor(influance.maze.waypoints[1]);
-	influance.maze.waypoints[4].addNeighbor(influance.maze.waypoints[3]);
-	influance.maze.waypoints[4].addNeighbor(influance.maze.waypoints[5]);
-	influance.maze.waypoints[5].addNeighbor(influance.maze.waypoints[4]);
-	influance.maze.waypoints[5].addNeighbor(influance.maze.waypoints[18]);
-	influance.maze.waypoints[6].addNeighbor(influance.maze.waypoints[11]);
-	influance.maze.waypoints[7].addNeighbor(influance.maze.waypoints[12]);
-	influance.maze.waypoints[8].addNeighbor(influance.maze.waypoints[14]);
-	influance.maze.waypoints[9].addNeighbor(influance.maze.waypoints[16]);
-	influance.maze.waypoints[10].addNeighbor(influance.maze.waypoints[17]);
-	influance.maze.waypoints[11].addNeighbor(influance.maze.waypoints[6]);
-	influance.maze.waypoints[11].addNeighbor(influance.maze.waypoints[12]);
-	influance.maze.waypoints[12].addNeighbor(influance.maze.waypoints[7]);
-	influance.maze.waypoints[12].addNeighbor(influance.maze.waypoints[11]);
-	influance.maze.waypoints[12].addNeighbor(influance.maze.waypoints[13]);
-	influance.maze.waypoints[13].addNeighbor(influance.maze.waypoints[12]);
-	influance.maze.waypoints[13].addNeighbor(influance.maze.waypoints[14]);
-	influance.maze.waypoints[13].addNeighbor(influance.maze.waypoints[25]);
-	influance.maze.waypoints[14].addNeighbor(influance.maze.waypoints[8]);
-	influance.maze.waypoints[14].addNeighbor(influance.maze.waypoints[13]);
-	influance.maze.waypoints[14].addNeighbor(influance.maze.waypoints[15]);
-	influance.maze.waypoints[15].addNeighbor(influance.maze.waypoints[2]);
-	influance.maze.waypoints[15].addNeighbor(influance.maze.waypoints[14]);
-	influance.maze.waypoints[15].addNeighbor(influance.maze.waypoints[16]);
-	influance.maze.waypoints[16].addNeighbor(influance.maze.waypoints[9]);
-	influance.maze.waypoints[16].addNeighbor(influance.maze.waypoints[15]);
-	influance.maze.waypoints[16].addNeighbor(influance.maze.waypoints[17]);
-	influance.maze.waypoints[17].addNeighbor(influance.maze.waypoints[10]);
-	influance.maze.waypoints[17].addNeighbor(influance.maze.waypoints[16]);
-	influance.maze.waypoints[17].addNeighbor(influance.maze.waypoints[18]);
-	influance.maze.waypoints[19].addNeighbor(influance.maze.waypoints[23]);
-	influance.maze.waypoints[20].addNeighbor(influance.maze.waypoints[24]);
-	influance.maze.waypoints[21].addNeighbor(influance.maze.waypoints[27]);
-	influance.maze.waypoints[22].addNeighbor(influance.maze.waypoints[28]);
-	influance.maze.waypoints[23].addNeighbor(influance.maze.waypoints[19]);
-	influance.maze.waypoints[23].addNeighbor(influance.maze.waypoints[24]);
-	influance.maze.waypoints[24].addNeighbor(influance.maze.waypoints[20]);
-	influance.maze.waypoints[24].addNeighbor(influance.maze.waypoints[23]);
-	influance.maze.waypoints[24].addNeighbor(influance.maze.waypoints[25]);
-	influance.maze.waypoints[25].addNeighbor(influance.maze.waypoints[13]);
-	influance.maze.waypoints[25].addNeighbor(influance.maze.waypoints[24]);
-	influance.maze.waypoints[25].addNeighbor(influance.maze.waypoints[26]);
-	influance.maze.waypoints[25].addNeighbor(influance.maze.waypoints[36]);
-	influance.maze.waypoints[26].addNeighbor(influance.maze.waypoints[15]);
-	influance.maze.waypoints[26].addNeighbor(influance.maze.waypoints[25]);
-	influance.maze.waypoints[26].addNeighbor(influance.maze.waypoints[27]);
-	influance.maze.waypoints[26].addNeighbor(influance.maze.waypoints[37]);
-	influance.maze.waypoints[27].addNeighbor(influance.maze.waypoints[21]);
-	influance.maze.waypoints[27].addNeighbor(influance.maze.waypoints[26]);
-	influance.maze.waypoints[27].addNeighbor(influance.maze.waypoints[28]);
-	influance.maze.waypoints[28].addNeighbor(influance.maze.waypoints[22]);
-	influance.maze.waypoints[28].addNeighbor(influance.maze.waypoints[27]);
-	influance.maze.waypoints[28].addNeighbor(influance.maze.waypoints[29]);
-	influance.maze.waypoints[29].addNeighbor(influance.maze.waypoints[18]);
-	influance.maze.waypoints[29].addNeighbor(influance.maze.waypoints[28]);
-	influance.maze.waypoints[29].addNeighbor(influance.maze.waypoints[40]);
-	influance.maze.waypoints[30].addNeighbor(influance.maze.waypoints[34]);
-	influance.maze.waypoints[31].addNeighbor(influance.maze.waypoints[35]);
-	influance.maze.waypoints[32].addNeighbor(influance.maze.waypoints[38]);
-	influance.maze.waypoints[33].addNeighbor(influance.maze.waypoints[39]);
-	influance.maze.waypoints[34].addNeighbor(influance.maze.waypoints[30]);
-	influance.maze.waypoints[34].addNeighbor(influance.maze.waypoints[35]);
-	influance.maze.waypoints[35].addNeighbor(influance.maze.waypoints[31]);
-	influance.maze.waypoints[35].addNeighbor(influance.maze.waypoints[34]);
-	influance.maze.waypoints[35].addNeighbor(influance.maze.waypoints[36]);
-	influance.maze.waypoints[36].addNeighbor(influance.maze.waypoints[25]);
-	influance.maze.waypoints[36].addNeighbor(influance.maze.waypoints[35]);
-	influance.maze.waypoints[36].addNeighbor(influance.maze.waypoints[37]);
-	influance.maze.waypoints[37].addNeighbor(influance.maze.waypoints[26]);
-	influance.maze.waypoints[37].addNeighbor(influance.maze.waypoints[36]);
-	influance.maze.waypoints[37].addNeighbor(influance.maze.waypoints[38]);
-	influance.maze.waypoints[38].addNeighbor(influance.maze.waypoints[32]);
-	influance.maze.waypoints[38].addNeighbor(influance.maze.waypoints[37]);
-	influance.maze.waypoints[38].addNeighbor(influance.maze.waypoints[39]);
-	influance.maze.waypoints[39].addNeighbor(influance.maze.waypoints[33]);
-	influance.maze.waypoints[39].addNeighbor(influance.maze.waypoints[38]);
-	influance.maze.waypoints[39].addNeighbor(influance.maze.waypoints[40]);
-	influance.maze.waypoints[40].addNeighbor(influance.maze.waypoints[29]);
-	influance.maze.waypoints[40].addNeighbor(influance.maze.waypoints[39]);
+	influence.maze.waypoints[0].addNeighbor(influence.maze.waypoints[3]);
+	influence.maze.waypoints[1].addNeighbor(influence.maze.waypoints[4]);
+	influence.maze.waypoints[2].addNeighbor(influence.maze.waypoints[3]);
+	influence.maze.waypoints[2].addNeighbor(influence.maze.waypoints[15]);
+	influence.maze.waypoints[3].addNeighbor(influence.maze.waypoints[0]);
+	influence.maze.waypoints[3].addNeighbor(influence.maze.waypoints[2]);
+	influence.maze.waypoints[3].addNeighbor(influence.maze.waypoints[4]);
+	influence.maze.waypoints[4].addNeighbor(influence.maze.waypoints[1]);
+	influence.maze.waypoints[4].addNeighbor(influence.maze.waypoints[3]);
+	influence.maze.waypoints[4].addNeighbor(influence.maze.waypoints[5]);
+	influence.maze.waypoints[5].addNeighbor(influence.maze.waypoints[4]);
+	influence.maze.waypoints[5].addNeighbor(influence.maze.waypoints[18]);
+	influence.maze.waypoints[6].addNeighbor(influence.maze.waypoints[11]);
+	influence.maze.waypoints[7].addNeighbor(influence.maze.waypoints[12]);
+	influence.maze.waypoints[8].addNeighbor(influence.maze.waypoints[14]);
+	influence.maze.waypoints[9].addNeighbor(influence.maze.waypoints[16]);
+	influence.maze.waypoints[10].addNeighbor(influence.maze.waypoints[17]);
+	influence.maze.waypoints[11].addNeighbor(influence.maze.waypoints[6]);
+	influence.maze.waypoints[11].addNeighbor(influence.maze.waypoints[12]);
+	influence.maze.waypoints[12].addNeighbor(influence.maze.waypoints[7]);
+	influence.maze.waypoints[12].addNeighbor(influence.maze.waypoints[11]);
+	influence.maze.waypoints[12].addNeighbor(influence.maze.waypoints[13]);
+	influence.maze.waypoints[13].addNeighbor(influence.maze.waypoints[12]);
+	influence.maze.waypoints[13].addNeighbor(influence.maze.waypoints[14]);
+	influence.maze.waypoints[13].addNeighbor(influence.maze.waypoints[25]);
+	influence.maze.waypoints[14].addNeighbor(influence.maze.waypoints[8]);
+	influence.maze.waypoints[14].addNeighbor(influence.maze.waypoints[13]);
+	influence.maze.waypoints[14].addNeighbor(influence.maze.waypoints[15]);
+	influence.maze.waypoints[15].addNeighbor(influence.maze.waypoints[2]);
+	influence.maze.waypoints[15].addNeighbor(influence.maze.waypoints[14]);
+	influence.maze.waypoints[15].addNeighbor(influence.maze.waypoints[16]);
+	influence.maze.waypoints[16].addNeighbor(influence.maze.waypoints[9]);
+	influence.maze.waypoints[16].addNeighbor(influence.maze.waypoints[15]);
+	influence.maze.waypoints[16].addNeighbor(influence.maze.waypoints[17]);
+	influence.maze.waypoints[17].addNeighbor(influence.maze.waypoints[10]);
+	influence.maze.waypoints[17].addNeighbor(influence.maze.waypoints[16]);
+	influence.maze.waypoints[17].addNeighbor(influence.maze.waypoints[18]);
+	influence.maze.waypoints[19].addNeighbor(influence.maze.waypoints[23]);
+	influence.maze.waypoints[20].addNeighbor(influence.maze.waypoints[24]);
+	influence.maze.waypoints[21].addNeighbor(influence.maze.waypoints[27]);
+	influence.maze.waypoints[22].addNeighbor(influence.maze.waypoints[28]);
+	influence.maze.waypoints[23].addNeighbor(influence.maze.waypoints[19]);
+	influence.maze.waypoints[23].addNeighbor(influence.maze.waypoints[24]);
+	influence.maze.waypoints[24].addNeighbor(influence.maze.waypoints[20]);
+	influence.maze.waypoints[24].addNeighbor(influence.maze.waypoints[23]);
+	influence.maze.waypoints[24].addNeighbor(influence.maze.waypoints[25]);
+	influence.maze.waypoints[25].addNeighbor(influence.maze.waypoints[13]);
+	influence.maze.waypoints[25].addNeighbor(influence.maze.waypoints[24]);
+	influence.maze.waypoints[25].addNeighbor(influence.maze.waypoints[26]);
+	influence.maze.waypoints[25].addNeighbor(influence.maze.waypoints[36]);
+	influence.maze.waypoints[26].addNeighbor(influence.maze.waypoints[15]);
+	influence.maze.waypoints[26].addNeighbor(influence.maze.waypoints[25]);
+	influence.maze.waypoints[26].addNeighbor(influence.maze.waypoints[27]);
+	influence.maze.waypoints[26].addNeighbor(influence.maze.waypoints[37]);
+	influence.maze.waypoints[27].addNeighbor(influence.maze.waypoints[21]);
+	influence.maze.waypoints[27].addNeighbor(influence.maze.waypoints[26]);
+	influence.maze.waypoints[27].addNeighbor(influence.maze.waypoints[28]);
+	influence.maze.waypoints[28].addNeighbor(influence.maze.waypoints[22]);
+	influence.maze.waypoints[28].addNeighbor(influence.maze.waypoints[27]);
+	influence.maze.waypoints[28].addNeighbor(influence.maze.waypoints[29]);
+	influence.maze.waypoints[29].addNeighbor(influence.maze.waypoints[18]);
+	influence.maze.waypoints[29].addNeighbor(influence.maze.waypoints[28]);
+	influence.maze.waypoints[29].addNeighbor(influence.maze.waypoints[40]);
+	influence.maze.waypoints[30].addNeighbor(influence.maze.waypoints[34]);
+	influence.maze.waypoints[31].addNeighbor(influence.maze.waypoints[35]);
+	influence.maze.waypoints[32].addNeighbor(influence.maze.waypoints[38]);
+	influence.maze.waypoints[33].addNeighbor(influence.maze.waypoints[39]);
+	influence.maze.waypoints[34].addNeighbor(influence.maze.waypoints[30]);
+	influence.maze.waypoints[34].addNeighbor(influence.maze.waypoints[35]);
+	influence.maze.waypoints[35].addNeighbor(influence.maze.waypoints[31]);
+	influence.maze.waypoints[35].addNeighbor(influence.maze.waypoints[34]);
+	influence.maze.waypoints[35].addNeighbor(influence.maze.waypoints[36]);
+	influence.maze.waypoints[36].addNeighbor(influence.maze.waypoints[25]);
+	influence.maze.waypoints[36].addNeighbor(influence.maze.waypoints[35]);
+	influence.maze.waypoints[36].addNeighbor(influence.maze.waypoints[37]);
+	influence.maze.waypoints[37].addNeighbor(influence.maze.waypoints[26]);
+	influence.maze.waypoints[37].addNeighbor(influence.maze.waypoints[36]);
+	influence.maze.waypoints[37].addNeighbor(influence.maze.waypoints[38]);
+	influence.maze.waypoints[38].addNeighbor(influence.maze.waypoints[32]);
+	influence.maze.waypoints[38].addNeighbor(influence.maze.waypoints[37]);
+	influence.maze.waypoints[38].addNeighbor(influence.maze.waypoints[39]);
+	influence.maze.waypoints[39].addNeighbor(influence.maze.waypoints[33]);
+	influence.maze.waypoints[39].addNeighbor(influence.maze.waypoints[38]);
+	influence.maze.waypoints[39].addNeighbor(influence.maze.waypoints[40]);
+	influence.maze.waypoints[40].addNeighbor(influence.maze.waypoints[29]);
+	influence.maze.waypoints[40].addNeighbor(influence.maze.waypoints[39]);
 }
 
 function select(o) {
@@ -380,11 +380,11 @@ function select(o) {
 	}
 	guiShowSelection(o.portrait, actions);
 
-	influance.selected = o;
+	influence.selected = o;
 }
 
 function unselect() {
-	influance.selected = null;
+	influence.selected = null;
 	guiHideSelection();
 }
 
@@ -397,13 +397,13 @@ function action_goto() {
 	var from = null;
 	var to = null;
 	var dest = {
-		x: influance.selected.x + 6*16,
-		y: influance.selected.y + 7*16
+		x: influence.selected.x + 6*16,
+		y: influence.selected.y + 7*16
 	};
 	var i;
-	for (i = 0; i < influance.maze.waypoints.length; ++i) {
-		var wp = influance.maze.waypoints[i];
-		if (influance.currentCharacter.x == wp.x && influance.currentCharacter.y == wp.y) {
+	for (i = 0; i < influence.maze.waypoints.length; ++i) {
+		var wp = influence.maze.waypoints[i];
+		if (influence.currentCharacter.x == wp.x && influence.currentCharacter.y == wp.y) {
 			from = wp;
 		}
 		if (dest.x == wp.x && dest.y == wp.y) {
@@ -415,8 +415,8 @@ function action_goto() {
 		return;
 	}
 
-	var path = influance.maze.findPath(from, to);
-	influance.currentCharacter.followPath(path);
+	var path = influence.maze.findPath(from, to);
+	influence.currentCharacter.followPath(path);
 }
 
 function guiShowSelection(portrait, actions) {
@@ -434,7 +434,7 @@ function guiHideSelection() {
 }
 
 function guiShowCharacter(character) {
-	var action = influance.characterAction[character.currentAction];
+	var action = influence.characterAction[character.currentAction];
 	if (action != undefined) {
 		document.getElementById('charportrait').src = character.portrait;
 		document.getElementById('charicon').src = action.icon;
