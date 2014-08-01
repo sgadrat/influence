@@ -2,6 +2,16 @@ var influance = {
 	selected: null,
 	currentCharacter: null,
 	maze: null,
+	characterAction: {
+		'move': {
+			icon: 'imgs/icons/action/tiny_move.png',
+			description: 'Déplacement'
+		},
+		'idle': {
+			icon: 'imgs/icons/action/tiny_idle.png',
+			description: 'Innactif'
+		},
+	},
 };
 
 function Building(x, y) {
@@ -90,8 +100,14 @@ function Citizen(type, x, y) {
 	this.idleBot = 'chars.'+ type +'.idle.bot';
 	this.idleLeft = 'chars.'+ type +'.idle.left';
 
+	this.portrait = 'imgs/chars/'+ type +'_portrait.png';
+	this.currentAction = 'idle';
+
 	this.lastDir = 'bot';
 	this.onMove = function(origin, dest) {
+		this.currentAction = 'move';
+		guiShowCharacter(this);
+
 		var diffX = dest.x - origin.x;
 		var diffY = dest.y - origin.y;
 		if (diffX > 0) {
@@ -109,6 +125,9 @@ function Citizen(type, x, y) {
 		}
 	};
 	this.onStopMove = function() {
+		this.currentAction = 'idle';
+		guiShowCharacter(this);
+
 		if (this.lastDir == 'top') {
 			this.animation = this.idleTop;
 		}else if (this.lastDir == 'right') {
@@ -151,7 +170,7 @@ function init() {
 		'imgs/chars/0_idle_top.png',
 		'imgs/chars/0_walk_top_2.png',
 	];
-	animations['chars.0.walk.top'].durations = [200, 200, 200];
+	animations['chars.0.walk.top'].durations = [100, 100, 100];
 
 	animations['chars.0.walk.right'] = new rtge.Animation();
 	animations['chars.0.walk.right'].steps = [
@@ -159,7 +178,7 @@ function init() {
 		'imgs/chars/0_idle_right.png',
 		'imgs/chars/0_walk_right_2.png',
 	];
-	animations['chars.0.walk.right'].durations = [200, 200, 200];
+	animations['chars.0.walk.right'].durations = [100, 100, 100];
 
 	animations['chars.0.walk.bot'] = new rtge.Animation();
 	animations['chars.0.walk.bot'].steps = [
@@ -167,7 +186,7 @@ function init() {
 		'imgs/chars/0_idle_bot.png',
 		'imgs/chars/0_walk_bot_2.png',
 	];
-	animations['chars.0.walk.bot'].durations = [200, 200, 200];
+	animations['chars.0.walk.bot'].durations = [100, 100, 100];
 
 	animations['chars.0.walk.left'] = new rtge.Animation();
 	animations['chars.0.walk.left'].steps = [
@@ -175,7 +194,7 @@ function init() {
 		'imgs/chars/0_idle_left.png',
 		'imgs/chars/0_walk_left_2.png',
 	];
-	animations['chars.0.walk.left'].durations = [200, 200, 200];
+	animations['chars.0.walk.left'].durations = [100, 100, 100];
 
 	var objects = [
 		new Case(2*16, 15*16),
@@ -183,6 +202,7 @@ function init() {
 	];
 
 	influance.currentCharacter = new Citizen('0', 81*16, 48*16);
+	guiShowCharacter(influance.currentCharacter);
 	objects.push(influance.currentCharacter);
 
 	rtge.init(
@@ -209,6 +229,9 @@ function init() {
 			'imgs/chars/0_walk_left_0.png',
 			'imgs/chars/0_idle_left.png',
 			'imgs/chars/0_walk_left_2.png',
+			'imgs/chars/0_portrait.png',
+			'imgs/icons/action/tiny_idle.png',
+			'imgs/icons/action/tiny_move.png',
 		],
 		{
 			'worldClick': unselect
@@ -403,4 +426,14 @@ function guiShowSelection(portrait, actions) {
 
 function guiHideSelection() {
 	document.getElementById('selection').style.visibility = 'hidden';
+}
+
+function guiShowCharacter(character) {
+	var action = influance.characterAction[character.currentAction];
+	if (action != undefined) {
+		document.getElementById('charportrait').src = character.portrait;
+		document.getElementById('charicon').src = action.icon;
+		document.getElementById('charaction').innerHTML = action.description;
+		document.getElementById('character').style.visibility = 'visible';
+	}
 }
