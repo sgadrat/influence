@@ -2,6 +2,7 @@ var influence = {
 	selected: null,
 	currentCharacter: null,
 	maze: null,
+	dynasties: [],
 	characterAction: {
 		'move': {
 			icon: 'imgs/icons/action/tiny_move.png',
@@ -9,7 +10,7 @@ var influence = {
 		},
 		'idle': {
 			icon: 'imgs/icons/action/tiny_idle.png',
-			description: 'Innactif'
+			description: 'Inactif'
 		},
 	},
 };
@@ -18,6 +19,8 @@ function Building(x, y) {
 	rtge.DynObject.call(this);
 	this.x = x;
 	this.y = y;
+	this.anchorX = 6*16;
+	this.anchorY = 7*16;
 
 	this.actions = [
 		'goto',
@@ -29,6 +32,18 @@ function Case(x, y) {
 	this.animation = 'building.case';
 
 	this.portrait = 'imgs/case.jpg';
+
+	this.click = function(x, y) {
+		select(this);
+	}
+}
+
+function VacantLot(x, y) {
+	Building.call(this, x, y);
+	this.animation = 'building.vacant';
+
+	this.portrait = 'imgs/vacantlot.jpg';
+	this.actions.push('buy');
 
 	this.click = function(x, y) {
 		select(this);
@@ -89,8 +104,10 @@ function MovingObject(x, y) {
 	}
 }
 
-function Citizen(type, x, y) {
+function Citizen(type, firstName, dynasty, x, y) {
 	MovingObject.call(this, x, y);
+	this.firstName = firstName;
+	this.dynasty = dynasty;
 	this.animTop = 'chars.'+ type +'.walk.top';
 	this.animRight = 'chars.'+ type +'.walk.right';
 	this.animBot = 'chars.'+ type +'.walk.bot';
@@ -140,6 +157,11 @@ function Citizen(type, x, y) {
 	}
 }
 
+function Dynasty(name, wealth) {
+	this.name = name;
+	this.wealth = wealth;
+}
+
 function init() {
 	var animations = {};
 
@@ -147,6 +169,10 @@ function init() {
 	animBuildingCase.steps = ['imgs/case.jpg'];
 	animBuildingCase.durations = [600000];
 	animations['building.case'] = animBuildingCase;
+
+	animations['building.vacant'] = new rtge.Animation();
+	animations['building.vacant'].steps = ['imgs/vacantlot.jpg'];
+	animations['building.vacant'].durations = [600000];
 
 	animations['chars.0.idle.top'] = new rtge.Animation();
 	animations['chars.0.idle.top'].steps = ['imgs/chars/0_idle_top.png'];
@@ -197,12 +223,28 @@ function init() {
 	animations['chars.0.walk.left'].durations = [100, 100, 100];
 
 	var objects = [
-		new Case(2*16, 15*16),
-		new Case(17*16, 39*16),
+		new VacantLot(58*16, 10*16),
+		new VacantLot(73*16, 10*16),
+		new VacantLot(8*16, 22*16),
+		new VacantLot(23*16, 22*16),
+		new VacantLot(40*16, 22*16),
+		new VacantLot(58*16, 22*16),
+		new VacantLot(73*16, 22*16),
+		new VacantLot(8*16, 34*16),
+		new VacantLot(23*16, 34*16),
+		new VacantLot(58*16, 34*16),
+		new VacantLot(73*16, 34*16),
+		new VacantLot(8*16, 46*16),
+		new VacantLot(23*16, 46*16),
+		new VacantLot(58*16, 46*16),
+		new VacantLot(73*16, 46*16),
 	];
 
-	influence.currentCharacter = new Citizen('0', 81*16, 48*16);
+	influence.dynasties.push(new Dynasty('Ramorre', 8000));
+
+	influence.currentCharacter = new Citizen('0', 'George', 0, 81*16, 48*16);
 	guiShowCharacter(influence.currentCharacter);
+	guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
 	objects.push(influence.currentCharacter);
 
 	rtge.init(
@@ -216,7 +258,9 @@ function init() {
 		[
 			'imgs/map.jpg',
 			'imgs/case.jpg',
+			'imgs/vacantlot.jpg',
 			'imgs/icons/action/goto.png',
+			'imgs/icons/action/buy.png',
 			'imgs/chars/0_walk_top_0.png',
 			'imgs/chars/0_idle_top.png',
 			'imgs/chars/0_walk_top_2.png',
@@ -319,6 +363,9 @@ function init() {
 	influence.maze.waypoints[17].addNeighbor(influence.maze.waypoints[10]);
 	influence.maze.waypoints[17].addNeighbor(influence.maze.waypoints[16]);
 	influence.maze.waypoints[17].addNeighbor(influence.maze.waypoints[18]);
+	influence.maze.waypoints[18].addNeighbor(influence.maze.waypoints[5]);
+	influence.maze.waypoints[18].addNeighbor(influence.maze.waypoints[17]);
+	influence.maze.waypoints[18].addNeighbor(influence.maze.waypoints[29]);
 	influence.maze.waypoints[19].addNeighbor(influence.maze.waypoints[23]);
 	influence.maze.waypoints[20].addNeighbor(influence.maze.waypoints[24]);
 	influence.maze.waypoints[21].addNeighbor(influence.maze.waypoints[27]);
@@ -397,8 +444,8 @@ function action_goto() {
 	var from = null;
 	var to = null;
 	var dest = {
-		x: influence.selected.x + 6*16,
-		y: influence.selected.y + 7*16
+		x: influence.selected.x,
+		y: influence.selected.y
 	};
 	var i;
 	for (i = 0; i < influence.maze.waypoints.length; ++i) {
@@ -419,11 +466,14 @@ function action_goto() {
 	influence.currentCharacter.followPath(path);
 }
 
+function action_buy() {
+}
+
 function guiShowSelection(portrait, actions) {
 	document.getElementById('selectportrait').src = portrait;
 	var actionList = '';
 	for (var i = 0; i < actions.length; ++i) {
-		actionList += '<li><img src="'+ actions[i]['icon'] +'" onclick="action_'+ actions[i]['action'] +'()" /></li>';
+		actionList += '<li style="display:inline"><img src="'+ actions[i]['icon'] +'" onclick="action_'+ actions[i]['action'] +'()" /></li>';
 	}
 	document.getElementById('selectactions').innerHTML = actionList;
 	document.getElementById('selection').style.visibility = 'visible';
@@ -435,10 +485,17 @@ function guiHideSelection() {
 
 function guiShowCharacter(character) {
 	var action = influence.characterAction[character.currentAction];
-	if (action != undefined) {
-		document.getElementById('charportrait').src = character.portrait;
-		document.getElementById('charicon').src = action.icon;
-		document.getElementById('charaction').innerHTML = action.description;
-		document.getElementById('character').style.visibility = 'visible';
+	if (action == undefined) {
+		return;
 	}
+	document.getElementById('charportrait').src = character.portrait;
+	document.getElementById('charicon').src = action.icon;
+	document.getElementById('charaction').innerHTML = action.description;
+	document.getElementById('charname').innerHTML = character.firstName +' '+influence.dynasties[character.dynasty].name;
+	document.getElementById('character').style.visibility = 'visible';
+}
+
+function guiShowDynasty(dynasty) {
+	document.getElementById('dynmoney').innerHTML = ''+dynasty.wealth;
+	document.getElementById('dynasty').style.visibility = 'visible';
 }

@@ -8,15 +8,24 @@
 </head>
 <body onload="init();" style="margin:0; padding:0">
 	<canvas id="view" style="width:100%; height:100%"></canvas>
+
 	<div id="character" style="position:absolute; left:0; top:0; visibility:hidden">
 		<div style="background-color: black">
 			<img id="charportrait" style="border-style:outset; border-width:3px; border-color:brown" onclick="center(influence.currentCharacter)" />
+		</div>
+		<div style="background-color:black">
+			<span id="charname" style="color:white"></span>
 		</div>
 		<div style="width:100%; background-color:black">
 			<img id="charicon" />
 			<span id="charaction" style="color: white"></span>
 		</div>
 	</div>
+
+	<div id="dynasty" style="position:absolute; right:0; top:0; background-color:black; visibility: hidden">
+		<img src="imgs/icons/tiny_money.png" /> <span id="dynmoney" style="color:white"></span>
+	</div>
+
 	<div id="selection" style="position:absolute; left:0; bottom:0; visibility:hidden">
 		<div style="border-style:outset; border-width:3px; border-color:brown">
 			<img id="selectportrait" />
