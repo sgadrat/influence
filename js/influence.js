@@ -12,6 +12,10 @@ var influence = {
 			icon: 'imgs/icons/action/tiny_idle.png',
 			description: 'Inactif'
 		},
+		'buy': {
+			icon: 'imgs/icons/tiny_money.png',
+			description: 'Achat'
+		},
 	},
 };
 
@@ -44,10 +48,20 @@ function VacantLot(x, y) {
 
 	this.portrait = 'imgs/vacantlot.jpg';
 	this.actions.push('buy');
+	this.owner = null;
 
 	this.click = function(x, y) {
 		select(this);
-	}
+	};
+
+	this.getOwner = function() {
+		return this.owner;
+	};
+
+	this.setOwner = function(dynasty) {
+		this.owner = dynasty;
+		this.actions = ['goto'];
+	};
 }
 
 function MovingObject(x, y) {
@@ -119,11 +133,16 @@ function Citizen(type, firstName, dynasty, x, y) {
 
 	this.portrait = 'imgs/chars/'+ type +'_portrait.png';
 	this.currentAction = 'idle';
+	this.goal = null;
+
+	this.setCurrentAction = function(val) {
+		this.currentAction = val;
+		guiShowCharacter(this);
+	};
 
 	this.lastDir = 'bot';
 	this.onMove = function(origin, dest) {
-		this.currentAction = 'move';
-		guiShowCharacter(this);
+		this.setCurrentAction('move');
 
 		var diffX = dest.x - origin.x;
 		var diffY = dest.y - origin.y;
@@ -142,9 +161,6 @@ function Citizen(type, firstName, dynasty, x, y) {
 		}
 	};
 	this.onStopMove = function() {
-		this.currentAction = 'idle';
-		guiShowCharacter(this);
-
 		if (this.lastDir == 'top') {
 			this.animation = this.idleTop;
 		}else if (this.lastDir == 'right') {
@@ -154,7 +170,39 @@ function Citizen(type, firstName, dynasty, x, y) {
 		}else if (this.lastDir == 'left') {
 			this.animation = this.idleLeft;
 		}
-	}
+
+		if (this.goal != null) {
+			this.executeGoal();
+		}else {
+			this.setCurrentAction('idle');
+		}
+	};
+
+	this.executeGoal = function() {
+		if (this.goal.action == 'buy') {
+			this.buy(this.goal.target);
+		}
+		this.goal = null;
+	};
+
+	this.buy = function(target) {
+		var character = this;
+		setTimeout(
+			function() {
+				if (target.getOwner() == null) {
+					if (influence.dynasties[character.dynasty].wealth >= 1500) {
+						target.setOwner(character.dynasty);
+						influence.dynasties[character.dynasty].wealth -= 1500;
+						guiShowSelection(influence.selected);
+						guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+					}
+				}
+				character.setCurrentAction('idle');
+			},
+			3000
+		);
+		this.setCurrentAction('buy');
+	};
 }
 
 function Dynasty(name, wealth) {
@@ -418,14 +466,7 @@ function init() {
 }
 
 function select(o) {
-	actions = [];
-	for (var i = 0; i < o.actions.length; ++i) {
-		actions.push({
-			'icon': 'imgs/icons/action/'+ o.actions[i] +'.png',
-			'action': o.actions[i]
-		});
-	}
-	guiShowSelection(o.portrait, actions);
+	guiShowSelection(o);
 
 	influence.selected = o;
 }
@@ -467,10 +508,23 @@ function action_goto() {
 }
 
 function action_buy() {
+	action_goto();
+	influence.currentCharacter.goal = {
+		action: 'buy',
+		target: influence.selected
+	};
 }
 
-function guiShowSelection(portrait, actions) {
-	document.getElementById('selectportrait').src = portrait;
+function guiShowSelection(o) {
+	var actions = [];
+	for (var i = 0; i < o.actions.length; ++i) {
+		actions.push({
+			'icon': 'imgs/icons/action/'+ o.actions[i] +'.png',
+			'action': o.actions[i]
+		});
+	}
+
+	document.getElementById('selectportrait').src = o.portrait;
 	var actionList = '';
 	for (var i = 0; i < actions.length; ++i) {
 		actionList += '<li style="display:inline"><img src="'+ actions[i]['icon'] +'" onclick="action_'+ actions[i]['action'] +'()" /></li>';
