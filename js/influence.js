@@ -21,6 +21,16 @@ var influence = {
 			description: 'Construction'
 		},
 	},
+	basicBuildings: {
+		'baker': {
+			price: 1500,
+			description: 'Boulangerie',
+			icon: 'imgs/icons/buildings/baker.png',
+			constructor: function(x, y, owner) {
+				return new Baker(x, y, owner);
+			}
+		},
+	},
 };
 
 function Building(x, y, owner) {
@@ -250,29 +260,25 @@ function Citizen(type, firstName, dynasty, x, y) {
 		var character = this;
 		setTimeout(
 			function() {
-				var constructionPossible = true;
-				var price = 0;
-				if (params.buildingName == 'baker') {
-					price = 1500;
-				}
-				if (influence.dynasties[character.dynasty].wealth < price) {
-					constructionPossible = false;
+				var constructionPossible = params.buildingName in influence.basicBuildings;
+				var buildingInfo = null;
+				if (constructionPossible) {
+					buildingInfo = influence.basicBuildings[params.buildingName];
+					if (influence.dynasties[character.dynasty].wealth < buildingInfo.price) {
+						constructionPossible = false;
+					}
 				}
 
 				if (constructionPossible) {
-					var newBuilding = null;
-					if (params.buildingName == 'baker') {
-						newBuilding = new Baker(params.originalLot.x, params.originalLot.y, params.originalLot.owner);
-					}
+					var newBuilding = buildingInfo.constructor(params.originalLot.x, params.originalLot.y, params.originalLot.owner);
+					rtge.removeObject(params.originalLot);
+					rtge.addObject(newBuilding);
 
-					if (newBuilding != null) {
-						rtge.removeObject(params.originalLot);
-						rtge.addObject(newBuilding);
-
-						if (influence.selected == params.originalLot) {
-							select(newBuilding);
-						}
+					if (influence.selected == params.originalLot) {
+						select(newBuilding);
 					}
+					influence.dynasties[character.dynasty].wealth -= buildingInfo.price;
+					guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
 				}
 				character.setCurrentAction('idle');
 			},
@@ -547,6 +553,8 @@ function init() {
 	influence.maze.waypoints[39].addNeighbor(influence.maze.waypoints[40]);
 	influence.maze.waypoints[40].addNeighbor(influence.maze.waypoints[29]);
 	influence.maze.waypoints[40].addNeighbor(influence.maze.waypoints[39]);
+
+	guiFillFormBuild();
 }
 
 function select(o) {
@@ -659,4 +667,21 @@ function guiShowForm(formName) {
 
 function guiHideForm(formName) {
 	document.getElementById('form'+formName).style.visibility = 'hidden';
+}
+
+function guiFillFormBuild() {
+	var list = '';
+	for (var key in influence.basicBuildings) {
+		if (influence.basicBuildings.hasOwnProperty(key)) {
+			var buildingInfo = influence.basicBuildings[key]
+			list += 
+				'<ul onclick="construct(\''+ key +'\')">'+
+				'<li style="display: inline"><img src="'+ buildingInfo.icon +'" /></li>'+
+				'<li style="display: inline">'+ buildingInfo.description +'</li>'+
+				'<li style="display: inline"><img src="imgs/icons/tiny_money.png" /> '+ buildingInfo.price +'</li>'+
+				'</ul>'
+			;
+		}
+	}
+	document.getElementById('buildlist').innerHTML = list;
 }
