@@ -43,6 +43,7 @@ function Building(x, y, owner) {
 	this.y = y;
 	this.anchorX = 6*16;
 	this.anchorY = 7*16;
+	this.indoor = false;
 
 	this.actions = [
 		'goto',
@@ -61,8 +62,9 @@ function Building(x, y, owner) {
 function Case(x, y, owner) {
 	Building.call(this, x, y);
 	this.animation = 'building.case';
-
 	this.portrait = 'imgs/case.jpg';
+
+	this.indoor = true;
 
 	this.click = function(x, y) {
 		select(this);
@@ -72,8 +74,8 @@ function Case(x, y, owner) {
 function VacantLot(x, y, owner) {
 	Building.call(this, x, y);
 	this.animation = 'building.vacant';
-
 	this.portrait = 'imgs/vacantlot.jpg';
+
 	this.actions.push('buy');
 	this.actions.push('construct');
 
@@ -85,8 +87,9 @@ function VacantLot(x, y, owner) {
 function Baker(x, y, owner) {
 	Building.call(this, x, y);
 	this.animation = 'building.baker';
-
 	this.portrait = 'imgs/baker.jpg';
+
+	this.indoor = true;
 
 	this.click = function(x, y) {
 		select(this);
@@ -166,6 +169,7 @@ function Citizen(type, firstName, dynasty, x, y) {
 	this.currentAction = 'idle';
 	this.goal = null;
 	this.actionTimeout = null;
+	this.indoorDestination = false;
 
 	this.getActions = function(target) {
 		var actions = [];
@@ -196,6 +200,7 @@ function Citizen(type, firstName, dynasty, x, y) {
 	this.lastDir = 'bot';
 	this.onBeginMove = function() {
 		this.cancelCurrentAction();
+		this.visible = true;
 	};
 	this.onMove = function(origin, dest) {
 		this.setCurrentAction('move');
@@ -225,6 +230,10 @@ function Citizen(type, firstName, dynasty, x, y) {
 			this.animation = this.idleBot;
 		}else if (this.lastDir == 'left') {
 			this.animation = this.idleLeft;
+		}
+
+		if (this.indoorDestination) {
+			this.visible = false;
 		}
 
 		if (this.goal != null) {
@@ -625,6 +634,7 @@ function action_goto() {
 
 	var path = influence.maze.findPath(from, to);
 	influence.currentCharacter.followPath(path);
+	influence.currentCharacter.indoorDestination = influence.selected.indoor;
 }
 
 function action_buy() {
