@@ -97,6 +97,7 @@ function MovingObject(x, y) {
 	rtge.DynObject.call(this);
 	this.x = x;
 	this.y = y;
+	this.z = 1;
 	this.anchorY = 11;
 	this.animation = 'chars.0.idle.bot';
 
