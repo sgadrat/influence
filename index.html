@@ -9,7 +9,7 @@
 <body onload="init();" style="margin:0; padding:0">
 	<canvas id="view" style="width:100%; height:100%"></canvas>
 
-	<div id="character" style="position:absolute; left:0; top:0; visibility:hidden">
+	<div id="character" style="position:absolute; left:0; top:0; visibility:hidden; z-index:1">
 		<div style="background-color: black">
 			<img id="charportrait" style="border-style:outset; border-width:3px; border-color:brown" onclick="center(influence.currentCharacter)" />
 		</div>
@@ -22,17 +22,29 @@
 		</div>
 	</div>
 
-	<div id="dynasty" style="position:absolute; right:0; top:0; background-color:black; visibility: hidden">
+	<div id="dynasty" style="position:absolute; right:0; top:0; background-color:black; visibility:hidden; z-index:1">
 		<img src="imgs/icons/tiny_money.png" /> <span id="dynmoney" style="color:white"></span>
 	</div>
 
-	<div id="selection" style="position:absolute; left:0; bottom:0; visibility:hidden">
+	<div id="selection" style="position:absolute; left:0; bottom:0; visibility:hidden; z-index:1">
 		<div style="border-style:outset; border-width:3px; border-color:brown">
 			<img id="selectportrait" />
 		</div>
 		<ul id="selectactions" style="margin:0; padding:0">
 		</ul>
 	</div>
-	<!-- <div id="logs"></div> -->
+
+	<div id="formbuild" style="position:absolute; left:0; top:0; width:100%; height:100%; visibility:hidden; z-index:2">
+		<div style="position:absolute; left:25%; top:25%; width:50%; height:50%; background-color:black; color:white">
+			<span style="position:absolute; top:0; right:0" onclick="guiHideForm('build')">X</span>
+			<ul>
+				<ul onclick="construct('baker')">
+					<li style="display: inline"><img src="imgs/icons/buildings/baker.png" /></li>
+					<li style="display: inline">Boulangerie</li>
+					<li style="display: inline"><img src="imgs/icons/tiny_money.png" /> 5000</li>
+				</ul>
+			</ul>
+		</div>
+	</div>
 </body>
 </html>

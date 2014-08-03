@@ -16,10 +16,18 @@ var influence = {
 			icon: 'imgs/icons/tiny_money.png',
 			description: 'Achat'
 		},
+		'construct': {
+			icon: 'imgs/icons/action/tiny_construct.png',
+			description: 'Construction'
+		},
 	},
 };
 
-function Building(x, y) {
+function Building(x, y, owner) {
+	if (typeof owner === "undefined") {
+		owner = null;
+	}
+
 	rtge.DynObject.call(this);
 	this.x = x;
 	this.y = y;
@@ -29,9 +37,18 @@ function Building(x, y) {
 	this.actions = [
 		'goto',
 	];
+	this.owner = null;
+
+	this.getOwner = function() {
+		return this.owner;
+	};
+
+	this.setOwner = function(dynasty) {
+		this.owner = dynasty;
+	};
 }
 
-function Case(x, y) {
+function Case(x, y, owner) {
 	Building.call(this, x, y);
 	this.animation = 'building.case';
 
@@ -42,26 +59,28 @@ function Case(x, y) {
 	}
 }
 
-function VacantLot(x, y) {
+function VacantLot(x, y, owner) {
 	Building.call(this, x, y);
 	this.animation = 'building.vacant';
 
 	this.portrait = 'imgs/vacantlot.jpg';
 	this.actions.push('buy');
-	this.owner = null;
+	this.actions.push('construct');
 
 	this.click = function(x, y) {
 		select(this);
 	};
+}
 
-	this.getOwner = function() {
-		return this.owner;
-	};
+function Baker(x, y, owner) {
+	Building.call(this, x, y);
+	this.animation = 'building.baker';
 
-	this.setOwner = function(dynasty) {
-		this.owner = dynasty;
-		this.actions = ['goto'];
-	};
+	this.portrait = 'imgs/baker.jpg';
+
+	this.click = function(x, y) {
+		select(this);
+	}
 }
 
 function MovingObject(x, y) {
@@ -135,6 +154,27 @@ function Citizen(type, firstName, dynasty, x, y) {
 	this.currentAction = 'idle';
 	this.goal = null;
 
+	this.getActions = function(target) {
+		var actions = [];
+		for (var i = 0; i < target.actions.length; ++i) {
+			var pushIt = true;
+			if (target.actions[i] == 'buy') {
+				if (target.owner != null) {
+					pushIt = false;
+				}
+			}else if (target.actions[i] == 'construct') {
+				if (target.owner != this.dynasty) {
+					pushIt = false;
+				}
+			}
+
+			if (pushIt) {
+				actions.push(target.actions[i]);
+			}
+		}
+		return actions;
+	};
+
 	this.setCurrentAction = function(val) {
 		this.currentAction = val;
 		guiShowCharacter(this);
@@ -181,6 +221,8 @@ function Citizen(type, firstName, dynasty, x, y) {
 	this.executeGoal = function() {
 		if (this.goal.action == 'buy') {
 			this.buy(this.goal.target);
+		}else if(this.goal.action == 'construct') {
+			this.construct(this.goal);
 		}
 		this.goal = null;
 	};
@@ -193,7 +235,7 @@ function Citizen(type, firstName, dynasty, x, y) {
 					if (influence.dynasties[character.dynasty].wealth >= 1500) {
 						target.setOwner(character.dynasty);
 						influence.dynasties[character.dynasty].wealth -= 1500;
-						guiShowSelection(influence.selected);
+						guiShowSelection(influence.selected, influence.currentCharacter);
 						guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
 					}
 				}
@@ -202,6 +244,41 @@ function Citizen(type, firstName, dynasty, x, y) {
 			3000
 		);
 		this.setCurrentAction('buy');
+	};
+
+	this.construct = function(params) {
+		var character = this;
+		setTimeout(
+			function() {
+				var constructionPossible = true;
+				var price = 0;
+				if (params.buildingName == 'baker') {
+					price = 1500;
+				}
+				if (influence.dynasties[character.dynasty].wealth < price) {
+					constructionPossible = false;
+				}
+
+				if (constructionPossible) {
+					var newBuilding = null;
+					if (params.buildingName == 'baker') {
+						newBuilding = new Baker(params.originalLot.x, params.originalLot.y, params.originalLot.owner);
+					}
+
+					if (newBuilding != null) {
+						rtge.removeObject(params.originalLot);
+						rtge.addObject(newBuilding);
+
+						if (influence.selected == params.originalLot) {
+							select(newBuilding);
+						}
+					}
+				}
+				character.setCurrentAction('idle');
+			},
+			3000
+		);
+		this.setCurrentAction('construct');
 	};
 }
 
@@ -221,6 +298,10 @@ function init() {
 	animations['building.vacant'] = new rtge.Animation();
 	animations['building.vacant'].steps = ['imgs/vacantlot.jpg'];
 	animations['building.vacant'].durations = [600000];
+
+	animations['building.baker'] = new rtge.Animation();
+	animations['building.baker'].steps = ['imgs/baker.jpg'];
+	animations['building.baker'].durations = [600000];
 
 	animations['chars.0.idle.top'] = new rtge.Animation();
 	animations['chars.0.idle.top'].steps = ['imgs/chars/0_idle_top.png'];
@@ -307,6 +388,7 @@ function init() {
 			'imgs/map.jpg',
 			'imgs/case.jpg',
 			'imgs/vacantlot.jpg',
+			'imgs/baker.jpg',
 			'imgs/icons/action/goto.png',
 			'imgs/icons/action/buy.png',
 			'imgs/chars/0_walk_top_0.png',
@@ -324,6 +406,8 @@ function init() {
 			'imgs/chars/0_portrait.png',
 			'imgs/icons/action/tiny_idle.png',
 			'imgs/icons/action/tiny_move.png',
+			'imgs/icons/action/tiny_construct.png',
+			'imgs/icons/tiny_money.png',
 		],
 		{
 			'worldClick': unselect
@@ -466,7 +550,7 @@ function init() {
 }
 
 function select(o) {
-	guiShowSelection(o);
+	guiShowSelection(o, influence.currentCharacter);
 
 	influence.selected = o;
 }
@@ -479,6 +563,16 @@ function unselect() {
 function center(o) {
 	rtge.camera.x = o.x - rtge.canvas.width / 2;
 	rtge.camera.y = o.y - rtge.canvas.height / 2;
+}
+
+function construct(buildingName) {
+	action_goto();
+	influence.currentCharacter.goal = {
+		action: 'construct',
+		buildingName: 'baker',
+		originalLot: influence.selected
+	};
+	guiHideForm('build');
 }
 
 function action_goto() {
@@ -515,12 +609,17 @@ function action_buy() {
 	};
 }
 
-function guiShowSelection(o) {
+function action_construct() {
+	guiShowForm('build');
+}
+
+function guiShowSelection(o, character) {
+	var rawActions = character.getActions(o);
 	var actions = [];
-	for (var i = 0; i < o.actions.length; ++i) {
+	for (var i = 0; i < rawActions.length; ++i) {
 		actions.push({
-			'icon': 'imgs/icons/action/'+ o.actions[i] +'.png',
-			'action': o.actions[i]
+			'icon': 'imgs/icons/action/'+ rawActions[i] +'.png',
+			'action': rawActions[i]
 		});
 	}
 
@@ -552,4 +651,12 @@ function guiShowCharacter(character) {
 function guiShowDynasty(dynasty) {
 	document.getElementById('dynmoney').innerHTML = ''+dynasty.wealth;
 	document.getElementById('dynasty').style.visibility = 'visible';
+}
+
+function guiShowForm(formName) {
+	document.getElementById('form'+formName).style.visibility = 'visible';
+}
+
+function guiHideForm(formName) {
+	document.getElementById('form'+formName).style.visibility = 'hidden';
 }
