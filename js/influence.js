@@ -114,6 +114,7 @@ function MovingObject(x, y) {
 			x: this.x,
 			y: this.y
 		};
+		this.onBeginMove();
 
 		this.tick = function(timeElapsed) {
 			this.movingTime += timeElapsed;
@@ -163,6 +164,7 @@ function Citizen(type, firstName, dynasty, x, y) {
 	this.portrait = 'imgs/chars/'+ type +'_portrait.png';
 	this.currentAction = 'idle';
 	this.goal = null;
+	this.actionTimeout = null;
 
 	this.getActions = function(target) {
 		var actions = [];
@@ -191,6 +193,9 @@ function Citizen(type, firstName, dynasty, x, y) {
 	};
 
 	this.lastDir = 'bot';
+	this.onBeginMove = function() {
+		this.cancelCurrentAction();
+	};
 	this.onMove = function(origin, dest) {
 		this.setCurrentAction('move');
 
@@ -237,9 +242,19 @@ function Citizen(type, firstName, dynasty, x, y) {
 		this.goal = null;
 	};
 
+	this.cancelCurrentAction = function() {
+		if (this.actionTimeout != null) {
+			clearTimeout(this.actionTimeout);
+		}
+		this.goal = null;
+		if (this.currentAction != 'move') {
+			this.currentAction = 'idle';
+		}
+	}
+
 	this.buy = function(target) {
 		var character = this;
-		setTimeout(
+		this.actionTimeout = setTimeout(
 			function() {
 				if (target.getOwner() == null) {
 					if (influence.dynasties[character.dynasty].wealth >= 1500) {
@@ -250,6 +265,7 @@ function Citizen(type, firstName, dynasty, x, y) {
 					}
 				}
 				character.setCurrentAction('idle');
+				character.actionTimeout = null;
 			},
 			3000
 		);
@@ -258,7 +274,7 @@ function Citizen(type, firstName, dynasty, x, y) {
 
 	this.construct = function(params) {
 		var character = this;
-		setTimeout(
+		this.actionTimeout = setTimeout(
 			function() {
 				var constructionPossible = params.buildingName in influence.basicBuildings;
 				var buildingInfo = null;
@@ -281,6 +297,7 @@ function Citizen(type, firstName, dynasty, x, y) {
 					guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
 				}
 				character.setCurrentAction('idle');
+				character.actionTimeout = null;
 			},
 			3000
 		);
