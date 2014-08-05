@@ -30,6 +30,14 @@ var influence = {
 				return new Baker(x, y, owner);
 			}
 		},
+		'farm': {
+			price: 1000,
+			description: 'Ferme',
+			icon: 'imgs/icons/buildings/farm.png',
+			constructor: function(x, y, owner) {
+				return new Farm(x, y, owner);
+			}
+		},
 	},
 };
 
@@ -57,6 +65,10 @@ function Building(x, y, owner) {
 	this.setOwner = function(dynasty) {
 		this.owner = dynasty;
 	};
+
+	this.click = function(x, y) {
+		select(this);
+	}
 }
 
 function Case(x, y, owner) {
@@ -65,10 +77,6 @@ function Case(x, y, owner) {
 	this.portrait = 'imgs/case.jpg';
 
 	this.indoor = true;
-
-	this.click = function(x, y) {
-		select(this);
-	}
 }
 
 function VacantLot(x, y, owner) {
@@ -78,10 +86,6 @@ function VacantLot(x, y, owner) {
 
 	this.actions.push('buy');
 	this.actions.push('construct');
-
-	this.click = function(x, y) {
-		select(this);
-	};
 }
 
 function Baker(x, y, owner) {
@@ -90,10 +94,12 @@ function Baker(x, y, owner) {
 	this.portrait = 'imgs/baker.jpg';
 
 	this.indoor = true;
+}
 
-	this.click = function(x, y) {
-		select(this);
-	}
+function Farm(x, y, owner) {
+	Building.call(this, x, y);
+	this.animation = 'building.farm';
+	this.portrait = 'imgs/farm.jpg';
 }
 
 function MovingObject(x, y) {
@@ -336,6 +342,10 @@ function init() {
 	animations['building.baker'].steps = ['imgs/baker.jpg'];
 	animations['building.baker'].durations = [600000];
 
+	animations['building.farm'] = new rtge.Animation();
+	animations['building.farm'].steps = ['imgs/farm.jpg'];
+	animations['building.farm'].durations = [600000];
+
 	animations['chars.0.idle.top'] = new rtge.Animation();
 	animations['chars.0.idle.top'].steps = ['imgs/chars/0_idle_top.png'];
 	animations['chars.0.idle.top'].durations = [600000];
@@ -422,6 +432,7 @@ function init() {
 			'imgs/case.jpg',
 			'imgs/vacantlot.jpg',
 			'imgs/baker.jpg',
+			'imgs/farm.jpg',
 			'imgs/icons/action/goto.png',
 			'imgs/icons/action/buy.png',
 			'imgs/chars/0_walk_top_0.png',
@@ -604,7 +615,7 @@ function construct(buildingName) {
 	action_goto();
 	influence.currentCharacter.goal = {
 		action: 'construct',
-		buildingName: 'baker',
+		buildingName: buildingName,
 		originalLot: influence.selected
 	};
 	guiHideForm('build');
