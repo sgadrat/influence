@@ -41,5 +41,27 @@
 			</ul>
 		</div>
 	</div>
+
+	<div id="formmanage" style="position:absolute; left:0; top:0; width:100%; height:100%; visibility:hidden; z-index:2">
+		<div style="position:absolute; left:25%; top:25%; width:50%; height:50%; background-color:black; color:white; overflow-y:auto">
+			<span style="position:absolute; top:0; right:0" onclick="guiHideForm('manage')">X</span>
+			<div style="position:absolute; top:1em; left:0; width:75%">
+				<p style="margin-left:2em">Finances: <img src="imgs/icons/tiny_money.png" /> <span id="managemoney"></span> <img src="imgs/icons/tiny_add.png" /></p>
+				<p style="margin-left:2em">Production:</p>
+				<div style="margin-left:2em">
+					<ul id="manageproductibles" style="padding:0">
+					</ul>
+				</div>
+				<p style="margin-left:2em">Stock:</p>
+				<ul id="managestock" style="padding:0; margin-left:2em">
+				</ul>
+			</div>
+			<div style="position:absolute; top:1em; left:75%; width:25%">
+				<p>Personnages:</p>
+				<ul id="managepeople" style="padding:0; list-style-type:none">
+				</ul>
+			</div>
+		</div>
+	</div>
 </body>
 </html>

@@ -57,6 +57,9 @@ function Building(x, y, owner) {
 		'goto',
 	];
 	this.owner = null;
+	this.money = 0;
+	this.productibles = [];
+	this.stock = [];
 
 	this.getOwner = function() {
 		return this.owner;
@@ -100,6 +103,24 @@ function Farm(x, y, owner) {
 	Building.call(this, x, y);
 	this.animation = 'building.farm';
 	this.portrait = 'imgs/farm.jpg';
+	this.productibles = [
+		'strawberry',
+		'flour',
+	];
+	this.stock = [
+		null,
+		null,
+		null,
+		null,
+		null,
+		null,
+		null,
+		null,
+		null,
+		null,
+	];
+
+	this.actions.push('manage');
 }
 
 function MovingObject(x, y) {
@@ -162,6 +183,7 @@ function Citizen(type, firstName, dynasty, x, y) {
 	MovingObject.call(this, x, y);
 	this.firstName = firstName;
 	this.dynasty = dynasty;
+	this.inventory = [null, null];
 	this.animTop = 'chars.'+ type +'.walk.top';
 	this.animRight = 'chars.'+ type +'.walk.right';
 	this.animBot = 'chars.'+ type +'.walk.bot';
@@ -320,10 +342,23 @@ function Citizen(type, firstName, dynasty, x, y) {
 		this.setCurrentAction('construct');
 	};
 }
+Citizen.prototype = new MovingObject(0, 0);
 
 function Dynasty(name, wealth) {
 	this.name = name;
 	this.wealth = wealth;
+}
+
+function getMovingObjectsAt(pos) {
+	var i;
+	var res = [];
+	for (i = 0; i < rtge.state.objects.length; ++i) {
+		var o = rtge.state.objects[i];
+		if (o instanceof MovingObject && o.x == pos.x && o.y == pos.y) {
+			res.push(o);
+		}
+	}
+	return res;
 }
 
 function init() {
@@ -435,6 +470,7 @@ function init() {
 			'imgs/farm.jpg',
 			'imgs/icons/action/goto.png',
 			'imgs/icons/action/buy.png',
+			'imgs/icons/action/manage.png',
 			'imgs/chars/0_walk_top_0.png',
 			'imgs/chars/0_idle_top.png',
 			'imgs/chars/0_walk_top_2.png',
@@ -656,6 +692,10 @@ function action_buy() {
 	};
 }
 
+function action_manage() {
+	guiShowManage(influence.selected);
+}
+
 function action_construct() {
 	guiShowForm('build');
 }
@@ -698,6 +738,63 @@ function guiShowCharacter(character) {
 function guiShowDynasty(dynasty) {
 	document.getElementById('dynmoney').innerHTML = ''+dynasty.wealth;
 	document.getElementById('dynasty').style.visibility = 'visible';
+}
+
+function guiShowManage(building) {
+	var i;
+
+	document.getElementById('managemoney').innerHTML = ''+building.money;
+
+	var productibleList = '';
+	for (i = 0; i < building.productibles.length; ++i) {
+		productibleList += '<li style="display:inline"><img src="imgs/icons/products/'+ building.productibles[i] +'.png" /></li>';
+	}
+	document.getElementById('manageproductibles').innerHTML = productibleList;
+
+	var stocksList = '';
+	for (i = 0; i < building.stock.length; ++i) {
+		if (building.stock[i] == null) {
+			stocksList += '<li style="display:inline"><img src="imgs/icons/products/emptyslot.png" /></li>';
+		}else {
+			stocksList += '<li style="display:inline"><img src="imgs/icons/products/'+ building.stock[i].product +'.png" /></li>';
+		}
+	}
+	document.getElementById('managestock').innerHTML = stocksList;
+
+	var peoples = getMovingObjectsAt({x:building.x, y:building.y});
+	var peopleList = '';
+	for (i = 0; i < peoples.length; ++i) {
+		var name;
+		var portrait;
+		var inventory;
+
+		name = peoples[i].firstName +' '+influence.dynasties[peoples[i].dynasty].name;;
+		portrait = peoples[i].portrait;
+		inventory = '';
+		var j;
+		for (j = 0; j < peoples[i].inventory.length; ++j) {
+			if (peoples[i].inventory[j] == null) {
+				inventory += '<img src="imgs/icons/products/emptyslot.png" style="width:50%"/>';
+			}else {
+				inventory += '<img src="imgs/icons/products/'+ peoples[i].inventory[j].product +'.png" style="width:50%"/>';
+			}
+		}
+
+		peopleList +=
+			'<li>'+
+				'<p>'+ name +'</p>'+
+				'<div style="display:inline-block; width:30%; vertical-align:text-top">'+
+					'<img src="'+ portrait +'" style="width:100%" />'+
+				'</div>'+
+				'<div style="display:inline-block; width:60%; vertical-align:text-top">'+
+					inventory +
+				'</div>'+
+			'</li>'
+		;
+	}
+	document.getElementById('managepeople').innerHTML = peopleList;
+
+	guiShowForm('manage');
 }
 
 function guiShowForm(formName) {
