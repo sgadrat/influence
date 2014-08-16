@@ -3,7 +3,7 @@ var influence = {
 	currentCharacter: null,
 	maze: null,
 	dynasties: [],
-	characterAction: {}, // Filled in influence-characters.js
+	characterAction: {}, // Filled in influence-actions.js
 	basicBuildings: {},  // Filled in influence-buildings.js
 };
 
