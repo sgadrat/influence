@@ -1,19 +1,57 @@
 influence.characterAction = {
 	'move': {
 		icon: 'imgs/icons/action/tiny_move.png',
-		description: 'Déplacement'
+		description: 'Déplacement',
+		duration: null,
+		func: null
 	},
 	'idle': {
 		icon: 'imgs/icons/action/tiny_idle.png',
-		description: 'Inactif'
+		description: 'Inactif',
+		duration: null,
+		func: null
 	},
 	'buy': {
 		icon: 'imgs/icons/tiny_money.png',
-		description: 'Achat'
+		description: 'Achat',
+		duration: 3000,
+		func: function(params) {
+			if (params.target.getOwner() == null) {
+				if (influence.dynasties[params.actor.dynasty].wealth >= 1500) {
+					params.target.setOwner(params.actor.dynasty);
+					influence.dynasties[params.actor.dynasty].wealth -= 1500;
+					guiShowSelection(influence.selected, influence.currentCharacter);
+					guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+				}
+			}
+		}
 	},
 	'construct': {
 		icon: 'imgs/icons/action/tiny_construct.png',
-		description: 'Construction'
+		description: 'Construction',
+		duration: 3000,
+		func: function(params) {
+			var constructionPossible = params.buildingName in influence.basicBuildings;
+			var buildingInfo = null;
+			if (constructionPossible) {
+				buildingInfo = influence.basicBuildings[params.buildingName];
+				if (influence.dynasties[params.actor.dynasty].wealth < buildingInfo.price) {
+					constructionPossible = false;
+				}
+			}
+
+			if (constructionPossible) {
+				var newBuilding = buildingInfo.constructor(params.originalLot.x, params.originalLot.y, params.originalLot.owner);
+				rtge.removeObject(params.originalLot);
+				rtge.addObject(newBuilding);
+
+				if (influence.selected == params.originalLot) {
+					select(newBuilding);
+				}
+				influence.dynasties[params.actor.dynasty].wealth -= buildingInfo.price;
+				guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+			}
+		}
 	},
 };
 
@@ -166,12 +204,16 @@ function Citizen(type, firstName, dynasty, x, y) {
 	};
 
 	this.executeGoal = function() {
-		if (this.goal.action == 'buy') {
-			this.buy(this.goal.target);
-		}else if(this.goal.action == 'construct') {
-			this.construct(this.goal);
-		}
+		var goal = this.goal;
 		this.goal = null;
+		this.actionTimeout = setTimeout(
+			function() {
+				influence.characterAction[goal.action].func(goal);
+				goal.actor.finishedAction();
+			},
+			influence.characterAction[goal.action].duration
+		);
+		this.setCurrentAction(goal.action);
 	};
 
 	this.cancelCurrentAction = function() {
@@ -182,58 +224,11 @@ function Citizen(type, firstName, dynasty, x, y) {
 		if (this.currentAction != 'move') {
 			this.currentAction = 'idle';
 		}
-	}
-
-	this.buy = function(target) {
-		var character = this;
-		this.actionTimeout = setTimeout(
-			function() {
-				if (target.getOwner() == null) {
-					if (influence.dynasties[character.dynasty].wealth >= 1500) {
-						target.setOwner(character.dynasty);
-						influence.dynasties[character.dynasty].wealth -= 1500;
-						guiShowSelection(influence.selected, influence.currentCharacter);
-						guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
-					}
-				}
-				character.setCurrentAction('idle');
-				character.actionTimeout = null;
-			},
-			3000
-		);
-		this.setCurrentAction('buy');
 	};
 
-	this.construct = function(params) {
-		var character = this;
-		this.actionTimeout = setTimeout(
-			function() {
-				var constructionPossible = params.buildingName in influence.basicBuildings;
-				var buildingInfo = null;
-				if (constructionPossible) {
-					buildingInfo = influence.basicBuildings[params.buildingName];
-					if (influence.dynasties[character.dynasty].wealth < buildingInfo.price) {
-						constructionPossible = false;
-					}
-				}
-
-				if (constructionPossible) {
-					var newBuilding = buildingInfo.constructor(params.originalLot.x, params.originalLot.y, params.originalLot.owner);
-					rtge.removeObject(params.originalLot);
-					rtge.addObject(newBuilding);
-
-					if (influence.selected == params.originalLot) {
-						select(newBuilding);
-					}
-					influence.dynasties[character.dynasty].wealth -= buildingInfo.price;
-					guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
-				}
-				character.setCurrentAction('idle');
-				character.actionTimeout = null;
-			},
-			3000
-		);
-		this.setCurrentAction('construct');
+	this.finishedAction = function() {
+		this.setCurrentAction('idle');
+		this.actionTimeout = null;
 	};
 }
 Citizen.prototype = new MovingObject(0, 0);
@@ -247,6 +242,7 @@ function construct(buildingName) {
 	action_goto();
 	influence.currentCharacter.goal = {
 		action: 'construct',
+		actor: influence.currentCharacter,
 		buildingName: buildingName,
 		originalLot: influence.selected
 	};
@@ -284,6 +280,7 @@ function action_buy() {
 	action_goto();
 	influence.currentCharacter.goal = {
 		action: 'buy',
+		actor: influence.currentCharacter,
 		target: influence.selected
 	};
 }
