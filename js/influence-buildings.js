@@ -17,6 +17,17 @@ influence.basicBuildings = {
 	},
 };
 
+influence.productibles = {
+	'flour': {
+		baseMaterials: [],
+		work: 3
+	},
+	'strawberry': {
+		baseMaterials: [],
+		work: 2
+	},
+};
+
 function Building(x, y, owner) {
 	if (typeof owner === "undefined") {
 		owner = null;
@@ -35,6 +46,7 @@ function Building(x, y, owner) {
 	this.owner = null;
 	this.money = 0;
 	this.productibles = [];
+	this.production = [];
 	this.stock = [];
 
 	this.getOwner = function() {

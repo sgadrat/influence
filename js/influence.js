@@ -5,6 +5,7 @@ var influence = {
 	dynasties: [],
 	characterAction: {}, // Filled in influence-actions.js
 	basicBuildings: {},  // Filled in influence-buildings.js
+	productibles: {},    // Filled in influence-buildings.js
 };
 
 function init() {

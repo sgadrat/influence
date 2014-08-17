@@ -59,6 +59,13 @@ function guiShowManage(building) {
 	}
 	document.getElementById('managestock').innerHTML = stocksList;
 
+	var productionList = '';
+	for (i = 0; i < building.production.length; ++i) {
+		var o = building.production[i];
+		productionList += '<li><img src="imgs/icons/products/'+ o.product +'.png" />Travail: '+ o.work +'/'+ influence.productibles[o.product].work +'</li>';
+	}
+	document.getElementById('manageprodlist').innerHTML = productionList;
+
 	var peoples = getMovingObjectsAt({x:building.x, y:building.y});
 	var peopleList = '';
 	for (i = 0; i < peoples.length; ++i) {
