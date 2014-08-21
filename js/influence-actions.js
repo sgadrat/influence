@@ -78,6 +78,19 @@ function construct(buildingName) {
 	guiHideForm('build');
 }
 
+function fundBuilding() {
+	var dynasty = influence.dynasties[influence.currentCharacter.dynasty];
+	var building = influence.selected;
+	var value = 500;
+
+	if (dynasty.wealth >= value) {
+		dynasty.wealth -= value;
+		building.money += value;
+	}
+	guiFillFormManage(building);
+	guiShowDynasty(dynasty);
+}
+
 function action_goto() {
 	var from = null;
 	var to = null;
@@ -115,7 +128,8 @@ function action_buy() {
 }
 
 function action_manage() {
-	guiShowManage(influence.selected);
+	guiFillFormManage(influence.selected);
+	guiShowForm('manage');
 }
 
 function action_construct() {

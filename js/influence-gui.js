@@ -38,7 +38,32 @@ function guiShowDynasty(dynasty) {
 	document.getElementById('dynasty').style.visibility = 'visible';
 }
 
-function guiShowManage(building) {
+function guiShowForm(formName) {
+	document.getElementById('form'+formName).style.visibility = 'visible';
+}
+
+function guiHideForm(formName) {
+	document.getElementById('form'+formName).style.visibility = 'hidden';
+}
+
+function guiFillFormBuild() {
+	var list = '';
+	for (var key in influence.basicBuildings) {
+		if (influence.basicBuildings.hasOwnProperty(key)) {
+			var buildingInfo = influence.basicBuildings[key]
+			list += 
+				'<ul onclick="construct(\''+ key +'\')">'+
+				'<li style="display: inline"><img src="'+ buildingInfo.icon +'" /></li>'+
+				'<li style="display: inline">'+ buildingInfo.description +'</li>'+
+				'<li style="display: inline"><img src="imgs/icons/tiny_money.png" /> '+ buildingInfo.price +'</li>'+
+				'</ul>'
+			;
+		}
+	}
+	document.getElementById('buildlist').innerHTML = list;
+}
+
+function guiFillFormManage(building) {
 	var i;
 
 	document.getElementById('managemoney').innerHTML = ''+building.money;
@@ -98,31 +123,4 @@ function guiShowManage(building) {
 		;
 	}
 	document.getElementById('managepeople').innerHTML = peopleList;
-
-	guiShowForm('manage');
-}
-
-function guiShowForm(formName) {
-	document.getElementById('form'+formName).style.visibility = 'visible';
-}
-
-function guiHideForm(formName) {
-	document.getElementById('form'+formName).style.visibility = 'hidden';
-}
-
-function guiFillFormBuild() {
-	var list = '';
-	for (var key in influence.basicBuildings) {
-		if (influence.basicBuildings.hasOwnProperty(key)) {
-			var buildingInfo = influence.basicBuildings[key]
-			list += 
-				'<ul onclick="construct(\''+ key +'\')">'+
-				'<li style="display: inline"><img src="'+ buildingInfo.icon +'" /></li>'+
-				'<li style="display: inline">'+ buildingInfo.description +'</li>'+
-				'<li style="display: inline"><img src="imgs/icons/tiny_money.png" /> '+ buildingInfo.price +'</li>'+
-				'</ul>'
-			;
-		}
-	}
-	document.getElementById('buildlist').innerHTML = list;
 }
