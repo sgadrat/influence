@@ -79,7 +79,7 @@ function guiFillFormManage(building) {
 		if (building.stock[i] == null) {
 			stocksList += '<li style="display:inline"><img src="imgs/icons/products/emptyslot.png" /></li>';
 		}else {
-			stocksList += '<li style="display:inline"><img src="imgs/icons/products/'+ building.stock[i].product +'.png" /></li>';
+			stocksList += '<li style="display:inline; position:relative"><span style="position:absolute; bottom:5px; right:5px; color:black">'+ building.stock[i].number +'</span><img src="imgs/icons/products/'+ building.stock[i].product +'.png" /></li>';
 		}
 	}
 	document.getElementById('managestock').innerHTML = stocksList;
