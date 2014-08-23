@@ -110,3 +110,12 @@ function Farm(x, y, owner) {
 
 	this.actions.push('manage');
 }
+
+function production(product) {
+	var building = influence.selected;
+	building.production.push({
+		product: product,
+		work: 0
+	});
+	guiFillFormManage(building);
+}

@@ -70,7 +70,7 @@ function guiFillFormManage(building) {
 
 	var productibleList = '';
 	for (i = 0; i < building.productibles.length; ++i) {
-		productibleList += '<li style="display:inline"><img src="imgs/icons/products/'+ building.productibles[i] +'.png" /></li>';
+		productibleList += '<li style="display:inline"><img src="imgs/icons/products/'+ building.productibles[i] +'.png" onclick="production(\''+ building.productibles[i] +'\')" /></li>';
 	}
 	document.getElementById('manageproductibles').innerHTML = productibleList;
 
