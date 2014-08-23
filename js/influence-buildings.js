@@ -109,6 +109,7 @@ function Farm(x, y, owner) {
 	];
 
 	this.actions.push('manage');
+	this.actions.push('work');
 }
 
 function production(product) {

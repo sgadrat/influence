@@ -65,6 +65,44 @@ influence.characterAction = {
 			}
 		}
 	},
+	'work': {
+		icon: 'imgs/icons/action/tiny_construct.png',
+		description: 'Travail',
+		duration: 3000,
+		func: function(params) {
+			var salary = 500;
+
+			var workPossible = params.building.money >= salary && params.building.production.length > 0;
+
+			if (workPossible) {
+				params.building.money -= salary;
+				influence.dynasties[params.actor.dynasty].wealth += salary;
+
+				var prod = params.building.production[0];
+				prod.work += 1;
+				if (prod.work >= influence.productibles[prod.product].work) {
+					var slot;
+					for (slot = 0; slot < params.building.stock.length; ++slot) {
+						if (params.building.stock[slot] == null) {
+							params.building.stock[slot] = {
+								product: prod.product,
+								number: 1
+							};
+							break;
+						}
+						if (params.building.stock[slot].product == prod.product) {
+							params.building.stock[slot].number += 1;
+							break;
+						}
+					}
+					params.building.production.splice(0, 1);
+				}
+
+				guiFillFormManage(influence.selected);
+				guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+			}
+		}
+	},
 };
 
 function construct(buildingName) {
@@ -134,4 +172,13 @@ function action_manage() {
 
 function action_construct() {
 	guiShowForm('build');
+}
+
+function action_work() {
+	action_goto();
+	influence.currentCharacter.goal = {
+		action: 'work',
+		actor: influence.currentCharacter,
+		building: influence.selected
+	}
 }
