@@ -74,6 +74,9 @@ function Citizen(type, firstName, dynasty, x, y) {
 	this.actionTimeout = null;
 	this.indoorDestination = false;
 
+	this.index = influence.characters.length;
+	influence.characters.push(this);
+
 	this.getActions = function(target) {
 		var actions = [];
 		for (var i = 0; i < target.actions.length; ++i) {
