@@ -79,7 +79,7 @@ function guiFillFormManage(building) {
 		if (building.stock[i] == null) {
 			stocksList += '<li style="display:inline"><img src="imgs/icons/products/emptyslot.png" /></li>';
 		}else {
-			stocksList += '<li style="display:inline; position:relative"><span style="position:absolute; bottom:5px; right:5px; color:black">'+ building.stock[i].number +'</span><img src="imgs/icons/products/'+ building.stock[i].product +'.png" draggable="true" ondragstart="guiInventoryDragStart(influence.selected.stock, '+ building.stock[i].product +')" /></li>';
+			stocksList += '<li style="display:inline; position:relative" draggable="true" ondragstart="guiStartDragItem(event, \'building.'+ i +'\')"><span style="position:absolute; bottom:5px; right:5px; color:black">'+ building.stock[i].number +'</span><img src="imgs/icons/products/'+ building.stock[i].product +'.png" /></li>';
 		}
 	}
 	document.getElementById('managestock').innerHTML = stocksList;
@@ -106,7 +106,7 @@ function guiFillFormManage(building) {
 			if (peoples[i].inventory[j] == null) {
 				inventory += '<img src="imgs/icons/products/emptyslot.png" style="width:50%"/>';
 			}else {
-				inventory += '<img src="imgs/icons/products/'+ peoples[i].inventory[j].product +'.png" style="width:50%"/>';
+				inventory += '<img src="imgs/icons/products/'+ peoples[i].inventory[j].product +'.png" style="width:50%" draggable="true" ondragstart="guiStartDragItem(event, \'char.'+ peoples[i].index +'.'+ j +'\')"/>';
 			}
 		}
 
@@ -116,11 +116,84 @@ function guiFillFormManage(building) {
 				'<div style="display:inline-block; width:30%; vertical-align:text-top">'+
 					'<img src="'+ portrait +'" style="width:100%" />'+
 				'</div>'+
-				'<div style="display:inline-block; width:60%; vertical-align:text-top">'+
+				'<div style="display:inline-block; width:60%; vertical-align:text-top" ondragover="guiAllowDropItem(event, \'char.'+ peoples[i].index +'\')" ondrop="guiDropItem(event, \'char.'+ peoples[i].index +'\')">'+
 					inventory +
 				'</div>'+
 			'</li>'
 		;
 	}
 	document.getElementById('managepeople').innerHTML = peopleList;
+}
+
+function guiStartDragItem(e, itemId) {
+	e.dataTransfer.setData('application/x-item', itemId);
+}
+
+function guiAllowDropItem(e, inventoryId) {
+	if (e.dataTransfer.types.indexOf('application/x-item') != -1) {
+		var destInventory = null;
+		var splitedId = inventoryId.split('.');
+		if (splitedId[0] == 'building') {
+			destInventory = influence.selected.stock;
+		}else if (splitedId[0] == 'char') {
+			destInventory = influence.characters[splitedId[1]].inventory;
+		}
+		if (destInventory != null) {
+			var itemId = e.dataTransfer.getData('application/x-item');
+			var splitedItemId = itemId.split('.');
+			var originInventory = null;
+			var product = '';
+			if (splitedItemId[0] == 'building') {
+				originInventory = influence.selected.stock;
+				product = originInventory[splitedItemId[1]].product;
+			}else if (splitedItemId[0] == 'char') {
+				originInventory = influence.characters[splitedItemId[1]].inventory;
+				product = originInventory[splitedItemId[2]].product;
+			}
+			if (originInventory != destInventory) {
+				for (var i = 0; i < destInventory.length; ++i) {
+					if (destInventory[i] == null || destInventory[i].product == product) {
+						e.preventDefault();
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+function guiDropItem(e, inventoryId) {
+	e.preventDefault();
+	var destInventory = null;
+	var splitedId = inventoryId.split('.');
+	if (splitedId[0] == 'building') {
+		destInventory = influence.selected.stock;
+	}else if (splitedId[0] == 'char') {
+		destInventory = influence.characters[splitedId[1]].inventory;
+	}
+	if (destInventory != null) {
+		var itemId = e.dataTransfer.getData('application/x-item');
+		var splitedItemId = itemId.split('.');
+		var originInventory = null;
+		var originSlot = null;
+		if (splitedItemId[0] == 'building') {
+			originInventory = influence.selected.stock;
+			originSlot = parseInt(splitedItemId[1]);
+		}else if (splitedItemId[0] == 'char') {
+			originInventory = influence.characters[splitedItemId[1]].inventory;
+			originSlot = parseInt(splitedItemId[2]);
+		}
+		for (var i = 0; i < destInventory.length; ++i) {
+			if (destInventory[i] == null) {
+				destInventory[i] = originInventory[originSlot];
+				originInventory[originSlot] = null;
+				break;
+			}else if (destInventory[i].product == originInventory[originSlot].product) {
+				destInventory[i].number += originInventory[originSlot].number;
+				originInventory[originSlot] = null;
+				break;
+			}
+		}
+	}
+	guiFillFormManage(influence.selected);
 }
