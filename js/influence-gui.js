@@ -74,15 +74,7 @@ function guiFillFormManage(building) {
 	}
 	document.getElementById('manageproductibles').innerHTML = productibleList;
 
-	var stocksList = '';
-	for (i = 0; i < building.stock.length; ++i) {
-		if (building.stock[i] == null) {
-			stocksList += '<li style="display:inline"><img src="imgs/icons/products/emptyslot.png" /></li>';
-		}else {
-			stocksList += '<li style="display:inline; position:relative" draggable="true" ondragstart="guiStartDragItem(event, \'building.'+ i +'\')"><span style="position:absolute; bottom:5px; right:5px; color:black">'+ building.stock[i].number +'</span><img src="imgs/icons/products/'+ building.stock[i].product +'.png" /></li>';
-		}
-	}
-	document.getElementById('managestock').innerHTML = stocksList;
+	guiFillInventory(building.stock, 'building', document.getElementById('managestock'));
 
 	var productionList = '';
 	for (i = 0; i < building.production.length; ++i) {
@@ -92,37 +84,35 @@ function guiFillFormManage(building) {
 	document.getElementById('manageprodlist').innerHTML = productionList;
 
 	var peoples = getMovingObjectsAt({x:building.x, y:building.y});
-	var peopleList = '';
+	document.getElementById('managepeople').innerHTML = '';
 	for (i = 0; i < peoples.length; ++i) {
-		var name;
-		var portrait;
-		var inventory;
+		var name = peoples[i].firstName +' '+influence.dynasties[peoples[i].dynasty].name;
+		var portrait = peoples[i].portrait;
 
-		name = peoples[i].firstName +' '+influence.dynasties[peoples[i].dynasty].name;;
-		portrait = peoples[i].portrait;
-		inventory = '';
-		var j;
-		for (j = 0; j < peoples[i].inventory.length; ++j) {
-			if (peoples[i].inventory[j] == null) {
-				inventory += '<img src="imgs/icons/products/emptyslot.png" style="width:50%"/>';
-			}else {
-				inventory += '<img src="imgs/icons/products/'+ peoples[i].inventory[j].product +'.png" style="width:50%" draggable="true" ondragstart="guiStartDragItem(event, \'char.'+ peoples[i].index +'.'+ j +'\')"/>';
-			}
-		}
-
-		peopleList +=
+		document.getElementById('managepeople').innerHTML +=
 			'<li>'+
 				'<p>'+ name +'</p>'+
 				'<div style="display:inline-block; width:30%; vertical-align:text-top">'+
 					'<img src="'+ portrait +'" style="width:100%" />'+
 				'</div>'+
-				'<div style="display:inline-block; width:60%; vertical-align:text-top" ondragover="guiAllowDropItem(event, \'char.'+ peoples[i].index +'\')" ondrop="guiDropItem(event, \'char.'+ peoples[i].index +'\')">'+
-					inventory +
-				'</div>'+
+				'<ul id="managechar.'+ peoples[i].index +'" style="display:inline-block; width:60%; vertical-align:text-top; padding:0; margin:0" ondragover="guiAllowDropItem(event, \'char.'+ peoples[i].index +'\')" ondrop="guiDropItem(event, \'char.'+ peoples[i].index +'\')">'+
+				'</ul>'+
 			'</li>'
 		;
+		guiFillInventory(peoples[i].inventory, 'char.'+peoples[i].index, document.getElementById('managechar.'+peoples[i].index));
 	}
-	document.getElementById('managepeople').innerHTML = peopleList;
+}
+
+function guiFillInventory(inventory, inventoryName, displayUl) {
+	var stocksList = '';
+	for (i = 0; i < inventory.length; ++i) {
+		if (inventory[i] == null) {
+			stocksList += '<li style="display:inline"><img src="imgs/icons/products/emptyslot.png" style="max-width:50%" /></li>';
+		}else {
+			stocksList += '<li st/style="display:inline; position:relative" draggable="true" ondragstart="guiStartDragItem(event, \''+ inventoryName +'.'+ i +'\')"><span style="position:absolute; bottom:5px; right:5px; color:black">'+ inventory[i].number +'</span><img src="imgs/icons/products/'+ inventory[i].product +'.png" style="max-width:50%" /></li>';
+		}
+	}
+	displayUl.innerHTML = stocksList;
 }
 
 function guiStartDragItem(e, itemId) {
