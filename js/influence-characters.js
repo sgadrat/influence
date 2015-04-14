@@ -58,7 +58,7 @@ function Citizen(type, firstName, dynasty, x, y) {
 	MovingObject.call(this, x, y);
 	this.firstName = firstName;
 	this.dynasty = dynasty;
-	this.inventory = [null, null];
+	this.inventory = new Inventory(2);
 	this.animTop = 'chars.'+ type +'.walk.top';
 	this.animRight = 'chars.'+ type +'.walk.right';
 	this.animBot = 'chars.'+ type +'.walk.bot';

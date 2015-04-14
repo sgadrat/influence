@@ -6,7 +6,7 @@ var influence = {
 	characters: [],
 	characterAction: {}, // Filled in influence-actions.js
 	basicBuildings: {},  // Filled in influence-buildings.js
-	productibles: {},    // Filled in influence-buildings.js
+	productibles: {},    // Filled in influence-items.js
 };
 
 function init() {

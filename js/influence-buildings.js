@@ -17,30 +17,6 @@ influence.basicBuildings = {
 	},
 };
 
-influence.productibles = {
-	'flour': {
-		baseMaterials: [],
-		work: 3
-	},
-	'strawberry': {
-		baseMaterials: [],
-		work: 2
-	},
-	'jam': {
-		baseMaterials: [
-			{material: 'strawberry', number: 3},
-		],
-		work: 1
-	},
-	'pie': {
-		baseMaterials: [
-			{material: 'strawberry', number: 1},
-			{material: 'flour', number: 1},
-		],
-		work: 1
-	},
-};
-
 function Building(x, y, owner) {
 	if (typeof owner === "undefined") {
 		owner = null;
@@ -60,7 +36,7 @@ function Building(x, y, owner) {
 	this.money = 0;
 	this.productibles = [];
 	this.production = [];
-	this.stock = [];
+	this.stock = null;
 
 	this.getOwner = function() {
 		return this.owner;
@@ -102,18 +78,7 @@ function Baker(x, y, owner) {
 		'pie',
 		'jam',
 	];
-	this.stock = [
-		null,
-		null,
-		null,
-		null,
-		null,
-		null,
-		null,
-		null,
-		null,
-		null,
-	];
+	this.stock = new Inventory(10);
 
 	this.actions.push('manage');
 	this.actions.push('work');
@@ -127,18 +92,7 @@ function Farm(x, y, owner) {
 		'strawberry',
 		'flour',
 	];
-	this.stock = [
-		null,
-		null,
-		null,
-		null,
-		null,
-		null,
-		null,
-		null,
-		null,
-		null,
-	];
+	this.stock = new Inventory(10);
 
 	this.actions.push('manage');
 	this.actions.push('work');

@@ -76,16 +76,7 @@ influence.characterAction = {
 			if (workPossible) {
 				var materials = influence.productibles[params.building.production[0].product].baseMaterials;
 				for (var i = 0; i < materials.length; ++i) {
-					var found = false;
-					for (var j = 0; j < params.building.stock.length; ++j) {
-						if (params.building.stock[j] != null) {
-							if (params.building.stock[j].product == materials[i].material && params.building.stock[j].number >= materials[i].number) {
-								found = true;
-								break;
-							}
-						}
-					}
-					if (!found) {
+					if (! params.building.stock.containItems(materials[i].material, materials[i].number)) {
 						workPossible = false;
 						break;
 					}
@@ -101,33 +92,11 @@ influence.characterAction = {
 				if (prod.work >= influence.productibles[prod.product].work) {
 					var materials = influence.productibles[params.building.production[0].product].baseMaterials;
 					for (var i = 0; i < materials.length; ++i) {
-						for (var j = 0; j < params.building.stock.length; ++j) {
-							if (params.building.stock[j] != null) {
-								if (params.building.stock[j].product == materials[i].material && params.building.stock[j].number >= materials[i].number) {
-									params.building.stock[j].number -= materials[i].number;
-									if (params.building.stock[j].number == 0) {
-										params.building.stock[j] = null;
-									}
-									break;
-								}
-							}
+						if (! params.building.stock.removeItems(materials[i].material, materials[i].number)) {
+							alert('Bug found ! Unreachable code in work action');
 						}
 					}
-
-					var slot;
-					for (slot = 0; slot < params.building.stock.length; ++slot) {
-						if (params.building.stock[slot] == null) {
-							params.building.stock[slot] = {
-								product: prod.product,
-								number: 1
-							};
-							break;
-						}
-						if (params.building.stock[slot].product == prod.product) {
-							params.building.stock[slot].number += 1;
-							break;
-						}
-					}
+					params.building.stock.addItems(prod.product, 1);
 					params.building.production.splice(0, 1);
 				}
 

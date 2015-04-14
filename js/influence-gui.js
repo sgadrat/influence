@@ -117,11 +117,12 @@ function guiFillFormManage(building) {
 
 function guiFillInventory(inventory, inventoryName, displayUl) {
 	var stocksList = '';
-	for (i = 0; i < inventory.length; ++i) {
-		if (inventory[i] == null) {
+	for (i = 0; i < inventory.getNumberOfSlots(); ++i) {
+		var slot = inventory.getSlot(i);
+		if (slot === null) {
 			stocksList += '<li style="display:inline"><img src="imgs/icons/products/emptyslot.png" style="max-width:50%" /></li>';
 		}else {
-			stocksList += '<li st/style="display:inline; position:relative" draggable="true" ondragstart="guiStartDragItem(event, \''+ inventoryName +'.'+ i +'\')"><span style="position:absolute; bottom:5px; right:5px; color:black">'+ inventory[i].number +'</span><img src="imgs/icons/products/'+ inventory[i].product +'.png" style="max-width:50%" /></li>';
+			stocksList += '<li st/style="display:inline; position:relative" draggable="true" ondragstart="guiStartDragItem(event, \''+ inventoryName +'.'+ i +'\')"><span style="position:absolute; bottom:5px; right:5px; color:black">'+ slot.number +'</span><img src="imgs/icons/products/'+ slot.itemName +'.png" style="max-width:50%" /></li>';
 		}
 	}
 	displayUl.innerHTML = stocksList;
@@ -147,18 +148,13 @@ function guiAllowDropItem(e, inventoryId) {
 			var product = '';
 			if (splitedItemId[0] == 'building') {
 				originInventory = influence.selected.stock;
-				product = originInventory[splitedItemId[1]].product;
+				product = originInventory.getSlot(splitedItemId[1]).itemName;
 			}else if (splitedItemId[0] == 'char') {
 				originInventory = influence.characters[splitedItemId[1]].inventory;
-				product = originInventory[splitedItemId[2]].product;
+				product = originInventory.getSlot(splitedItemId[2]).itemName;
 			}
-			if (originInventory != destInventory) {
-				for (var i = 0; i < destInventory.length; ++i) {
-					if (destInventory[i] == null || destInventory[i].product == product) {
-						e.preventDefault();
-						break;
-					}
-				}
+			if (originInventory != destInventory && destInventory.hasSlotForItem(product)) {
+				e.preventDefault();
 			}
 		}
 	}
@@ -180,22 +176,13 @@ function guiDropItem(e, inventoryId) {
 		var originSlot = null;
 		if (splitedItemId[0] == 'building') {
 			originInventory = influence.selected.stock;
-			originSlot = parseInt(splitedItemId[1]);
+			originSlot = originInventory.getSlot(parseInt(splitedItemId[1]));
 		}else if (splitedItemId[0] == 'char') {
 			originInventory = influence.characters[splitedItemId[1]].inventory;
-			originSlot = parseInt(splitedItemId[2]);
+			originSlot = originInventory.getSlot(parseInt(splitedItemId[2]));
 		}
-		for (var i = 0; i < destInventory.length; ++i) {
-			if (destInventory[i] == null) {
-				destInventory[i] = originInventory[originSlot];
-				originInventory[originSlot] = null;
-				break;
-			}else if (destInventory[i].product == originInventory[originSlot].product) {
-				destInventory[i].number += originInventory[originSlot].number;
-				originInventory[originSlot] = null;
-				break;
-			}
-		}
+		destInventory.addItems(originSlot.itemName, originSlot.number);
+		originInventory.removeItems(originSlot.itemName, originSlot.number);
 	}
 	guiFillFormManage(influence.selected);
 }
