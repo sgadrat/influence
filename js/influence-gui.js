@@ -70,7 +70,19 @@ function guiFillFormManage(building) {
 
 	var productibleList = '';
 	for (i = 0; i < building.productibles.length; ++i) {
-		productibleList += '<li style="display:inline"><img src="imgs/icons/products/'+ building.productibles[i] +'.png" onclick="production(\''+ building.productibles[i] +'\')" /></li>';
+		var productName = building.productibles[i];
+		var productible = influence.productibles[productName];
+		var tooltip = productName +' ('+ productible.work +'UT)';
+		if (productible.baseMaterials.length > 0) {
+			tooltip += '\n';
+			for (var mat = 0; mat < productible.baseMaterials.length; mat++) {
+				if (mat > 0) {
+					tooltip += ', ';
+				}
+				tooltip += productible.baseMaterials[mat].number +' '+ productible.baseMaterials[mat].material;
+			}
+		}
+		productibleList += '<li style="display:inline"><img title="'+ tooltip +'" src="imgs/icons/products/'+ building.productibles[i] +'.png" onclick="production(\''+ building.productibles[i] +'\')" /></li>';
 	}
 	document.getElementById('manageproductibles').innerHTML = productibleList;
 

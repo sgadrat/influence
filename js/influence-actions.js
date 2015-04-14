@@ -73,6 +73,24 @@ influence.characterAction = {
 			var salary = 500;
 
 			var workPossible = params.building.money >= salary && params.building.production.length > 0;
+			if (workPossible) {
+				var materials = influence.productibles[params.building.production[0].product].baseMaterials;
+				for (var i = 0; i < materials.length; ++i) {
+					var found = false;
+					for (var j = 0; j < params.building.stock.length; ++j) {
+						if (params.building.stock[j] != null) {
+							if (params.building.stock[j].product == materials[i].material && params.building.stock[j].number >= materials[i].number) {
+								found = true;
+								break;
+							}
+						}
+					}
+					if (!found) {
+						workPossible = false;
+						break;
+					}
+				}
+			}
 
 			if (workPossible) {
 				params.building.money -= salary;
@@ -81,6 +99,21 @@ influence.characterAction = {
 				var prod = params.building.production[0];
 				prod.work += 1;
 				if (prod.work >= influence.productibles[prod.product].work) {
+					var materials = influence.productibles[params.building.production[0].product].baseMaterials;
+					for (var i = 0; i < materials.length; ++i) {
+						for (var j = 0; j < params.building.stock.length; ++j) {
+							if (params.building.stock[j] != null) {
+								if (params.building.stock[j].product == materials[i].material && params.building.stock[j].number >= materials[i].number) {
+									params.building.stock[j].number -= materials[i].number;
+									if (params.building.stock[j].number == 0) {
+										params.building.stock[j] = null;
+									}
+									break;
+								}
+							}
+						}
+					}
+
 					var slot;
 					for (slot = 0; slot < params.building.stock.length; ++slot) {
 						if (params.building.stock[slot] == null) {

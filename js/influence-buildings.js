@@ -26,6 +26,19 @@ influence.productibles = {
 		baseMaterials: [],
 		work: 2
 	},
+	'jam': {
+		baseMaterials: [
+			{material: 'strawberry', number: 3},
+		],
+		work: 1
+	},
+	'pie': {
+		baseMaterials: [
+			{material: 'strawberry', number: 1},
+			{material: 'flour', number: 1},
+		],
+		work: 1
+	},
 };
 
 function Building(x, y, owner) {
@@ -85,6 +98,25 @@ function Baker(x, y, owner) {
 	this.portrait = 'imgs/baker.jpg';
 
 	this.indoor = true;
+	this.productibles = [
+		'pie',
+		'jam',
+	];
+	this.stock = [
+		null,
+		null,
+		null,
+		null,
+		null,
+		null,
+		null,
+		null,
+		null,
+		null,
+	];
+
+	this.actions.push('manage');
+	this.actions.push('work');
 }
 
 function Farm(x, y, owner) {
