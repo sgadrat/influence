@@ -1,16 +1,19 @@
 influence.productibles = {
 	'flour': {
 		baseMaterials: [],
+		name: 'farine',
 		work: 3
 	},
 	'strawberry': {
 		baseMaterials: [],
+		name: 'fraise',
 		work: 2
 	},
 	'jam': {
 		baseMaterials: [
 			{material: 'strawberry', number: 3},
 		],
+		name: 'confiture',
 		work: 1
 	},
 	'pie': {
@@ -18,6 +21,7 @@ influence.productibles = {
 			{material: 'strawberry', number: 1},
 			{material: 'flour', number: 1},
 		],
+		name: 'tarte',
 		work: 1
 	},
 };
