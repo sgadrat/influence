@@ -61,6 +61,7 @@ function Inventory(capacity) {
 		}else {
 			this.slots[i].number += number;
 		}
+		return true;
 	};
 
 	/**

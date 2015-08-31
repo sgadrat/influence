@@ -15,6 +15,14 @@ influence.basicBuildings = {
 			return new Farm(x, y, owner);
 		}
 	},
+	'clearinghouse': {
+		price: 1000,
+		description: 'Maison des enchères',
+		icon: 'imgs/icons/buildings/clearinghouse.png',
+		constructor: function(x, y, owner) {
+			return new ClearingHouse(x, y, owner);
+		}
+	},
 };
 
 function Building(x, y, owner) {
@@ -36,7 +44,7 @@ function Building(x, y, owner) {
 	this.money = 0;
 	this.productibles = [];
 	this.production = [];
-	this.stock = null;
+	this.stock = new Inventory(0);
 
 	this.getOwner = function() {
 		return this.owner;
@@ -96,6 +104,16 @@ function Farm(x, y, owner) {
 
 	this.actions.push('manage');
 	this.actions.push('work');
+}
+
+function ClearingHouse(x, y, owner) {
+	Building.call(this, x, y);
+	this.animation = 'building.clearinghouse';
+	this.portrait = 'imgs/clearinghouse.jpg';
+
+	this.auctions = {};
+
+	this.actions.push('auction');
 }
 
 function production(product) {

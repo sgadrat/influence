@@ -184,3 +184,8 @@ function action_work() {
 		building: influence.selected
 	}
 }
+
+function action_auction() {
+	guiFillFormAuction(influence.selected);
+	guiShowForm('auction');
+}

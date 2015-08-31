@@ -95,24 +95,70 @@ function guiFillFormManage(building) {
 	}
 	document.getElementById('manageprodlist').innerHTML = productionList;
 
+	guiFillBuildingPeopleList(building, document.getElementById('managepeople'), 'managechar');
+}
+
+function guiFillBuildingPeopleList(building, domContainer, listId) {
 	var peoples = getMovingObjectsAt({x:building.x, y:building.y});
-	document.getElementById('managepeople').innerHTML = '';
+	domContainer.innerHTML = '';
 	for (i = 0; i < peoples.length; ++i) {
 		var name = peoples[i].firstName +' '+influence.dynasties[peoples[i].dynasty].name;
 		var portrait = peoples[i].portrait;
 
-		document.getElementById('managepeople').innerHTML +=
+		domContainer.innerHTML +=
 			'<li>'+
 				'<p>'+ name +'</p>'+
 				'<div style="display:inline-block; width:30%; vertical-align:text-top">'+
 					'<img src="'+ portrait +'" style="width:100%" />'+
 				'</div>'+
-				'<ul id="managechar.'+ peoples[i].index +'" style="display:inline-block; width:60%; vertical-align:text-top; padding:0; margin:0" ondragover="guiAllowDropItem(event, \'char.'+ peoples[i].index +'\')" ondrop="guiDropItem(event, \'char.'+ peoples[i].index +'\')">'+
+				'<ul id="'+ listId +'.'+ peoples[i].index +'" style="display:inline-block; width:60%; vertical-align:text-top; padding:0; margin:0" ondragover="guiAllowDropItem(event, \'char.'+ peoples[i].index +'\')" ondrop="guiDropItem(event, \'char.'+ peoples[i].index +'\')">'+
 				'</ul>'+
 			'</li>'
 		;
-		guiFillInventory(peoples[i].inventory, 'char.'+peoples[i].index, document.getElementById('managechar.'+peoples[i].index));
+		guiFillInventory(peoples[i].inventory, 'char.'+peoples[i].index, document.getElementById(listId+'.'+peoples[i].index));
 	}
+}
+
+function guiFillFormAuction(building) {
+	var oItemsList = document.getElementById('auctionproductlist');
+	var itemsList = '<select id="auctionproductselect" onchange="guiUpdateAuctions()">';
+	for (var p in influence.productibles) {
+		itemsList += '<option value="'+ p +'">'+ influence.productibles[p].name +'</option>';
+	}
+	itemsList += '</select>';
+	oItemsList.innerHTML = itemsList;
+
+	influence.guiVariables['formauction.sellslot'] = null;
+
+	guiUpdateAuctions(building);
+	guiFillBuildingPeopleList(building, document.getElementById('auctionpeople'), 'auctionchar');
+	guiShowItemAuction();
+}
+
+function guiUpdateAuctions(building) {
+	if (typeof building == 'undefined') {
+		building = influence.selected;
+	}
+	var product = document.getElementById('auctionproductselect').value;
+	var auctions = building.auctions[product];
+
+	auctionsTable = '<table style="color:white; width:100%">';
+	auctionsTable += '<tr><th>Quantité</th><th>Prix à l\'unité</th><th>Vendeur</th><th>Acheteur</th></tr>';
+	if (typeof auctions == 'undefined' || auctions.length == 0) {
+		auctionsTable += '<tr><td colspan="4">Aucune offre</td></tr>';
+	} else {
+		for (var i = 0; i < auctions.length; ++i) {
+			auctionsTable += '<tr>';
+			auctionsTable += '<td>'+ auctions[i]['quantity'] +'</td>';
+			auctionsTable += '<td><img src="imgs/icons/tiny_money.png" /> '+ auctions[i]['price'] +'</td>';
+			auctionsTable += '<td>'+ auctions[i]['seller'].firstName +' '+ influence.dynasties[auctions[i]['seller'].dynasty].name +'</td>';
+			auctionsTable += '<td><input type="button" value="Acheter" onclick="guiBuyAuction({product:\''+ product +'\', quantity:'+ auctions[i]['quantity'] +', price:'+ auctions[i]['price'] +', seller:'+ auctions[i]['seller'].index +'})" /></td>';
+			auctionsTable += '</tr>';
+		}
+	}
+	auctionsTable += '</table>';
+
+	document.getElementById('auctionauctionslist').innerHTML = auctionsTable;
 }
 
 function guiFillInventory(inventory, inventoryName, displayUl) {
@@ -185,4 +231,134 @@ function guiDropItem(e, inventoryId) {
 		originInventory.removeItems(originSlot.itemName, originSlot.number);
 	}
 	guiFillFormManage(influence.selected);
+}
+
+function guiDropItemAuction(event) {
+	event.preventDefault();
+	var itemId = event.dataTransfer.getData('application/x-item');
+	var splitedItemId = itemId.split('.');
+	var originInventory = null;
+	var originSlot = null;
+	if (splitedItemId[0] == 'building') {
+		originInventory = influence.selected.stock;
+		originSlot = originInventory.getSlot(parseInt(splitedItemId[1]));
+	}else if (splitedItemId[0] == 'char') {
+		originInventory = influence.characters[splitedItemId[1]].inventory;
+		originSlot = originInventory.getSlot(parseInt(splitedItemId[2]));
+	}
+
+	influence.guiVariables['formauction.sellslot'] = {
+		itemName: originSlot.itemName,
+		number: originSlot.number
+	};
+	guiShowItemAuction();
+}
+
+function guiShowItemAuction() {
+	var oDomSellSlot = document.getElementById('auctionsellslot');
+	var dataSellSlot = influence.guiVariables['formauction.sellslot'];
+	var htmlSlot;
+	if (dataSellSlot == null) {
+		htmlSlot = '<img src="imgs/icons/products/emptyslot.png" />';
+	} else {
+		htmlSlot = '<span style="position:absolute; bottom:5px; right:5px; color:black">'+ dataSellSlot.number +'</span><img src="imgs/icons/products/'+ dataSellSlot.itemName +'.png" />';
+	}
+	oDomSellSlot.innerHTML = htmlSlot;
+}
+
+function guiBuyAuction(order, building) {
+	// order = {
+	//     product: string product id
+	//     quantity: integer number to buy
+	//     price: inter price per item
+	//     seller: integer seller id
+	// }
+
+	if (typeof building == 'undefined') {
+		building = influence.selected;
+	}
+
+	// Verify that the buyer is wealthy enougth
+	var buyer = influence.currentCharacter;
+	var buyerDynasty = influence.dynasties[buyer.dynasty];
+	var totalPrice = order.quantity * order.price;
+	if (buyerDynasty.wealth < totalPrice) {
+		return;
+	}
+
+	// Search for an auction matching the order
+	var auctionIndex = null;
+	for (var i = 0; i < building.auctions[order.product].length; ++i) {
+		var auction = building.auctions[order.product][i];
+		if (
+			auction['quantity'] == order.quantity &&
+			auction['price'] == order.price &&
+			auction['seller'].index == order.seller
+		)
+		{
+			auctionIndex = i;
+			break;
+		}
+	}
+	if (auctionIndex === null) {
+		return;
+	}
+
+	// Move items to the buyer inventory
+	if (! buyer.inventory.addItems(order.product, order.quantity)) {
+		return;
+	}
+	building.auctions[order.product].splice(auctionIndex, 1);
+
+	// Distribute the money
+	buyerDynasty.wealth -= totalPrice;
+
+	// Refresh display
+	guiUpdateAuctions(building);
+	guiFillBuildingPeopleList(building, document.getElementById('auctionpeople'), 'auctionchar');
+	guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+}
+
+function guiPutAuction(order, building) {
+	// order = {
+	//     product: string product id
+	//     quantity: integer number to buy
+	//     price: inter price per item
+	//     seller: integer seller id
+	// }
+
+	if (typeof building == 'undefined') {
+		building = influence.selected;
+	}
+	if (typeof order == 'undefined') {
+		order = {
+			product: influence.guiVariables['formauction.sellslot'].itemName,
+			quantity: influence.guiVariables['formauction.sellslot'].number,
+			price: parseInt(document.getElementById('auctionsellnum').value),
+			seller: influence.currentCharacter.index
+		}
+	}
+
+	// Move items from seller's inventory to the auction house
+	var seller = influence.characters[order.seller];
+	if (! seller.inventory.containItems(order.product, order.quantity)) {
+		return;
+	}
+	auction = {
+		'quantity': order.quantity,
+		'price': order.price,
+		'seller': seller
+	};
+	if (order.product in building.auctions) {
+		building.auctions[order.product].push(auction);
+	}else {
+		building.auctions[order.product] = [auction];
+	}
+	seller.inventory.removeItems(order.product, order.quantity);
+
+	// Refresh display
+	influence.guiVariables['formauction.sellslot'] = null;
+	guiUpdateAuctions(building);
+	guiFillBuildingPeopleList(building, document.getElementById('auctionpeople'), 'auctionchar');
+	guiShowItemAuction();
 }
