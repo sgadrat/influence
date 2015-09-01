@@ -131,17 +131,25 @@ function fundBuilding() {
 	guiShowDynasty(dynasty);
 }
 
-function action_goto() {
+function action_goto(character, dest, indoorDest) {
+	if (typeof character == 'undefined') {
+		character = influence.currentCharacter;
+	}
+	if (typeof dest == 'undefined') {
+		dest = {
+			x: influence.selected.x,
+			y: influence.selected.y
+		};
+	}
+	if (typeof indoorDest == 'undefined') {
+		indoorDest = influence.selected.indoor;
+	}
 	var from = null;
 	var to = null;
-	var dest = {
-		x: influence.selected.x,
-		y: influence.selected.y
-	};
 	var i;
 	for (i = 0; i < influence.maze.waypoints.length; ++i) {
 		var wp = influence.maze.waypoints[i];
-		if (influence.currentCharacter.x == wp.x && influence.currentCharacter.y == wp.y) {
+		if (character.x == wp.x && character.y == wp.y) {
 			from = wp;
 		}
 		if (dest.x == wp.x && dest.y == wp.y) {
@@ -154,8 +162,8 @@ function action_goto() {
 	}
 
 	var path = influence.maze.findPath(from, to);
-	influence.currentCharacter.followPath(path);
-	influence.currentCharacter.indoorDestination = influence.selected.indoor;
+	character.followPath(path);
+	character.indoorDestination = indoorDest;
 }
 
 function action_buy() {

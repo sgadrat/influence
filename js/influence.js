@@ -101,11 +101,18 @@ function init() {
 	];
 
 	influence.dynasties.push(new Dynasty('Ramorre', 8000));
+	influence.dynasties.push(new Dynasty('Delvillajo', 1000000));
 
 	influence.currentCharacter = new Citizen('0', 'George', 0, 81*16, 48*16);
 	guiShowCharacter(influence.currentCharacter);
 	guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
 	objects.push(influence.currentCharacter);
+
+	var firstNames = ['Robert', 'Bob', 'Jean', 'Sylvain', 'Joël', 'Florent', 'Marc'];
+	for (var i = 0; i < firstNames.length; ++i) {
+		var c = new Citizen('0', firstNames[i], 1, 81*16, 48*16, aiBehaviourVillagerTick);
+		objects.push(c);
+	}
 
 	rtge.init(
 		'view',

@@ -13,6 +13,13 @@ function MovingObject(x, y) {
 	this.onMove = null;
 	this.onStopMove = null;
 
+	this.tickers = {};
+	this.tick = function(timeElapsed) {
+		for (tickerId in this.tickers) {
+			this.tickers[tickerId](this, timeElapsed);
+		}
+	}
+
 	this.followPath = function(path) {
 		this.path = path;
 		this.movingTime = 0;
@@ -22,39 +29,43 @@ function MovingObject(x, y) {
 		};
 		this.onBeginMove();
 
-		this.tick = function(timeElapsed) {
-			this.movingTime += timeElapsed;
-			var distance = Math.sqrt(Math.pow(this.path[0].x - this.origin.x, 2) + Math.pow(this.path[0].y - this.origin.y, 2));
+		this.tickers['MovingObject.move'] = function(_this, timeElapsed) {
+			_this.movingTime += timeElapsed;
+			var distance = Math.sqrt(Math.pow(_this.path[0].x - _this.origin.x, 2) + Math.pow(_this.path[0].y - _this.origin.y, 2));
 			var timeTarget = distance * 10;
-			var distanceX = this.path[0].x - this.origin.x;
-			var distanceY = this.path[0].y - this.origin.y;
-			var timeRatio = Math.min(1, this.movingTime / timeTarget);
-			this.x = this.origin.x + distanceX * timeRatio;
-			this.y = this.origin.y + distanceY * timeRatio;
+			var distanceX = _this.path[0].x - _this.origin.x;
+			var distanceY = _this.path[0].y - _this.origin.y;
+			var timeRatio = Math.min(1, _this.movingTime / timeTarget);
+			_this.x = _this.origin.x + distanceX * timeRatio;
+			_this.y = _this.origin.y + distanceY * timeRatio;
 
-			if (this.x == this.path[0].x && this.y == this.path[0].y) {
-				this.origin = {
-					x: this.path[0].x,
-					y: this.path[0].y
+			if (_this.x == _this.path[0].x && _this.y == _this.path[0].y) {
+				_this.origin = {
+					x: _this.path[0].x,
+					y: _this.path[0].y
 				};
-				this.path.splice(0, 1);
-				if (this.path.length == 0) {
-					this.tick = null;
-					if (this.onStopMove != null) {
-						this.onStopMove();
+				_this.path.splice(0, 1);
+				if (_this.path.length == 0) {
+					delete _this.tickers['MovingObject.move'];
+					if (_this.onStopMove != null) {
+						_this.onStopMove();
 					}
 					return;
 				}
-				this.movingTime = 0;
-				if (this.onMove != null) {
-					this.onMove(this.origin, this.path[0]);
+				_this.movingTime = 0;
+				if (_this.onMove != null) {
+					_this.onMove(_this.origin, _this.path[0]);
 				}
 			}
 		}
 	}
 }
 
-function Citizen(type, firstName, dynasty, x, y) {
+function Citizen(type, firstName, dynasty, x, y, behaviour) {
+	if (typeof behaviour == 'undefined') {
+		behaviour = null;
+	}
+
 	MovingObject.call(this, x, y);
 	this.firstName = firstName;
 	this.dynasty = dynasty;
@@ -67,6 +78,9 @@ function Citizen(type, firstName, dynasty, x, y) {
 	this.idleRight = 'chars.'+ type +'.idle.right';
 	this.idleBot = 'chars.'+ type +'.idle.bot';
 	this.idleLeft = 'chars.'+ type +'.idle.left';
+	if (behaviour !== null) {
+		this.tickers['Citizen.behaviour'] = function(_this, timeElasped) { behaviour(_this) };
+	}
 
 	this.portrait = 'imgs/chars/'+ type +'_portrait.png';
 	this.currentAction = 'idle';
@@ -100,7 +114,9 @@ function Citizen(type, firstName, dynasty, x, y) {
 
 	this.setCurrentAction = function(val) {
 		this.currentAction = val;
-		guiShowCharacter(this);
+		if (this === influence.currentCharacter) {
+			guiShowCharacter(this);
+		}
 	};
 
 	this.lastDir = 'bot';
