@@ -1,3 +1,8 @@
+influence.gods = [
+	{name: 'Athena'},
+	{name: 'Bacchus'},
+];
+
 function MovingObject(x, y) {
 	rtge.DynObject.call(this);
 	this.x = x;
@@ -198,4 +203,8 @@ Citizen.prototype = new MovingObject(0, 0);
 function Dynasty(name, wealth) {
 	this.name = name;
 	this.wealth = wealth;
+	this.godsBlessing = [];
+	for (var i = 0; i < influence.gods.length; ++i) {
+		this.godsBlessing.push(100);
+	}
 }

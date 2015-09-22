@@ -35,6 +35,13 @@ function guiShowCharacter(character) {
 
 function guiShowDynasty(dynasty) {
 	document.getElementById('dynmoney').innerHTML = ''+dynasty.wealth;
+
+	var oDomGodsList = document.getElementById('dynastygods');
+	oDomGodsList.innerHTML = '';
+	for (var i = 0; i < influence.gods.length; ++i) {
+		oDomGodsList.innerHTML += '<li>'+ influence.gods[i].name +': '+ dynasty.godsBlessing[i] +'</li>';
+	}
+
 	document.getElementById('dynasty').style.visibility = 'visible';
 }
 
