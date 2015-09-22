@@ -67,6 +67,15 @@ function Case(x, y, owner) {
 	this.indoor = true;
 }
 
+function Temple(x, y, owner) {
+	Building.call(this, x, y);
+	this.animation = 'building.temple';
+	this.portrait = 'imgs/temple.jpg';
+
+	this.indoor = true;
+	this.actions.push('pray');
+}
+
 function VacantLot(x, y, owner) {
 	Building.call(this, x, y);
 	this.animation = 'building.vacant';

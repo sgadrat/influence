@@ -105,6 +105,15 @@ influence.characterAction = {
 			}
 		}
 	},
+	'pray': {
+		icon: 'imgs/icons/action/tiny_pray.png',
+		description: 'Prière',
+		duration: 3000,
+		func: function(params) {
+			influence.dynasties[params.actor.dynasty].godsBlessing[0] += 1;
+			guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+		}
+	},
 };
 
 function construct(buildingName) {
@@ -190,6 +199,26 @@ function action_work() {
 		action: 'work',
 		actor: influence.currentCharacter,
 		building: influence.selected
+	}
+}
+
+function action_pray(character, building) {
+	if (typeof character == 'undefined') {
+		character = influence.currentCharacter;
+	}
+	if (typeof building == 'undefined') {
+		building = influence.selected;
+	}
+	var dest = {
+		x: building.x,
+		y: building.y
+	};
+	indoorDest = building.indoor;
+
+	action_goto(character, dest, indoorDest);
+	character.goal = {
+		action: 'pray',
+		actor: character
 	}
 }
 

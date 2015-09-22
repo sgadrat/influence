@@ -19,6 +19,10 @@ function init() {
 	animBuildingCase.durations = [600000];
 	animations['building.case'] = animBuildingCase;
 
+	animations['building.temple'] = new rtge.Animation();
+	animations['building.temple'].steps = ['imgs/temple.jpg'];
+	animations['building.temple'].durations = [600000];
+
 	animations['building.vacant'] = new rtge.Animation();
 	animations['building.vacant'].steps = ['imgs/vacantlot.jpg'];
 	animations['building.vacant'].durations = [600000];
@@ -93,7 +97,7 @@ function init() {
 		new VacantLot(73*16, 22*16),
 		new VacantLot(8*16, 34*16),
 		new VacantLot(23*16, 34*16),
-		new VacantLot(58*16, 34*16),
+		new Temple(58*16, 34*16),
 		new VacantLot(73*16, 34*16),
 		new VacantLot(8*16, 46*16),
 		new VacantLot(23*16, 46*16),
@@ -130,10 +134,12 @@ function init() {
 			'imgs/baker.jpg',
 			'imgs/farm.jpg',
 			'imgs/clearinghouse.jpg',
+			'imgs/temple.jpg',
 			'imgs/icons/action/goto.png',
 			'imgs/icons/action/buy.png',
 			'imgs/icons/action/manage.png',
 			'imgs/icons/action/auction.png',
+			'imgs/icons/action/pray.png',
 			'imgs/icons/buildings/baker.png',
 			'imgs/icons/buildings/clearinghouse.png',
 			'imgs/icons/buildings/farm.png',
@@ -152,6 +158,7 @@ function init() {
 			'imgs/chars/0_portrait.png',
 			'imgs/icons/action/tiny_idle.png',
 			'imgs/icons/action/tiny_move.png',
+			'imgs/icons/action/tiny_pray.png',
 			'imgs/icons/action/tiny_construct.png',
 			'imgs/icons/tiny_money.png',
 		],
