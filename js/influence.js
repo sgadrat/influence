@@ -109,8 +109,6 @@ function init() {
 	influence.dynasties.push(new Dynasty('Delvillajo', 1000000));
 
 	influence.currentCharacter = new Citizen('0', 'George', 0, 81*16, 48*16);
-	guiShowCharacter(influence.currentCharacter);
-	guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
 	objects.push(influence.currentCharacter);
 
 	var firstNames = ['Robert', 'Bob', 'Jean', 'Sylvain', 'Joël', 'Florent', 'Marc'];
@@ -301,7 +299,7 @@ function init() {
 	influence.maze.waypoints[40].addNeighbor(influence.maze.waypoints[29]);
 	influence.maze.waypoints[40].addNeighbor(influence.maze.waypoints[39]);
 
-	guiFillFormBuild();
+	guiEventReinit();
 }
 
 function getMovingObjectsAt(pos) {
@@ -317,9 +315,8 @@ function getMovingObjectsAt(pos) {
 }
 
 function select(o) {
-	guiShowSelection(o, influence.currentCharacter);
-
 	influence.selected = o;
+	guiShowSelection(o, influence.currentCharacter);
 }
 
 function unselect() {

@@ -119,9 +119,7 @@ function Citizen(type, firstName, dynasty, x, y, behaviour) {
 
 	this.setCurrentAction = function(val) {
 		this.currentAction = val;
-		if (this === influence.currentCharacter) {
-			guiShowCharacter(this);
-		}
+		guiEventCharacterActionChanged(this.index);
 	};
 
 	this.lastDir = 'bot';

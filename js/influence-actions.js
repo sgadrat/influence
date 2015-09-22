@@ -32,8 +32,10 @@ influence.characterAction = {
 				if (influence.dynasties[params.actor.dynasty].wealth >= 1500) {
 					params.target.setOwner(params.actor.dynasty);
 					influence.dynasties[params.actor.dynasty].wealth -= 1500;
-					guiShowSelection(influence.selected, influence.currentCharacter);
-					guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+					if (influence.selected === params.target) {
+						select(params.target);
+					}
+					guiEventDynastyModified(params.actor.dynasty);
 				}
 			}
 		}
@@ -61,7 +63,7 @@ influence.characterAction = {
 					select(newBuilding);
 				}
 				influence.dynasties[params.actor.dynasty].wealth -= buildingInfo.price;
-				guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+				guiEventDynastyModified(params.actor.dynasty);
 			}
 		}
 	},
@@ -101,7 +103,7 @@ influence.characterAction = {
 				}
 
 				guiFillFormManage(influence.selected);
-				guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+				guiEventDynastyModified(params.actor.dynasty);
 			}
 		}
 	},
@@ -111,7 +113,7 @@ influence.characterAction = {
 		duration: 3000,
 		func: function(params) {
 			influence.dynasties[params.actor.dynasty].godsBlessing[0] += 1;
-			guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+			guiEventDynastyModified(params.actor.dynasty);
 		}
 	},
 };
@@ -127,17 +129,24 @@ function construct(buildingName) {
 	guiHideForm('build');
 }
 
-function fundBuilding() {
-	var dynasty = influence.dynasties[influence.currentCharacter.dynasty];
-	var building = influence.selected;
-	var value = 500;
+function fundBuilding(character, building, value) {
+	if (typeof character == 'undefined') {
+		character = influence.currentCharacter;
+	}
+	if (typeof building == 'undefined') {
+		building = influence.selected;
+	}
+	if (typeof value == 'undefined') {
+		value = 500;
+	}
+	var dynasty = influence.dynasties[character.dynasty];
 
 	if (dynasty.wealth >= value) {
 		dynasty.wealth -= value;
 		building.money += value;
 	}
 	guiFillFormManage(building);
-	guiShowDynasty(dynasty);
+	guiEventDynastyModified(character.dynasty);
 }
 
 function action_goto(character, dest, indoorDest) {

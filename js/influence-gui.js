@@ -369,3 +369,21 @@ function guiPutAuction(order, building) {
 	guiFillBuildingPeopleList(building, document.getElementById('auctionpeople'), 'auctionchar');
 	guiShowItemAuction();
 }
+
+function guiEventDynastyModified(dynasty) {
+	if (dynasty == influence.currentCharacter.dynasty) {
+		guiShowDynasty(influence.dynasties[dynasty]);
+	}
+}
+
+function guiEventCharacterActionChanged(characterIndex) {
+	if (characterIndex == influence.currentCharacter.index) {
+		guiShowCharacter(influence.currentCharacter);
+	}
+}
+
+function guiEventReinit() {
+	guiShowCharacter(influence.currentCharacter);
+	guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+	guiFillFormBuild();
+}
