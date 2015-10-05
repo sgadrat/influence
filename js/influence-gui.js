@@ -382,8 +382,14 @@ function guiEventCharacterActionChanged(characterIndex) {
 	}
 }
 
+function guiEventDateChanged() {
+	var gameDate = getGameDate();
+	document.getElementById('dyntime').innerHTML = 'Date: '+gameDate.getUTCDate()+'/'+(gameDate.getUTCMonth()+1)+'/'+gameDate.getUTCFullYear();
+}
+
 function guiEventReinit() {
 	guiShowCharacter(influence.currentCharacter);
 	guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+	guiEventDateChanged();
 	guiFillFormBuild();
 }

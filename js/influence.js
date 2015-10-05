@@ -5,6 +5,9 @@ var influence = {
 	dynasties: [],
 	characters: [],
 	guiVariables: {},
+	gameTime: 0,
+	msPerDay: 5000,
+	baseDate: Date.UTC(1700, 0, 1),
 	characterAction: {}, // Filled in influence-actions.js
 	basicBuildings: {},  // Filled in influence-buildings.js
 	productibles: {},    // Filled in influence-items.js
@@ -161,7 +164,8 @@ function init() {
 			'imgs/icons/tiny_money.png',
 		],
 		{
-			'worldClick': unselect
+			'worldClick': unselect,
+			'globalTick': globalTick,
 		}
 	);
 
@@ -324,7 +328,23 @@ function unselect() {
 	guiHideSelection();
 }
 
+function globalTick(timeDiff) {
+	previousDay = Math.floor(influence.gameTime / influence.msPerDay);
+	influence.gameTime += timeDiff;
+	currentDay = Math.floor(influence.gameTime / influence.msPerDay);
+
+	if (previousDay != currentDay) {
+		guiEventDateChanged();
+	}
+}
+
 function center(o) {
 	rtge.camera.x = o.x - rtge.canvas.width / 2;
 	rtge.camera.y = o.y - rtge.canvas.height / 2;
+}
+
+function getGameDate() {
+	var speedFactor = (3600*1000*24) / influence.msPerDay;
+	var rescaledGameTime = influence.gameTime * speedFactor;
+	return new Date(influence.baseDate + rescaledGameTime);
 }
