@@ -41,7 +41,12 @@ function guiShowDynasty(dynastyIndex) {
 	oDomGodsList.innerHTML = '';
 	for (var i = 0; i < influence.gods.length; ++i) {
 		var god = influence.gods[i];
-		oDomGodsList.innerHTML += '<li>'+ god.name +': '+ god.dynasties[dynastyIndex].blessing +'</li>';
+		var godsDynasty = god.dynasties[dynastyIndex];
+		var mission = godsDynasty.mission;
+		oDomGodsList.innerHTML += '<li>'+ god.name +': '+ godsDynasty.blessing +'</li>';
+		if (mission !== null) {
+			oDomGodsList.innerHTML += '<li>'+ mission.description +': '+ guiFormatDate(mission.end) +'</li>';
+		}
 	}
 
 	document.getElementById('dynasty').style.visibility = 'visible';
@@ -389,8 +394,7 @@ function guiEventCharacterActionChanged(characterIndex) {
 }
 
 function guiEventDateChanged() {
-	var gameDate = getGameDate();
-	document.getElementById('dyntime').innerHTML = 'Date: '+gameDate.getUTCDate()+'/'+(gameDate.getUTCMonth()+1)+'/'+gameDate.getUTCFullYear();
+	document.getElementById('dyntime').innerHTML = 'Date: '+guiFormatDate(getGameDate());
 }
 
 function guiEventReinit() {
@@ -398,4 +402,8 @@ function guiEventReinit() {
 	guiShowDynasty(influence.currentCharacter.dynasty);
 	guiEventDateChanged();
 	guiFillFormBuild();
+}
+
+function guiFormatDate(date) {
+	return date.getUTCDate()+'/'+(date.getUTCMonth()+1)+'/'+date.getUTCFullYear();
 }
