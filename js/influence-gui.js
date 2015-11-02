@@ -33,13 +33,15 @@ function guiShowCharacter(character) {
 	document.getElementById('character').style.visibility = 'visible';
 }
 
-function guiShowDynasty(dynasty) {
+function guiShowDynasty(dynastyIndex) {
+	var dynasty = influence.dynasties[dynastyIndex];
 	document.getElementById('dynmoney').innerHTML = ''+dynasty.wealth;
 
 	var oDomGodsList = document.getElementById('dynastygods');
 	oDomGodsList.innerHTML = '';
 	for (var i = 0; i < influence.gods.length; ++i) {
-		oDomGodsList.innerHTML += '<li>'+ influence.gods[i].name +': '+ dynasty.godsBlessing[i] +'</li>';
+		var god = influence.gods[i];
+		oDomGodsList.innerHTML += '<li>'+ god.name +': '+ god.dynasties[dynastyIndex].blessing +'</li>';
 	}
 
 	document.getElementById('dynasty').style.visibility = 'visible';
@@ -323,7 +325,7 @@ function guiBuyAuction(order, building) {
 	// Refresh display
 	guiUpdateAuctions(building);
 	guiFillBuildingPeopleList(building, document.getElementById('auctionpeople'), 'auctionchar');
-	guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+	guiShowDynasty(influence.currentCharacter.dynasty);
 }
 
 function guiPutAuction(order, building) {
@@ -372,8 +374,12 @@ function guiPutAuction(order, building) {
 
 function guiEventDynastyModified(dynasty) {
 	if (dynasty == influence.currentCharacter.dynasty) {
-		guiShowDynasty(influence.dynasties[dynasty]);
+		guiShowDynasty(dynasty);
 	}
+}
+
+function guiEventGodsModified() {
+	guiShowDynasty(influence.currentCharacter.dynasty);
 }
 
 function guiEventCharacterActionChanged(characterIndex) {
@@ -389,7 +395,7 @@ function guiEventDateChanged() {
 
 function guiEventReinit() {
 	guiShowCharacter(influence.currentCharacter);
-	guiShowDynasty(influence.dynasties[influence.currentCharacter.dynasty]);
+	guiShowDynasty(influence.currentCharacter.dynasty);
 	guiEventDateChanged();
 	guiFillFormBuild();
 }

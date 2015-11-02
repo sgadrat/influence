@@ -11,7 +11,7 @@ var influence = {
 	characterAction: {}, // Filled in influence-actions.js
 	basicBuildings: {},  // Filled in influence-buildings.js
 	productibles: {},    // Filled in influence-items.js
-	gods: [],            // Filled in influence-characters.js
+	gods: [],            // Filled in influence-gods.js
 };
 
 function init() {
@@ -109,7 +109,9 @@ function init() {
 	];
 
 	influence.dynasties.push(new Dynasty('Ramorre', 8000));
+	godsEventNewDynasty();
 	influence.dynasties.push(new Dynasty('Delvillajo', 1000000));
+	godsEventNewDynasty();
 
 	influence.currentCharacter = new Citizen('0', 'George', 0, 81*16, 48*16);
 	objects.push(influence.currentCharacter);
@@ -329,11 +331,12 @@ function unselect() {
 }
 
 function globalTick(timeDiff) {
-	previousDay = Math.floor(influence.gameTime / influence.msPerDay);
+	var previousDay = Math.floor(influence.gameTime / influence.msPerDay);
 	influence.gameTime += timeDiff;
-	currentDay = Math.floor(influence.gameTime / influence.msPerDay);
+	var currentDay = Math.floor(influence.gameTime / influence.msPerDay);
 
 	if (previousDay != currentDay) {
+		godsUpdate();
 		guiEventDateChanged();
 	}
 }

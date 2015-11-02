@@ -112,8 +112,7 @@ influence.characterAction = {
 		description: 'Prière',
 		duration: 3000,
 		func: function(params) {
-			influence.dynasties[params.actor.dynasty].godsBlessing[0] += 1;
-			guiEventDynastyModified(params.actor.dynasty);
+			godsPray(params.actor);
 		}
 	},
 };
