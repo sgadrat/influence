@@ -42,6 +42,10 @@ function init() {
 	animations['building.clearinghouse'].steps = ['imgs/clearinghouse.jpg'];
 	animations['building.clearinghouse'].durations = [600000];
 
+	animations['building.inn'] = new rtge.Animation();
+	animations['building.inn'].steps = ['imgs/inn.jpg'];
+	animations['building.inn'].durations = [600000];
+
 	animations['chars.0.idle.top'] = new rtge.Animation();
 	animations['chars.0.idle.top'].steps = ['imgs/chars/0_idle_top.png'];
 	animations['chars.0.idle.top'].durations = [600000];
@@ -136,16 +140,19 @@ function init() {
 			'imgs/vacantlot.jpg',
 			'imgs/baker.jpg',
 			'imgs/farm.jpg',
+			'imgs/inn.jpg',
 			'imgs/clearinghouse.jpg',
 			'imgs/temple.jpg',
 			'imgs/icons/action/goto.png',
 			'imgs/icons/action/buy.png',
 			'imgs/icons/action/manage.png',
+			'imgs/icons/action/meal.png',
 			'imgs/icons/action/auction.png',
 			'imgs/icons/action/pray.png',
 			'imgs/icons/buildings/baker.png',
 			'imgs/icons/buildings/clearinghouse.png',
 			'imgs/icons/buildings/farm.png',
+			'imgs/icons/buildings/inn.png',
 			'imgs/chars/0_walk_top_0.png',
 			'imgs/chars/0_idle_top.png',
 			'imgs/chars/0_walk_top_2.png',
@@ -161,6 +168,7 @@ function init() {
 			'imgs/chars/0_portrait.png',
 			'imgs/icons/action/tiny_idle.png',
 			'imgs/icons/action/tiny_move.png',
+			'imgs/icons/action/tiny_meal.png',
 			'imgs/icons/action/tiny_pray.png',
 			'imgs/icons/action/tiny_construct.png',
 			'imgs/icons/tiny_money.png',

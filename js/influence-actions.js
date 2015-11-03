@@ -115,6 +115,36 @@ influence.characterAction = {
 			godsPray(params.actor);
 		}
 	},
+	'meal': {
+		icon: 'imgs/icons/action/tiny_meal.png',
+		description: 'Repas',
+		duration: 3000,
+		func: function(params) {
+			var price = 500;
+			var edibleItems = ['jam', 'pie'];
+			var willEat = null;
+			for (var i = 0; i < edibleItems.length; ++i) {
+				if (params.building.stock.containItems(edibleItems[i], 1)) {
+					willEat = edibleItems[i];
+					break;
+				}
+			}
+
+			if (willEat === null) {
+				return;
+			}
+			if (influence.dynasties[params.actor.dynasty].wealth < price) {
+				return;
+			}
+
+			influence.dynasties[params.actor.dynasty].wealth -= price;
+			influence.dynasties[params.building.owner].wealth += price;
+			params.building.stock.removeItems(willEat, 1);
+
+			guiFillFormManage(influence.selected);
+			guiEventDynastyModified(params.actor.dynasty);
+		}
+	},
 };
 
 function construct(buildingName) {
@@ -221,12 +251,33 @@ function action_pray(character, building) {
 		x: building.x,
 		y: building.y
 	};
-	indoorDest = building.indoor;
+	var indoorDest = building.indoor;
 
 	action_goto(character, dest, indoorDest);
 	character.goal = {
 		action: 'pray',
 		actor: character
+	}
+}
+
+function action_meal(character, building) {
+	if (typeof character == 'undefined') {
+		character = influence.currentCharacter;
+	}
+	if (typeof building == 'undefined') {
+		building = influence.selected;
+	}
+	var dest = {
+		x: building.x,
+		y: building.y
+	};
+	var indoorDest = building.indoor;
+
+	action_goto(character, dest, indoorDest);
+	character.goal = {
+		action: 'meal',
+		actor: character,
+		building: influence.selected
 	}
 }
 

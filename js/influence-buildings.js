@@ -23,6 +23,14 @@ influence.basicBuildings = {
 			return new ClearingHouse(x, y, owner);
 		}
 	},
+	'inn': {
+		price: 1000,
+		description: 'Auberge',
+		icon: 'imgs/icons/buildings/inn.png',
+		constructor: function(x, y, owner) {
+			return new Inn(x, y, owner);
+		}
+	},
 };
 
 function Building(x, y, owner) {
@@ -40,7 +48,7 @@ function Building(x, y, owner) {
 	this.actions = [
 		'goto',
 	];
-	this.owner = null;
+	this.owner = owner;
 	this.money = 0;
 	this.productibles = [];
 	this.production = [];
@@ -60,7 +68,7 @@ function Building(x, y, owner) {
 }
 
 function Case(x, y, owner) {
-	Building.call(this, x, y);
+	Building.call(this, x, y, owner);
 	this.animation = 'building.case';
 	this.portrait = 'imgs/case.jpg';
 
@@ -68,7 +76,7 @@ function Case(x, y, owner) {
 }
 
 function Temple(x, y, owner) {
-	Building.call(this, x, y);
+	Building.call(this, x, y, owner);
 	this.animation = 'building.temple';
 	this.portrait = 'imgs/temple.jpg';
 
@@ -77,7 +85,7 @@ function Temple(x, y, owner) {
 }
 
 function VacantLot(x, y, owner) {
-	Building.call(this, x, y);
+	Building.call(this, x, y, owner);
 	this.animation = 'building.vacant';
 	this.portrait = 'imgs/vacantlot.jpg';
 
@@ -86,7 +94,7 @@ function VacantLot(x, y, owner) {
 }
 
 function Baker(x, y, owner) {
-	Building.call(this, x, y);
+	Building.call(this, x, y, owner);
 	this.animation = 'building.baker';
 	this.portrait = 'imgs/baker.jpg';
 
@@ -102,7 +110,7 @@ function Baker(x, y, owner) {
 }
 
 function Farm(x, y, owner) {
-	Building.call(this, x, y);
+	Building.call(this, x, y, owner);
 	this.animation = 'building.farm';
 	this.portrait = 'imgs/farm.jpg';
 	this.productibles = [
@@ -116,13 +124,23 @@ function Farm(x, y, owner) {
 }
 
 function ClearingHouse(x, y, owner) {
-	Building.call(this, x, y);
+	Building.call(this, x, y, owner);
 	this.animation = 'building.clearinghouse';
 	this.portrait = 'imgs/clearinghouse.jpg';
 
 	this.auctions = {};
 
 	this.actions.push('auction');
+}
+
+function Inn(x, y, owner) {
+	Building.call(this, x, y, owner);
+	this.animation = 'building.inn';
+	this.portrait = 'imgs/inn.jpg';
+
+	this.stock = new Inventory(10);
+	this.actions.push('meal');
+	this.actions.push('manage');
 }
 
 function production(product) {
