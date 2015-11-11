@@ -10,12 +10,13 @@ function aiBehaviourVillagerTick(character) {
 	}
 	var needEat = (getGameDate().getTime() - character.lastEat.getTime()) / (60*60*1000);
 
+	var buildings = getBuildingsList();
+	var building;
 	if (needEat >= 24 && influence.dynasties[character.dynasty].wealth >= 500) {
 		// Find inns that can serve a meal
-		var buildings = getBuildingsList();
 		var inns = [];
-		for (var i = 0; i < buildings.length; ++i) {
-			var building = buildings[i];
+		for (var buildingIndex = 0; buildingIndex < buildings.length; ++buildingIndex) {
+			building = buildings[buildingIndex];
 			if (building instanceof Inn) {
 				if (building.stock.containItems('jam', 1) || building.stock.containItems('pie', 1)) {
 					inns.push(building);
@@ -26,8 +27,9 @@ function aiBehaviourVillagerTick(character) {
 		// Take action with elligible inns
 		if (inns.length > 0) {
 			// If already in an Inn, get a meal
+			var inn;
 			for (var i = 0; i < inns.length; ++i) {
-				var inn = inns[i];
+				inn = inns[i];
 				if (inn.x == character.x && inn.y == character.y) {
 					action_meal(character, inn);
 					return;
@@ -35,8 +37,8 @@ function aiBehaviourVillagerTick(character) {
 			}
 
 			// Go to an Inn
-			var selected = Math.floor(Math.random() * inns.length);
-			var inn = inns[selected];
+			var selectedInn = Math.floor(Math.random() * inns.length);
+			inn = inns[selectedInn];
 			action_goto(character, {x:inn.x, y:inn.y}, inn.indoor);
 			return;
 		}
@@ -45,11 +47,8 @@ function aiBehaviourVillagerTick(character) {
 	/*Nothing special done, just go somewhere*/
 
 	// Select somewhere to go
-	var buildings = getBuildingsList();
 	var selected = Math.floor(Math.random() * buildings.length);
-	var building = buildings[selected];
-
-	// Go
+	building = buildings[selected];
 	action_goto(character, {x:building.x, y:building.y}, building.indoor);
 }
 

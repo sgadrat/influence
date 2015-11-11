@@ -1,9 +1,9 @@
 influence.gods = [
-    {
+	{
 		name: 'Athena',
 		dynasties: []
 	},
-    {
+	{
 		name: 'Bacchus',
 		dynasties: []
 	},
@@ -35,10 +35,10 @@ const godsMissions = [
 						godsMissionFailed(this.god, this.dynasty);
 					}
 				}
-			}
+			};
 		}
 	}
-]
+];
 
 function godsEventNewDynasty() {
 	for (var godId = 0; godId < influence.gods.length; ++godId) {
@@ -65,7 +65,6 @@ function godsPray(character) {
 }
 
 function godsUpdate() {
-	var currentDate = getGameDate();
 	for (var godId = 0; godId < influence.gods.length; ++godId) {
 		var god = influence.gods[godId];
 		for (var dynastyId = 0; dynastyId < god.dynasties.length; ++dynastyId) {

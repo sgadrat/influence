@@ -1,7 +1,8 @@
 function guiShowSelection(o, character) {
+	var i;
 	var rawActions = character.getActions(o);
 	var actions = [];
-	for (var i = 0; i < rawActions.length; ++i) {
+	for (i = 0; i < rawActions.length; ++i) {
 		actions.push({
 			'icon': 'imgs/icons/action/'+ rawActions[i] +'.png',
 			'action': rawActions[i]
@@ -10,7 +11,7 @@ function guiShowSelection(o, character) {
 
 	document.getElementById('selectportrait').src = o.portrait;
 	var actionList = '';
-	for (var i = 0; i < actions.length; ++i) {
+	for (i = 0; i < actions.length; ++i) {
 		actionList += '<li style="display:inline"><img src="'+ actions[i]['icon'] +'" onclick="action_'+ actions[i]['action'] +'()" /></li>';
 	}
 	document.getElementById('selectactions').innerHTML = actionList;
@@ -64,7 +65,7 @@ function guiFillFormBuild() {
 	var list = '';
 	for (var key in influence.basicBuildings) {
 		if (influence.basicBuildings.hasOwnProperty(key)) {
-			var buildingInfo = influence.basicBuildings[key]
+			var buildingInfo = influence.basicBuildings[key];
 			list += 
 				'<ul onclick="construct(\''+ key +'\')">'+
 				'<li style="display: inline"><img src="'+ buildingInfo.icon +'" /></li>'+
@@ -156,7 +157,7 @@ function guiUpdateAuctions(building) {
 	var product = document.getElementById('auctionproductselect').value;
 	var auctions = building.auctions[product];
 
-	auctionsTable = '<table style="color:white; width:100%">';
+	var auctionsTable = '<table style="color:white; width:100%">';
 	auctionsTable += '<tr><th>Quantité</th><th>Prix à l\'unité</th><th>Vendeur</th><th>Acheteur</th></tr>';
 	if (typeof auctions == 'undefined' || auctions.length == 0) {
 		auctionsTable += '<tr><td colspan="4">Aucune offre</td></tr>';
@@ -350,7 +351,7 @@ function guiPutAuction(order, building) {
 			quantity: influence.guiVariables['formauction.sellslot'].number,
 			price: parseInt(document.getElementById('auctionsellnum').value),
 			seller: influence.currentCharacter.index
-		}
+		};
 	}
 
 	// Move items from seller's inventory to the auction house
@@ -358,7 +359,7 @@ function guiPutAuction(order, building) {
 	if (! seller.inventory.containItems(order.product, order.quantity)) {
 		return;
 	}
-	auction = {
+	var auction = {
 		'quantity': order.quantity,
 		'price': order.price,
 		'seller': seller

@@ -72,12 +72,13 @@ influence.characterAction = {
 		description: 'Travail',
 		duration: 3000,
 		func: function(params) {
+			var i;
 			var salary = 500;
 
 			var workPossible = params.building.money >= salary && params.building.production.length > 0;
+			var materials = influence.productibles[params.building.production[0].product].baseMaterials;
 			if (workPossible) {
-				var materials = influence.productibles[params.building.production[0].product].baseMaterials;
-				for (var i = 0; i < materials.length; ++i) {
+				for (i = 0; i < materials.length; ++i) {
 					if (! params.building.stock.containItems(materials[i].material, materials[i].number)) {
 						workPossible = false;
 						break;
@@ -92,8 +93,7 @@ influence.characterAction = {
 				var prod = params.building.production[0];
 				prod.work += 1;
 				if (prod.work >= influence.productibles[prod.product].work) {
-					var materials = influence.productibles[params.building.production[0].product].baseMaterials;
-					for (var i = 0; i < materials.length; ++i) {
+					for (i = 0; i < materials.length; ++i) {
 						if (! params.building.stock.removeItems(materials[i].material, materials[i].number)) {
 							alert('Bug found ! Unreachable code in work action');
 						}
@@ -237,7 +237,7 @@ function action_work() {
 		action: 'work',
 		actor: influence.currentCharacter,
 		building: influence.selected
-	}
+	};
 }
 
 function action_pray(character, building) {
@@ -257,7 +257,7 @@ function action_pray(character, building) {
 	character.goal = {
 		action: 'pray',
 		actor: character
-	}
+	};
 }
 
 function action_meal(character, building) {
@@ -278,7 +278,7 @@ function action_meal(character, building) {
 		action: 'meal',
 		actor: character,
 		building: influence.selected
-	}
+	};
 }
 
 function action_auction() {

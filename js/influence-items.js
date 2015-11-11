@@ -171,5 +171,5 @@ function Inventory(capacity) {
 				}
 			}
 		}
-	}
+	};
 }

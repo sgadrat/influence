@@ -34,7 +34,7 @@ influence.basicBuildings = {
 };
 
 function Building(x, y, owner) {
-	if (typeof owner === "undefined") {
+	if (typeof owner === 'undefined') {
 		owner = null;
 	}
 
@@ -64,7 +64,7 @@ function Building(x, y, owner) {
 
 	this.click = function(x, y) {
 		select(this);
-	}
+	};
 }
 
 function Case(x, y, owner) {

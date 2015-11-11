@@ -15,10 +15,10 @@ function MovingObject(x, y) {
 
 	this.tickers = {};
 	this.tick = function(timeElapsed) {
-		for (tickerId in this.tickers) {
+		for (var tickerId in this.tickers) {
 			this.tickers[tickerId](this, timeElapsed);
 		}
-	}
+	};
 
 	this.followPath = function(path) {
 		this.path = path;
@@ -57,8 +57,8 @@ function MovingObject(x, y) {
 					_this.onMove(_this.origin, _this.path[0]);
 				}
 			}
-		}
-	}
+		};
+	};
 }
 
 function Citizen(type, firstName, dynasty, x, y, behaviour) {
@@ -79,7 +79,7 @@ function Citizen(type, firstName, dynasty, x, y, behaviour) {
 	this.idleBot = 'chars.'+ type +'.idle.bot';
 	this.idleLeft = 'chars.'+ type +'.idle.left';
 	if (behaviour !== null) {
-		this.tickers['Citizen.behaviour'] = function(_this, timeElasped) { behaviour(_this) };
+		this.tickers['Citizen.behaviour'] = function(_this, timeElasped) { behaviour(_this); };
 	}
 
 	this.portrait = 'imgs/chars/'+ type +'_portrait.png';
