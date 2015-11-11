@@ -115,7 +115,7 @@ function guiFillFormManage(building) {
 function guiFillBuildingPeopleList(building, domContainer, listId) {
 	var peoples = getMovingObjectsAt({x:building.x, y:building.y});
 	domContainer.innerHTML = '';
-	for (i = 0; i < peoples.length; ++i) {
+	for (var i = 0; i < peoples.length; ++i) {
 		var name = peoples[i].firstName +' '+influence.dynasties[peoples[i].dynasty].name;
 		var portrait = peoples[i].portrait;
 
@@ -177,7 +177,7 @@ function guiUpdateAuctions(building) {
 
 function guiFillInventory(inventory, inventoryName, displayUl) {
 	var stocksList = '';
-	for (i = 0; i < inventory.getNumberOfSlots(); ++i) {
+	for (var i = 0; i < inventory.getNumberOfSlots(); ++i) {
 		var slot = inventory.getSlot(i);
 		if (slot === null) {
 			stocksList += '<li style="display:inline"><img src="imgs/icons/products/emptyslot.png" style="max-width:50%" /></li>';
