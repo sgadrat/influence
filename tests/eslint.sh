@@ -11,6 +11,7 @@ exports='action_auction
 action_buy
 action_construct
 action_manage
+action_meal
 action_pray
 action_work
 Case

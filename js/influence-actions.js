@@ -143,6 +143,7 @@ influence.characterAction = {
 
 			guiFillFormManage(influence.selected);
 			guiEventDynastyModified(params.actor.dynasty);
+			aiEventCharacterAte(params.actor.index);
 		}
 	},
 };
