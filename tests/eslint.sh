@@ -28,6 +28,7 @@ production'
 
 # Computed values
 root_dir="`dirname "$0"`/`dirname "$html_base"`"
+html_path="`basename $html_base`"
 
 # Put eslint options at the begining of the aggregated js file
 rm -f "$js_out"
@@ -37,7 +38,7 @@ for v in $exports; do
 done
 
 # Generate an aggregated js file
-for f in `grep 'script src=' "$html_base" | sed 's/\t<script src="\([^"]\+\)".\+/\1/'`; do
+for f in `grep 'script src=' "$root_dir/$html_path" | sed 's/\t<script src="\([^"]\+\)".\+/\1/'`; do
 	echo -e "\n/* === $f === */\n" >> "$js_out"
 	cat "$root_dir/$f" >> "$js_out"
 done
@@ -55,7 +56,6 @@ done
         "semi": [2, "always"]
     },
     "env": {
-        "es6": true,
         "browser": true
     },
     "extends": "eslint:recommended"

@@ -9,9 +9,9 @@ influence.gods = [
 	},
 ];
 
-const GODS_MS_PER_DAY = 24 * 60 * 60 * 1000;
+var GODS_MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-const godsMissions = [
+var godsMissions = [
 	{
 		minBlessing: 5,
 		maxBlessing: 100,
