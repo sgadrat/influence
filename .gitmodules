@@ -1,0 +1,3 @@
+[submodule "rtge"]
+	path = rtge
+	url = https://github.com/sgadrat/rtge.git
