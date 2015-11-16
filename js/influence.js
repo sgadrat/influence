@@ -112,7 +112,7 @@ function init() {
 		new VacantLot(73*16, 46*16),
 	];
 
-	influence.dynasties.push(new Dynasty('Ramorre', 8000));
+	influence.dynasties.push(new Dynasty('Ramorre', 100000));
 	godsEventNewDynasty();
 	influence.dynasties.push(new Dynasty('Delvillajo', 1000000));
 	godsEventNewDynasty();
