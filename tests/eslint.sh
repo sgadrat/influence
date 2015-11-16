@@ -27,6 +27,11 @@ guiStartDragItem
 init
 production'
 
+# Let override defaults
+if [ -f ~/.influence-eslint.defaults ]; then
+	. ~/.influence-eslint.defaults
+fi
+
 # Computed values
 root_dir="`dirname "$0"`/`dirname "$html_base"`"
 html_path="`basename $html_base`"
