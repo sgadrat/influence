@@ -194,7 +194,7 @@ function guiStartDragItem(e, itemId) {
 }
 
 function guiAllowDropItem(e, inventoryId) {
-	if (e.dataTransfer.types.indexOf('application/x-item') != -1) {
+	if (e.dataTransfer.getData('application/x-item') != "") {
 		var destInventory = null;
 		var splitedId = inventoryId.split('.');
 		if (splitedId[0] == 'building') {
