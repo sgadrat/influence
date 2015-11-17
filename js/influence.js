@@ -126,6 +126,12 @@ function init() {
 		objects.push(c);
 	}
 
+	var camera = new rtge.Camera();
+	camera.tick = function(timeDiff) {
+		this.x = influence.currentCharacter.x - rtge.canvas.width / 2;
+		this.y = influence.currentCharacter.y - rtge.canvas.height / 2;
+	};
+
 	rtge.init(
 		'view',
 		{
@@ -175,7 +181,8 @@ function init() {
 		{
 			'worldClick': moveTo,
 			'globalTick': globalTick,
-		}
+		},
+		camera
 	);
 
 	influence.maze = new pathfinder.Maze();
@@ -369,11 +376,6 @@ function globalTick(timeDiff) {
 		godsUpdate();
 		guiEventDateChanged();
 	}
-}
-
-function center(o) {
-	rtge.camera.x = o.x - rtge.canvas.width / 2;
-	rtge.camera.y = o.y - rtge.canvas.height / 2;
 }
 
 function getGameDate() {

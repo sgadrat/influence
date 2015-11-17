@@ -15,7 +15,6 @@ action_meal
 action_pray
 action_work
 Case
-center
 construct
 fundBuilding
 guiAllowDropItem
