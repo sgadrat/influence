@@ -174,7 +174,7 @@ function init() {
 			'imgs/icons/tiny_money.png',
 		],
 		{
-			'worldClick': unselect,
+			'worldClick': moveTo,
 			'globalTick': globalTick,
 		}
 	);
@@ -333,9 +333,27 @@ function select(o) {
 	guiShowSelection(o, influence.currentCharacter);
 }
 
-function unselect() {
-	influence.selected = null;
-	guiHideSelection();
+function moveTo(x, y) {
+	// Select destination waypoint
+	var destWaypoint = findNearest(x, y, influence.maze.waypoints);
+	if (destWaypoint === null) {
+		return;
+	}
+
+	action_goto(influence.currentCharacter, destWaypoint, false);
+}
+
+function findNearest(x, y, positions) {
+	var minDist = null;
+	var res = null;
+	for (var i = 0; i < positions.length; ++i) {
+		var dist = Math.abs(x - positions[i].x) + Math.abs(y - positions[i].y);
+		if (minDist === null || dist < minDist) {
+			res = positions[i];
+			minDist = dist;
+		}
+	}
+	return res;
 }
 
 function globalTick(timeDiff) {
