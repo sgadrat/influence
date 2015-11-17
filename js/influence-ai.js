@@ -78,7 +78,7 @@ function aiGoToBuilding(context) {
 	if (character.x == building.x && character.y == building.y) {
 		return behaviourtree.SUCCESS;
 	}
-	action_goto(character, {x:building.x, y:building.y}, building.indoor);
+	moveCharacter(character, {x:building.x, y:building.y}, building.indoor);
 	return behaviourtree.RUNNING;
 }
 
@@ -154,12 +154,11 @@ function aiTakeMeal(context) {
 	}
 
 	// We are in the inn but not have ordered yet, it's time to do it.
-	character.goal = {
+	character.executeAction({
 		action: 'meal',
 		actor: character,
 		building: inn
-	};
-	character.executeGoal();
+	});
 	context['ate'] = 'ordered';
 	return behaviourtree.RUNNING;
 }
@@ -169,14 +168,4 @@ function aiEventCharacterAte(characterIndex) {
 	if (typeof character.aiContext != 'undefined') {
 		character.aiContext['ate'] = 'ate';
 	}
-}
-
-function getBuildingsList() {
-	var buildings = [];
-	for (var i = 0; i < rtge.state.objects.length; ++i) {
-		if (typeof rtge.state.objects[i].indoor != 'undefined') {
-			buildings.push(rtge.state.objects[i]);
-		}
-	}
-	return buildings;
 }

@@ -143,7 +143,6 @@ function init() {
 			'imgs/inn.jpg',
 			'imgs/clearinghouse.jpg',
 			'imgs/temple.jpg',
-			'imgs/icons/action/goto.png',
 			'imgs/icons/action/buy.png',
 			'imgs/icons/action/manage.png',
 			'imgs/icons/action/meal.png',
@@ -333,6 +332,11 @@ function select(o) {
 	guiShowSelection(o, influence.currentCharacter);
 }
 
+function unselect() {
+	influence.selected = null;
+	guiHideSelection();
+}
+
 function moveTo(x, y) {
 	// Select destination waypoint
 	var destWaypoint = findNearest(x, y, influence.maze.waypoints);
@@ -340,7 +344,7 @@ function moveTo(x, y) {
 		return;
 	}
 
-	action_goto(influence.currentCharacter, destWaypoint, false);
+	moveCharacter(influence.currentCharacter, destWaypoint, false);
 }
 
 function findNearest(x, y, positions) {
@@ -376,4 +380,14 @@ function getGameDate() {
 	var speedFactor = (3600*1000*24) / influence.msPerDay;
 	var rescaledGameTime = influence.gameTime * speedFactor;
 	return new Date(influence.baseDate + rescaledGameTime);
+}
+
+function getBuildingsList() {
+	var buildings = [];
+	for (var i = 0; i < rtge.state.objects.length; ++i) {
+		if (typeof rtge.state.objects[i].indoor != 'undefined') {
+			buildings.push(rtge.state.objects[i]);
+		}
+	}
+	return buildings;
 }

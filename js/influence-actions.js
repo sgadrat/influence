@@ -149,13 +149,12 @@ influence.characterAction = {
 };
 
 function construct(buildingName) {
-	action_goto();
-	influence.currentCharacter.goal = {
+	influence.currentCharacter.executeAction({
 		action: 'construct',
 		actor: influence.currentCharacter,
 		buildingName: buildingName,
 		originalLot: influence.selected
-	};
+	});
 	guiHideForm('build');
 }
 
@@ -179,7 +178,7 @@ function fundBuilding(character, building, value) {
 	guiEventDynastyModified(character.dynasty);
 }
 
-function action_goto(character, dest, indoorDest) {
+function moveCharacter(character, dest, indoorDest) {
 	if (typeof character == 'undefined') {
 		character = influence.currentCharacter;
 	}
@@ -209,18 +208,21 @@ function action_goto(character, dest, indoorDest) {
 		return;
 	}
 
+	if (character === influence.currentCharacter) {
+		unselect();
+	}
+
 	var path = influence.maze.findPath(from, to);
 	character.followPath(path);
 	character.indoorDestination = indoorDest;
 }
 
 function action_buy() {
-	action_goto();
-	influence.currentCharacter.goal = {
+	influence.currentCharacter.executeAction({
 		action: 'buy',
 		actor: influence.currentCharacter,
 		target: influence.selected
-	};
+	});
 }
 
 function action_manage() {
@@ -233,32 +235,22 @@ function action_construct() {
 }
 
 function action_work() {
-	action_goto();
-	influence.currentCharacter.goal = {
+	influence.currentCharacter.executeAction({
 		action: 'work',
 		actor: influence.currentCharacter,
 		building: influence.selected
-	};
+	});
 }
 
-function action_pray(character, building) {
+function action_pray(character) {
 	if (typeof character == 'undefined') {
 		character = influence.currentCharacter;
 	}
-	if (typeof building == 'undefined') {
-		building = influence.selected;
-	}
-	var dest = {
-		x: building.x,
-		y: building.y
-	};
-	var indoorDest = building.indoor;
 
-	action_goto(character, dest, indoorDest);
-	character.goal = {
+	character.executeAction({
 		action: 'pray',
 		actor: character
-	};
+	});
 }
 
 function action_meal(character, building) {
@@ -268,18 +260,11 @@ function action_meal(character, building) {
 	if (typeof building == 'undefined') {
 		building = influence.selected;
 	}
-	var dest = {
-		x: building.x,
-		y: building.y
-	};
-	var indoorDest = building.indoor;
-
-	action_goto(character, dest, indoorDest);
-	character.goal = {
+	character.executeAction({
 		action: 'meal',
 		actor: character,
-		building: influence.selected
-	};
+		building: building
+	});
 }
 
 function action_auction() {

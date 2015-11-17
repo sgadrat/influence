@@ -84,7 +84,6 @@ function Citizen(type, firstName, dynasty, x, y, behaviour) {
 
 	this.portrait = 'imgs/chars/'+ type +'_portrait.png';
 	this.currentAction = 'idle';
-	this.goal = null;
 	this.actionTimeout = null;
 	this.indoorDestination = false;
 
@@ -152,35 +151,37 @@ function Citizen(type, firstName, dynasty, x, y, behaviour) {
 			this.animation = this.idleLeft;
 		}
 
+		if (this === influence.currentCharacter) {
+			var buildings = getBuildingsList();
+			for (var i = 0; i < buildings.length; ++i) {
+				if (buildings[i].x == this.x && buildings[i].y == this.y) {
+					select(buildings[i]);
+				}
+			}
+		}
+
 		if (this.indoorDestination) {
 			this.visible = false;
 		}
 
-		if (this.goal != null) {
-			this.executeGoal();
-		}else {
-			this.setCurrentAction('idle');
-		}
+		this.setCurrentAction('idle');
 	};
 
-	this.executeGoal = function() {
-		var goal = this.goal;
-		this.goal = null;
+	this.executeAction = function(action) {
 		this.actionTimeout = setTimeout(
 			function() {
-				influence.characterAction[goal.action].func(goal);
-				goal.actor.finishedAction();
+				influence.characterAction[action.action].func(action);
+				action.actor.finishedAction();
 			},
-			influence.characterAction[goal.action].duration
+			influence.characterAction[action.action].duration
 		);
-		this.setCurrentAction(goal.action);
+		this.setCurrentAction(action.action);
 	};
 
 	this.cancelCurrentAction = function() {
 		if (this.actionTimeout != null) {
 			clearTimeout(this.actionTimeout);
 		}
-		this.goal = null;
 		if (this.currentAction != 'move') {
 			this.currentAction = 'idle';
 		}

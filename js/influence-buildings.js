@@ -45,9 +45,7 @@ function Building(x, y, owner) {
 	this.anchorY = 7*16;
 	this.indoor = false;
 
-	this.actions = [
-		'goto',
-	];
+	this.actions = [];
 	this.owner = owner;
 	this.money = 0;
 	this.productibles = [];
@@ -63,7 +61,7 @@ function Building(x, y, owner) {
 	};
 
 	this.click = function(x, y) {
-		select(this);
+		moveCharacter(influence.currentCharacter, {x:this.x, y:this.y}, this.indoor);
 	};
 }
 

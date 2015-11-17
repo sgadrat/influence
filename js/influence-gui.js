@@ -18,6 +18,10 @@ function guiShowSelection(o, character) {
 	document.getElementById('selection').style.visibility = 'visible';
 }
 
+function guiHideSelection() {
+	document.getElementById('selection').style.visibility = 'hidden';
+}
+
 function guiShowCharacter(character) {
 	var action = influence.characterAction[character.currentAction];
 	if (action == undefined) {
