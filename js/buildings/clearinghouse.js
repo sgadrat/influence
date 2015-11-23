@@ -41,18 +41,27 @@ var buildingClearingHouse = {
 		var auctions = building.auctions[product];
 
 		var auctionsTable = '<table style="color:white; width:100%">';
-		auctionsTable += '<tr><th>Quantité</th><th>Prix à l\'unité</th><th>Vendeur</th><th>Acheteur</th></tr>';
+		auctionsTable += `
+			<tr>
+				<th>Quantité</th>
+				<th>Prix à l'unité</th>
+				<th>Vendeur</th>
+				<th>Acheteur</th>
+			</tr>
+		`;
 
 		if (typeof auctions == 'undefined' || auctions.length == 0) {
 			auctionsTable += '<tr><td colspan="4">Aucune offre</td></tr>';
 		} else {
 			for (var i = 0; i < auctions.length; ++i) {
-				auctionsTable += '<tr>';
-				auctionsTable += '<td>'+ auctions[i]['quantity'] +'</td>';
-				auctionsTable += '<td><img src="imgs/icons/tiny_money.png" /> '+ auctions[i]['price'] +'</td>';
-				auctionsTable += '<td>'+ auctions[i]['seller'].firstName +' '+ influence.dynasties[auctions[i]['seller'].dynasty].name +'</td>';
-				auctionsTable += '<td><input type="button" value="Acheter" onclick="buildingClearingHouse.buyAuction({product:\''+ product +'\', quantity:'+ auctions[i]['quantity'] +', price:'+ auctions[i]['price'] +', seller:'+ auctions[i]['seller'].index +'})" /></td>';
-				auctionsTable += '</tr>';
+				auctionsTable += `
+					<tr>
+						<td>${auctions[i]['quantity']}</td>
+						<td><img src="imgs/icons/tiny_money.png" /> ${auctions[i]['price']}</td>
+						<td>${auctions[i]['seller'].firstName} ${influence.dynasties[auctions[i]['seller'].dynasty].name}</td>
+						<td><input type="button" value="Acheter" onclick="buildingClearingHouse.buyAuction({product:'${product}', quantity:${auctions[i]['quantity']}, price:${auctions[i]['price']}, seller:${auctions[i]['seller'].index}})" /></td>
+					</tr>
+				`;
 			}
 		}
 		auctionsTable += '</table>';

@@ -58,7 +58,8 @@ done
         "semi": [2, "always"]
     },
     "env": {
-        "browser": true
+        "browser": true,
+		"es6": true
     },
     "extends": "eslint:recommended"
 }
