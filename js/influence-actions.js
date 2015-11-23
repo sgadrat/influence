@@ -252,22 +252,3 @@ function action_pray(character) {
 		actor: character
 	});
 }
-
-function action_meal(character, building) {
-	if (typeof character == 'undefined') {
-		character = influence.currentCharacter;
-	}
-	if (typeof building == 'undefined') {
-		building = influence.selected;
-	}
-	character.executeAction({
-		action: 'meal',
-		actor: character,
-		building: building
-	});
-}
-
-function action_auction() {
-	guiFillFormAuction(influence.selected);
-	guiShowForm('auction');
-}

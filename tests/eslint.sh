@@ -18,10 +18,7 @@ Case
 construct
 fundBuilding
 guiAllowDropItem
-guiBuyAuction
 guiDropItem
-guiDropItemAuction
-guiPutAuction
 guiStartDragItem
 init
 production'

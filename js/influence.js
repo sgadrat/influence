@@ -9,7 +9,7 @@ var influence = {
 	msPerDay: 5000,
 	baseDate: Date.UTC(1700, 0, 1),
 	characterAction: {}, // Filled in influence-actions.js
-	basicBuildings: {},  // Filled in influence-buildings.js
+	basicBuildings: {},  // Filled in buildings/*.js
 	productibles: {},    // Filled in influence-items.js
 	gods: [],            // Filled in influence-gods.js
 };
@@ -387,7 +387,7 @@ function getGameDate() {
 function getBuildingsList() {
 	var buildings = [];
 	for (var i = 0; i < rtge.state.objects.length; ++i) {
-		if (typeof rtge.state.objects[i].indoor != 'undefined') {
+		if (isBuilding(rtge.state.objects[i])) {
 			buildings.push(rtge.state.objects[i]);
 		}
 	}

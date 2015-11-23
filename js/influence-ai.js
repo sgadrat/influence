@@ -95,7 +95,7 @@ function aiSelectInnWithMeal(context) {
 	var inns = [];
 	for (var buildingIndex = 0; buildingIndex < buildings.length; ++buildingIndex) {
 		var building = buildings[buildingIndex];
-		if (building instanceof Inn) {
+		if (building instanceof buildingInn.Inn) {
 			if (building.stock.containItems('jam', 1) || building.stock.containItems('pie', 1)) {
 				inns.push(building);
 			}
