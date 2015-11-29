@@ -7,21 +7,10 @@ js_out='/tmp/test.js' # Aggregation of js referenced in html
 conf_file='/tmp/eslint.conf' # File to store eslint config
 
 # Variables used indirectly (mainly by gui)
-exports='action_auction
-action_buy
-action_construct
-action_manage
-action_meal
-action_pray
-action_work
-Case
+exports='Case
 construct
-fundBuilding
-guiAllowDropItem
-guiDropItem
-guiStartDragItem
-init
-production'
+guiHideGenericForm
+init'
 
 # Let override defaults
 if [ -f ~/.influence-eslint.defaults ]; then

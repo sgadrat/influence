@@ -3,6 +3,8 @@
 	<meta charset="UTF-8" />
 	<title>Influence</title>
 
+	<link rel="stylesheet" href="influence.css" />
+
 	<script src="rtge/pathfinder.js"></script>
 	<script src="rtge/rtge.js"></script>
 	<script src="rtge/behaviourtree.js"></script>
@@ -20,6 +22,10 @@
 	<script src="js/buildings/clearinghouse.js"></script>
 	<script src="js/buildings/farm.js"></script>
 	<script src="js/buildings/inn.js"></script>
+	<script src="js/buildings/productionbuilding.js"></script>
+	<script src="js/buildings/tabbedbuilding.js"></script>
+	<script src="js/buildings/temple.js"></script>
+	<script src="js/buildings/vacantlot.js"></script>
 </head>
 <body onload="init();" style="margin:0; padding:0">
 	<canvas id="view" style="width:100%; height:100%"></canvas>
@@ -43,65 +49,24 @@
 		<ul id="dynastygods" style="color:white"></ul>
 	</div>
 
-	<div id="selection" style="position:absolute; left:0; bottom:0; visibility:hidden; z-index:1">
-		<div style="border-style:outset; border-width:3px; border-color:brown">
-			<img id="selectportrait" />
+	<div id="modal" class="fullscreen" style="visibility:hidden; z-index:3">
+		<div class="miniform">
+			<p>Combien ?</p>
+			<input id="modal.input" class="solo" type="text" value="0" />
+			<input
+				id="modal.go" class="duo" type="button" value="Envoyer"
+			/><input
+				class="duo" type="button" value="Anuller"
+				onclick="document.getElementById('modal').style.visibility='hidden'"
+			/>
 		</div>
-		<ul id="selectactions" style="margin:0; padding:0">
-		</ul>
 	</div>
 
-	<div id="formbuild" style="position:absolute; left:0; top:0; width:100%; height:100%; visibility:hidden; z-index:2">
-		<div style="position:absolute; left:25%; top:25%; width:50%; height:50%; background-color:black; color:white">
-			<span style="position:absolute; top:0; right:0" onclick="guiHideForm('build')">X</span>
-			<ul id="buildlist">
+	<div id="formgeneric" class="fullscreen" style="visibility:hidden; z-index:2" onclick="guiHideGenericForm()">
+		<div style="position:absolute; left:15%; top:25%; width:70%; height:50%" onclick="event.stopPropagation()">
+			<ul id="generictabs" class="tabs">
 			</ul>
-		</div>
-	</div>
-
-	<div id="formmanage" style="position:absolute; left:0; top:0; width:100%; height:100%; visibility:hidden; z-index:2">
-		<div style="position:absolute; left:25%; top:25%; width:50%; height:50%; background-color:black; color:white; overflow-y:auto">
-			<span style="position:absolute; top:0; right:0" onclick="guiHideForm('manage')">X</span>
-			<div style="position:absolute; top:1em; left:0; width:25%">
-				<p>Production:</p>
-				<div>
-					<ul id="manageprodlist" style="padding:0; list-style-type:none">
-					</ul>
-					<ul id="manageproductibles" style="padding:0">
-					</ul>
-				</div>
-			</div>
-			<div style="position:absolute; top:1em; left:25%; width:50%">
-				<p style="margin-left:2em">Finances: <img src="imgs/icons/tiny_money.png" /> <span id="managemoney"></span> <img src="imgs/icons/tiny_add.png" onclick="fundBuilding()" /></p>
-				<p style="margin-left:2em">Stock:</p>
-				<ul id="managestock" style="padding:0; margin-left:2em" ondragover="guiAllowDropItem(event, 'building')" ondrop="guiDropItem(event, 'building')">
-				</ul>
-			</div>
-			<div style="position:absolute; top:1em; left:75%; width:25%">
-				<p>Personnages:</p>
-				<ul id="managepeople" style="padding:0; list-style-type:none">
-				</ul>
-			</div>
-		</div>
-	</div>
-
-	<div id="formauction" style="position:absolute; left:0; top:0; width:100%; height:100%; visibility:hidden; z-index:2">
-		<div style="position:absolute; left:25%; top:25%; width:50%; height:50%; background-color:black; color:white; overflow-y:auto">
-			<span style="position:absolute; top:0; right:0" onclick="guiHideForm('auction')">X</span>
-			<div style="position:absolute; top:1em; left:0; width:75%">
-				<div ondragover="event.preventDefault()" ondrop="buildingClearingHouse.dropItemAuction(event)">
-					<span id="auctionsellslot" style="position:relative"></span> <img src="imgs/icons/tiny_money.png" /><input id="auctionsellnum" type="text" /><input type="button" value="vendre" onclick="buildingClearingHouse.putAuction()" />
-				</div>
-				<hr />
-				<div id="auctionproductlist">
-				</div>
-				<div id="auctionauctionslist">
-				</div>
-			</div>
-			<div style="position:absolute; top:1em; left:75%; width:25%">
-				<p>Personnages:</p>
-				<ul id="auctionpeople" style="padding:0; list-style-type:none">
-				</ul>
+			<div id="genericcontent" class="window" style="max-height:100%; overflow-y: auto">
 			</div>
 		</div>
 	</div>

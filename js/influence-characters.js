@@ -90,27 +90,6 @@ function Citizen(type, firstName, dynasty, x, y, behaviour) {
 	this.index = influence.characters.length;
 	influence.characters.push(this);
 
-	this.getActions = function(target) {
-		var actions = [];
-		for (var i = 0; i < target.actions.length; ++i) {
-			var pushIt = true;
-			if (target.actions[i] == 'buy') {
-				if (target.owner != null) {
-					pushIt = false;
-				}
-			}else if (target.actions[i] == 'construct') {
-				if (target.owner != this.dynasty) {
-					pushIt = false;
-				}
-			}
-
-			if (pushIt) {
-				actions.push(target.actions[i]);
-			}
-		}
-		return actions;
-	};
-
 	this.setCurrentAction = function(val) {
 		this.currentAction = val;
 		guiEventCharacterActionChanged(this.index);

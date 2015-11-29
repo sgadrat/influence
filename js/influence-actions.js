@@ -72,39 +72,7 @@ influence.characterAction = {
 		description: 'Travail',
 		duration: 3000,
 		func: function(params) {
-			var i;
-			var salary = 500;
-
-			var workPossible = params.building.money >= salary && params.building.production.length > 0;
-			var materials = influence.productibles[params.building.production[0].product].baseMaterials;
-			if (workPossible) {
-				for (i = 0; i < materials.length; ++i) {
-					if (! params.building.stock.containItems(materials[i].material, materials[i].number)) {
-						workPossible = false;
-						break;
-					}
-				}
-			}
-
-			if (workPossible) {
-				params.building.money -= salary;
-				influence.dynasties[params.actor.dynasty].wealth += salary;
-
-				var prod = params.building.production[0];
-				prod.work += 1;
-				if (prod.work >= influence.productibles[prod.product].work) {
-					for (i = 0; i < materials.length; ++i) {
-						if (! params.building.stock.removeItems(materials[i].material, materials[i].number)) {
-							alert('Bug found ! Unreachable code in work action');
-						}
-					}
-					params.building.stock.addItems(prod.product, 1);
-					params.building.production.splice(0, 1);
-				}
-
-				guiFillFormManage(influence.selected);
-				guiEventDynastyModified(params.actor.dynasty);
-			}
+			params.building.doWork(params.actor);
 		}
 	},
 	'pray': {
@@ -141,7 +109,7 @@ influence.characterAction = {
 			influence.dynasties[params.building.owner].wealth += price;
 			params.building.stock.removeItems(willEat, 1);
 
-			guiFillFormManage(influence.selected);
+			params.building.mealTaken();
 			guiEventDynastyModified(params.actor.dynasty);
 			aiEventCharacterAte(params.actor.index);
 		}
@@ -155,27 +123,6 @@ function construct(buildingName) {
 		buildingName: buildingName,
 		originalLot: influence.selected
 	});
-	guiHideForm('build');
-}
-
-function fundBuilding(character, building, value) {
-	if (typeof character == 'undefined') {
-		character = influence.currentCharacter;
-	}
-	if (typeof building == 'undefined') {
-		building = influence.selected;
-	}
-	if (typeof value == 'undefined') {
-		value = 500;
-	}
-	var dynasty = influence.dynasties[character.dynasty];
-
-	if (dynasty.wealth >= value) {
-		dynasty.wealth -= value;
-		building.money += value;
-	}
-	guiFillFormManage(building);
-	guiEventDynastyModified(character.dynasty);
 }
 
 function moveCharacter(character, dest, indoorDest) {
@@ -215,40 +162,4 @@ function moveCharacter(character, dest, indoorDest) {
 	var path = influence.maze.findPath(from, to);
 	character.followPath(path);
 	character.indoorDestination = indoorDest;
-}
-
-function action_buy() {
-	influence.currentCharacter.executeAction({
-		action: 'buy',
-		actor: influence.currentCharacter,
-		target: influence.selected
-	});
-}
-
-function action_manage() {
-	guiFillFormManage(influence.selected);
-	guiShowForm('manage');
-}
-
-function action_construct() {
-	guiShowForm('build');
-}
-
-function action_work() {
-	influence.currentCharacter.executeAction({
-		action: 'work',
-		actor: influence.currentCharacter,
-		building: influence.selected
-	});
-}
-
-function action_pray(character) {
-	if (typeof character == 'undefined') {
-		character = influence.currentCharacter;
-	}
-
-	character.executeAction({
-		action: 'pray',
-		actor: character
-	});
 }

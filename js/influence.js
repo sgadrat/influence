@@ -95,21 +95,21 @@ function init() {
 	animations['chars.0.walk.left'].durations = [100, 100, 100];
 
 	var objects = [
-		new VacantLot(58*16, 10*16),
-		new VacantLot(73*16, 10*16),
-		new VacantLot(8*16, 22*16),
-		new VacantLot(23*16, 22*16),
-		new VacantLot(40*16, 22*16),
-		new VacantLot(58*16, 22*16),
-		new VacantLot(73*16, 22*16),
-		new VacantLot(8*16, 34*16),
-		new VacantLot(23*16, 34*16),
-		new Temple(58*16, 34*16),
-		new VacantLot(73*16, 34*16),
-		new VacantLot(8*16, 46*16),
-		new VacantLot(23*16, 46*16),
-		new VacantLot(58*16, 46*16),
-		new VacantLot(73*16, 46*16),
+		new buildingVacantLot.VacantLot(58*16, 10*16),
+		new buildingVacantLot.VacantLot(73*16, 10*16),
+		new buildingVacantLot.VacantLot(8*16, 22*16),
+		new buildingVacantLot.VacantLot(23*16, 22*16),
+		new buildingVacantLot.VacantLot(40*16, 22*16),
+		new buildingVacantLot.VacantLot(58*16, 22*16),
+		new buildingVacantLot.VacantLot(73*16, 22*16),
+		new buildingVacantLot.VacantLot(8*16, 34*16),
+		new buildingVacantLot.VacantLot(23*16, 34*16),
+		new buildingTemple.Temple(58*16, 34*16),
+		new buildingVacantLot.VacantLot(73*16, 34*16),
+		new buildingVacantLot.VacantLot(8*16, 46*16),
+		new buildingVacantLot.VacantLot(23*16, 46*16),
+		new buildingVacantLot.VacantLot(58*16, 46*16),
+		new buildingVacantLot.VacantLot(73*16, 46*16),
 	];
 
 	influence.dynasties.push(new Dynasty('Ramorre', 100000));
@@ -322,26 +322,15 @@ function init() {
 	guiEventReinit();
 }
 
-function getMovingObjectsAt(pos) {
-	var i;
-	var res = [];
-	for (i = 0; i < rtge.state.objects.length; ++i) {
-		var o = rtge.state.objects[i];
-		if (o instanceof MovingObject && o.x == pos.x && o.y == pos.y) {
-			res.push(o);
-		}
-	}
-	return res;
-}
-
 function select(o) {
 	influence.selected = o;
-	guiShowSelection(o, influence.currentCharacter);
+	if (isBuilding(o)) {
+		o.onPlayerEnters();
+	}
 }
 
 function unselect() {
 	influence.selected = null;
-	guiHideSelection();
 }
 
 function moveTo(x, y) {

@@ -1,12 +1,39 @@
 var buildingInn = {
 	Inn: function (x, y, owner) {
-		Building.call(this, x, y, owner);
+		tabbedBuilding.TabbedBuilding.call(this, x, y, owner);
 		this.animation = 'building.inn';
 		this.portrait = 'imgs/inn.jpg';
+		this.indoor = true;
 
-		this.stock = new Inventory(10);
-		this.actions.push('meal');
-		this.actions.push('manage');
+		this.tabs.push({
+			title: 'Entrée',
+			generateContent: buildingInn.generateEntrancePage
+		});
+		tabbedBuilding.addStock(this, 10);
+
+		this.mealTaken = function() {
+			this.refreshPageStock();
+		};
+	},
+
+	generateEntrancePage: function(building) {
+		return `
+			<div>
+				<div style="text-align: center">
+					<img src="${building.portrait}" />
+				</div>
+				<p>Bienvenue dans votre auberge.</p>
+				<input type="button" class="btn" value="Prendre un repas" onclick="buildingInn.meal(influence.currentCharacter, influence.selected)" />
+			</div>
+		`;
+	},
+
+	meal: function (character, building) {
+		character.executeAction({
+			action: 'meal',
+			actor: character,
+			building: building
+		});
 	}
 };
 
@@ -18,17 +45,3 @@ influence.basicBuildings['inn'] = {
 		return new buildingInn.Inn(x, y, owner);
 	}
 };
-
-function action_meal(character, building) {
-	if (typeof character == 'undefined') {
-		character = influence.currentCharacter;
-	}
-	if (typeof building == 'undefined') {
-		building = influence.selected;
-	}
-	character.executeAction({
-		action: 'meal',
-		actor: character,
-		building: building
-	});
-}

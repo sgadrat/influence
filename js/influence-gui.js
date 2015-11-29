@@ -1,27 +1,3 @@
-function guiShowSelection(o, character) {
-	var i;
-	var rawActions = character.getActions(o);
-	var actions = [];
-	for (i = 0; i < rawActions.length; ++i) {
-		actions.push({
-			'icon': 'imgs/icons/action/'+ rawActions[i] +'.png',
-			'action': rawActions[i]
-		});
-	}
-
-	document.getElementById('selectportrait').src = o.portrait;
-	var actionList = '';
-	for (i = 0; i < actions.length; ++i) {
-		actionList += '<li style="display:inline"><img src="'+ actions[i]['icon'] +'" onclick="action_'+ actions[i]['action'] +'()" /></li>';
-	}
-	document.getElementById('selectactions').innerHTML = actionList;
-	document.getElementById('selection').style.visibility = 'visible';
-}
-
-function guiHideSelection() {
-	document.getElementById('selection').style.visibility = 'hidden';
-}
-
 function guiShowCharacter(character) {
 	var action = influence.characterAction[character.currentAction];
 	if (action == undefined) {
@@ -53,157 +29,70 @@ function guiShowDynasty(dynastyIndex) {
 	document.getElementById('dynasty').style.visibility = 'visible';
 }
 
-function guiShowForm(formName) {
-	document.getElementById('form'+formName).style.visibility = 'visible';
+function guiShowGenericForm(tabs) {
+	var oTabs = document.getElementById('generictabs');
+	if (tabs.length == 0) {
+		oTabs.style.display = 'none';
+	}else {
+		var tabList = '';
+		for (var currentTabIndex = 0; currentTabIndex < tabs.length; ++currentTabIndex) {
+			var currentTabName = tabs[currentTabIndex];
+			tabList += `<li onclick="guiShowTab(${currentTabIndex})">${currentTabName}</li>`;
+		}
+
+		oTabs.innerHTML = tabList;
+		oTabs.style.display = '';
+		guiShowTab(0);
+	}
+	document.getElementById('formgeneric').style.visibility = 'visible';
 }
 
-function guiHideForm(formName) {
-	document.getElementById('form'+formName).style.visibility = 'hidden';
-}
+function guiShowTab(index) {
+	var tabMarkers = document.getElementById('generictabs').children;
+	var tabPages = document.getElementById('genericcontent').children;
+	var nbTabs = Math.min(tabMarkers.length, tabPages.length);
 
-function guiFillFormBuild() {
-	var list = '';
-	for (var key in influence.basicBuildings) {
-		if (influence.basicBuildings.hasOwnProperty(key)) {
-			var buildingInfo = influence.basicBuildings[key];
-			list += 
-				'<ul onclick="construct(\''+ key +'\')">'+
-				'<li style="display: inline"><img src="'+ buildingInfo.icon +'" /></li>'+
-				'<li style="display: inline">'+ buildingInfo.description +'</li>'+
-				'<li style="display: inline"><img src="imgs/icons/tiny_money.png" /> '+ buildingInfo.price +'</li>'+
-				'</ul>'
-			;
+	if (tabMarkers.length != tabPages.length) {
+		alert('guiShowTab: number of tabs missmatch');
+	}
+
+	for (var tabIndex = 0; tabIndex < nbTabs; ++tabIndex) {
+		if (tabIndex == index) {
+			tabMarkers[tabIndex].className = 'selected';
+			tabPages[tabIndex].style.display = '';
+		}else {
+			tabMarkers[tabIndex].className = '';
+			tabPages[tabIndex].style.display = 'none';
 		}
 	}
-	document.getElementById('buildlist').innerHTML = list;
 }
 
-function guiFillFormManage(building) {
-	var i;
-
-	document.getElementById('managemoney').innerHTML = ''+building.money;
-
-	var productibleList = '';
-	for (i = 0; i < building.productibles.length; ++i) {
-		var productName = building.productibles[i];
-		var productible = influence.productibles[productName];
-		var tooltip = productName +' ('+ productible.work +'UT)';
-		if (productible.baseMaterials.length > 0) {
-			tooltip += '\n';
-			for (var mat = 0; mat < productible.baseMaterials.length; mat++) {
-				if (mat > 0) {
-					tooltip += ', ';
-				}
-				tooltip += productible.baseMaterials[mat].number +' '+ productible.baseMaterials[mat].material;
-			}
-		}
-		productibleList += '<li style="display:inline"><img title="'+ tooltip +'" src="imgs/icons/products/'+ building.productibles[i] +'.png" onclick="production(\''+ building.productibles[i] +'\')" /></li>';
-	}
-	document.getElementById('manageproductibles').innerHTML = productibleList;
-
-	guiFillInventory(building.stock, 'building', document.getElementById('managestock'));
-
-	var productionList = '';
-	for (i = 0; i < building.production.length; ++i) {
-		var o = building.production[i];
-		productionList += '<li><img src="imgs/icons/products/'+ o.product +'.png" />Travail: '+ o.work +'/'+ influence.productibles[o.product].work +'</li>';
-	}
-	document.getElementById('manageprodlist').innerHTML = productionList;
-
-	guiFillBuildingPeopleList(building, document.getElementById('managepeople'), 'managechar');
+function guiHideGenericForm() {
+	document.getElementById('formgeneric').style.visibility = 'hidden';
 }
 
-function guiFillBuildingPeopleList(building, domContainer, listId) {
-	var peoples = getMovingObjectsAt({x:building.x, y:building.y});
-	domContainer.innerHTML = '';
-	for (var i = 0; i < peoples.length; ++i) {
-		var name = peoples[i].firstName +' '+influence.dynasties[peoples[i].dynasty].name;
-		var portrait = peoples[i].portrait;
-
-		domContainer.innerHTML +=
-			'<li>'+
-				'<p>'+ name +'</p>'+
-				'<div style="display:inline-block; width:30%; vertical-align:text-top">'+
-					'<img src="'+ portrait +'" style="width:100%" />'+
-				'</div>'+
-				'<ul id="'+ listId +'.'+ peoples[i].index +'" style="display:inline-block; width:60%; vertical-align:text-top; padding:0; margin:0" ondragover="guiAllowDropItem(event, \'char.'+ peoples[i].index +'\')" ondrop="guiDropItem(event, \'char.'+ peoples[i].index +'\')">'+
-				'</ul>'+
-			'</li>'
-		;
-		guiFillInventory(peoples[i].inventory, 'char.'+peoples[i].index, document.getElementById(listId+'.'+peoples[i].index));
-	}
-}
-
-function guiFillInventory(inventory, inventoryName, displayUl) {
+function guiInventoryToHtml(inventory, clickHandler) {
 	var stocksList = '';
 	for (var i = 0; i < inventory.getNumberOfSlots(); ++i) {
 		var slot = inventory.getSlot(i);
+		var slotHandler = clickHandler.replace('..slotNum..', i);
 		if (slot === null) {
-			stocksList += '<li style="display:inline"><img src="imgs/icons/products/emptyslot.png" style="max-width:50%" /></li>';
+			stocksList += `
+				<li onclick="${slotHandler}">
+					<img src="imgs/icons/products/emptyslot.png" />
+					<span>Emplacement libre</span>
+				</li>
+			`;
 		}else {
-			stocksList += '<li st/style="display:inline; position:relative" draggable="true" ondragstart="guiStartDragItem(event, \''+ inventoryName +'.'+ i +'\')"><span style="position:absolute; bottom:5px; right:5px; color:black">'+ slot.number +'</span><img src="imgs/icons/products/'+ slot.itemName +'.png" style="max-width:50%" /></li>';
+			stocksList += `
+				<li  onclick="${slotHandler}">
+					<img src="imgs/icons/products/${slot.itemName}.png" />
+					<span>${influence.productibles[slot.itemName].name} x${slot.number}</span>
+				</li>
+			`;
 		}
 	}
-	displayUl.innerHTML = stocksList;
-}
-
-function guiStartDragItem(e, itemId) {
-	e.dataTransfer.setData('application/x-item', itemId);
-}
-
-function guiAllowDropItem(e, inventoryId) {
-	if (e.dataTransfer.getData('application/x-item') != '') {
-		var destInventory = null;
-		var splitedId = inventoryId.split('.');
-		if (splitedId[0] == 'building') {
-			destInventory = influence.selected.stock;
-		}else if (splitedId[0] == 'char') {
-			destInventory = influence.characters[splitedId[1]].inventory;
-		}
-		if (destInventory != null) {
-			var itemId = e.dataTransfer.getData('application/x-item');
-			var splitedItemId = itemId.split('.');
-			var originInventory = null;
-			var product = '';
-			if (splitedItemId[0] == 'building') {
-				originInventory = influence.selected.stock;
-				product = originInventory.getSlot(splitedItemId[1]).itemName;
-			}else if (splitedItemId[0] == 'char') {
-				originInventory = influence.characters[splitedItemId[1]].inventory;
-				product = originInventory.getSlot(splitedItemId[2]).itemName;
-			}
-			if (originInventory != destInventory && destInventory.hasSlotForItem(product)) {
-				e.preventDefault();
-			}
-		}
-	}
-}
-
-function guiDropItem(e, inventoryId) {
-	e.preventDefault();
-	var destInventory = null;
-	var splitedId = inventoryId.split('.');
-	if (splitedId[0] == 'building') {
-		destInventory = influence.selected.stock;
-	}else if (splitedId[0] == 'char') {
-		destInventory = influence.characters[splitedId[1]].inventory;
-	}
-	if (destInventory != null) {
-		var itemId = e.dataTransfer.getData('application/x-item');
-		var splitedItemId = itemId.split('.');
-		var originInventory = null;
-		var originSlot = null;
-		if (splitedItemId[0] == 'building') {
-			originInventory = influence.selected.stock;
-			originSlot = originInventory.getSlot(parseInt(splitedItemId[1]));
-		}else if (splitedItemId[0] == 'char') {
-			originInventory = influence.characters[splitedItemId[1]].inventory;
-			originSlot = originInventory.getSlot(parseInt(splitedItemId[2]));
-		}
-		destInventory.addItems(originSlot.itemName, originSlot.number);
-		originInventory.removeItems(originSlot.itemName, originSlot.number);
-	}
-	guiFillFormManage(influence.selected);
+	return '<ul class="inventory">'+ stocksList +'</ul>';
 }
 
 function guiEventDynastyModified(dynasty) {
@@ -230,7 +119,6 @@ function guiEventReinit() {
 	guiShowCharacter(influence.currentCharacter);
 	guiShowDynasty(influence.currentCharacter.dynasty);
 	guiEventDateChanged();
-	guiFillFormBuild();
 }
 
 function guiFormatDate(date) {
