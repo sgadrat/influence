@@ -1,6 +1,7 @@
 var buildingClearingHouse = {
 	ClearingHouse: function (x, y, owner) {
 		tabbedBuilding.TabbedBuilding.call(this, x, y, owner);
+		this.type = 'clearinghouse';
 		this.animation = 'building.clearinghouse';
 		this.portrait = 'imgs/clearinghouse.jpg';
 

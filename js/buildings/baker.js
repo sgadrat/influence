@@ -1,6 +1,7 @@
 var buildingBaker = {
 	Baker: function (x, y, owner) {
 		productionBuilding.ProductionBuilding.call(this, x, y, owner);
+		this.type = 'baker';
 		this.animation = 'building.baker';
 		this.portrait = 'imgs/baker.jpg';
 

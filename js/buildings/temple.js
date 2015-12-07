@@ -1,6 +1,7 @@
 var buildingTemple = {
 	Temple: function (x, y, owner) {
 		Building.call(this, x, y, owner);
+		this.type = 'temple';
 		this.animation = 'building.temple';
 		this.portrait = 'imgs/temple.jpg';
 

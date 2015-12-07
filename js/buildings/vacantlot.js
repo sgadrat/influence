@@ -1,6 +1,7 @@
 var buildingVacantLot = {
 	VacantLot: function (x, y, owner) {
 		Building.call(this, x, y, owner);
+		this.type = 'vacantlot';
 		this.animation = 'building.vacant';
 		this.portrait = 'imgs/vacantlot.jpg';
 

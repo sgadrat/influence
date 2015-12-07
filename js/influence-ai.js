@@ -27,7 +27,17 @@ var AI_CHARACTER_BEHAVIOUR_GRAPH = `
 				PutEdibleToStock
 		GoTo
 		TakeMeal
-	->
+	->                            (Construct building not owned by the dynasty)
+		SelectRandomBuildingType
+		!
+			SelectDynastyBuildingOfType
+		SelectBuyableLot
+		GoTo
+		!
+			SelectDynastyBuildingOfType
+		BuyLot
+		BuildSelectedType
+	->                            (Nothing to do, just go for a walk)
 		SelectRandomBuilding
 		GoTo
 `;
@@ -37,6 +47,19 @@ var aiBehaviourTreeFunctions = {
 		return aiDoAction(context, {
 			action: 'construct',
 			buildingName: 'inn',
+			actor: influence.characters[context['character']],
+			originalLot: context['selectedBuilding'],
+			callback: aiDefaultActionCallback
+		});
+	},
+
+	BuildSelectedType: function (context) {
+		if (context['selectedBuildingType'] === null) {
+			return behaviourtree.FAIL;
+		}
+		return aiDoAction(context, {
+			action: 'construct',
+			buildingName: context['selectedBuildingType'],
 			actor: influence.characters[context['character']],
 			originalLot: context['selectedBuilding'],
 			callback: aiDefaultActionCallback
@@ -138,6 +161,16 @@ var aiBehaviourTreeFunctions = {
 		});
 	},
 
+	SelectDynastyBuildingOfType: function (context) {
+		var dynastyIndex = influence.characters[context['character']].dynasty;
+		return aiSelectBuilding(context, function(building) {
+			return (
+				building.owner == dynastyIndex &&
+				building.type == context['selectedBuildingType']
+			);
+		});
+	},
+
 	SelectDynastyBuildingWithEdible: function (context) {
 		var dynastyIndex = influence.characters[context['character']].dynasty;
 		return aiSelectBuilding(context, function(building) {
@@ -176,6 +209,14 @@ var aiBehaviourTreeFunctions = {
 		var buildings = getBuildingsList();
 		var selected = Math.floor(Math.random() * buildings.length);
 		context['selectedBuilding'] = buildings[selected];
+		return behaviourtree.SUCCESS;
+	},
+
+	SelectRandomBuildingType: function (context) {
+		var buildingsTypes = Object.getOwnPropertyNames(influence.basicBuildings)
+		console.log('buildingtypes: [' + buildingsTypes + ']');
+		var selected = Math.floor(Math.random() * buildingsTypes.length);
+		context['selectedBuildingType'] = buildingsTypes[selected];
 		return behaviourtree.SUCCESS;
 	},
 
@@ -226,10 +267,19 @@ function aiCompileNode(lines, lineNum) {
 		node = {type: 'sequence'};
 	}else if (nodeName == '?') {
 		node = {type: 'selector'};
+	}else if (nodeName == '!') {
+		node = {type: 'inverter'};
 	}else {
+		var action = aiBehaviourTreeFunctions[nodeName];
+		if (typeof action == 'undefined') {
+			console.log('influence-ai: unknown BT node "'+ nodeName +'"');
+			action = function (context) {
+				return false;
+			};
+		}
 		node = {
 			type: 'leaf',
-			action: aiBehaviourTreeFunctions[nodeName]
+			action: action
 		};
 	}
 
@@ -288,6 +338,7 @@ function aiBehaviourVillagerTick(character) {
 			'character': character.index,
 			'lastEat': getGameDate(),
 			'selectedBuilding': null,
+			'selectedBuildingType': null,
 		};
 	}
 

@@ -10,6 +10,7 @@ function Building(x, y, owner) {
 	this.anchorY = 7*16;
 	this.indoor = false;
 
+	this.type = 'building';
 	this.owner = owner;
 
 	this.getOwner = function() {
@@ -33,6 +34,7 @@ function Case(x, y, owner) {
 	this.animation = 'building.case';
 	this.portrait = 'imgs/case.jpg';
 
+	this.type = 'case';
 	this.indoor = true;
 }
 

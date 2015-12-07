@@ -1,6 +1,7 @@
 var buildingFarm = {
 	Farm: function (x, y, owner) {
 		productionBuilding.ProductionBuilding.call(this, x, y, owner, 'ferme');
+		this.type = 'farm';
 		this.animation = 'building.farm';
 		this.portrait = 'imgs/farm.jpg';
 		this.productibles = [

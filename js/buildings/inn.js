@@ -1,6 +1,7 @@
 var buildingInn = {
 	Inn: function (x, y, owner) {
 		tabbedBuilding.TabbedBuilding.call(this, x, y, owner);
+		this.type = 'inn';
 		this.animation = 'building.inn';
 		this.portrait = 'imgs/inn.jpg';
 		this.indoor = true;
