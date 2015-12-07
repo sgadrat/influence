@@ -81,6 +81,7 @@ var buildingClearingHouse = {
 			this.refreshTab('Achat');
 			this.refreshTab('Vente');
 			guiEventDynastyModified(this.owner);
+			return true;
 		};
 
 		this.sell = function (sellerIndex, productId, quantity, price) {
@@ -99,6 +100,13 @@ var buildingClearingHouse = {
 			});
 			this.refreshTab('Achat');
 			this.refreshTab('Vente');
+		};
+
+		this.have = function (productId) {
+			return (
+				typeof this.auctions[productId] != 'undefined' &&
+				this.auctions[productId].length > 0
+			);
 		};
 	},
 
