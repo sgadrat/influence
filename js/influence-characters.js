@@ -147,10 +147,14 @@ function Citizen(type, firstName, dynasty, x, y, behaviour) {
 	};
 
 	this.executeAction = function(action) {
+		var character_index = this.index;
 		this.actionTimeout = setTimeout(
 			function() {
-				influence.characterAction[action.action].func(action);
+				var res = influence.characterAction[action.action].func(action);
 				action.actor.finishedAction();
+				if (typeof action.callback != 'undefined') {
+					action.callback(character_index, action, res ? 'success' : 'fail');
+				}
 			},
 			influence.characterAction[action.action].duration
 		);

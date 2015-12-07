@@ -36,8 +36,10 @@ influence.characterAction = {
 						select(params.target);
 					}
 					guiEventDynastyModified(params.actor.dynasty);
+					return true;
 				}
 			}
+			return false;
 		}
 	},
 	'construct': {
@@ -64,7 +66,9 @@ influence.characterAction = {
 				}
 				influence.dynasties[params.actor.dynasty].wealth -= buildingInfo.price;
 				guiEventDynastyModified(params.actor.dynasty);
+				return true;
 			}
+			return false;
 		}
 	},
 	'work': {
@@ -72,7 +76,7 @@ influence.characterAction = {
 		description: 'Travail',
 		duration: 3000,
 		func: function(params) {
-			params.building.doWork(params.actor);
+			return params.building.doWork(params.actor);
 		}
 	},
 	'pray': {
@@ -80,7 +84,7 @@ influence.characterAction = {
 		description: 'Prière',
 		duration: 3000,
 		func: function(params) {
-			godsPray(params.actor);
+			return godsPray(params.actor);
 		}
 	},
 	'meal': {
@@ -99,10 +103,10 @@ influence.characterAction = {
 			}
 
 			if (willEat === null) {
-				return;
+				return false;
 			}
 			if (influence.dynasties[params.actor.dynasty].wealth < price) {
-				return;
+				return false;
 			}
 
 			influence.dynasties[params.actor.dynasty].wealth -= price;
@@ -111,7 +115,7 @@ influence.characterAction = {
 
 			params.building.mealTaken();
 			guiEventDynastyModified(params.actor.dynasty);
-			aiEventCharacterAte(params.actor.index);
+			return true;
 		}
 	},
 };

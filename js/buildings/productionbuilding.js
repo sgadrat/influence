@@ -28,12 +28,12 @@ var productionBuilding = {
 
 			// Check that wages can be paid
 			if (this.owner != worker.dynasty && owningDynasty.wealth < salary) {
-				return;
+				return false;
 			}
 
 			// Check that the building is actually producting something
 			if (this.production.product === null) {
-				return;
+				return false;
 			}
 
 			// Check that base materials are present
@@ -41,7 +41,7 @@ var productionBuilding = {
 			for (i = 0; i < materials.length; ++i) {
 				var needed = materials[i];
 				if (! this.stock.containItems(needed.material, needed.number)) {
-					return;
+					return false;
 				}
 			}
 
@@ -74,6 +74,7 @@ var productionBuilding = {
 			guiEventDynastyModified(this.owner);
 			this.refreshPageStock();
 			this.refreshPageProduction();
+			return true;
 		};
 
 		this.productionHtml = function () {

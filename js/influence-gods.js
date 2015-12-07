@@ -62,6 +62,7 @@ function godsPray(character) {
 		}
 	}
 	guiEventGodsModified();
+	return true;
 }
 
 function godsUpdate() {
