@@ -1,0 +1,62 @@
+Concept:
+========
+
+Something like a game with primary the objective of implementing things I read on the internet, like A* pathfinding or behaviour trees AI. All this in Javascript.
+
+Browser compatibility:
+======================
+
+Chromium / Chrome: Works great
+Firefox: Works
+Microsoft Edge: Maybe (not tested)
+Microsoft Internet Explorer: I don't think so (not tested)
+
+License:
+========
+
+The following files are distributed under the WTFPL version 2:
+ * index.html
+ * influence.css
+ * Any file under the "js/" directory (recursive)
+ * Any file under the "tests/" directory
+
+Files in "rtge/" directory depends on instructions given in the rtge repository.
+
+Files in the "imgs/" repository commes from the following assets :
+
+Fantasy town tiles:
+ * License: CC0
+ * Author: http://opengameart.org/users/surt
+ * Source: http://opengameart.org/content/town-tiles
+
+Town remix:
+ * License: CC-BY
+ * Author: Art by Lanea "Sharm" Zimmerman, Stephen "Redshrike" Challener, Carl "Surt" Olsson, and Jetrel, for OpenGameArt.org (http://opengameart.org)
+ * Source: http://opengameart.org/content/16x16-town-remix
+
+Orthographic Outdoor Tiles:
+ * License: CC0
+ * Author: http://opengameart.org/users/buch https://twitter.com/michelebucelli http://buch415.deviantart.com/
+ * Source: http://opengameart.org/content/orthographic-outdoor-tiles
+
+Parthenon-like temple:
+ * License: CC-BY
+ * Author: http://opengameart.org/users/surt
+ * Collaborator: http://opengameart.org/users/bart
+ * Source: http://opengameart.org/content/classical-temple-tiles
+
+Characters With Faces:
+ * License: CC-BY
+ * Author: Svetlana Kushnariova <lana-chan@yandex.ru>
+ * Source: http://opengameart.org/content/24x32-characters-with-faces-big-pack
+
+Crystal:
+ * License: CC-BY
+ * Author: http://opengameart.org/users/qubodup
+ * Source: http://opengameart.org/content/rotating-crystal-animation-8-step
+
+Glitch icons:
+ * License: CC0
+ * Author: http://opengameart.org/users/rubberduck
+ * Original work: http://www.glitchthegame.com/
+ * Source: http://opengameart.org/content/100-glitch-icons
