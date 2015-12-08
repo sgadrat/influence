@@ -70,7 +70,7 @@ var aiBehaviourTreeFunctions = {
 	BuyEdible: function (context) {
 		var edibles = ['pie', 'jam'];
 		for (var i = 0; i < edibles.length; ++i) {
-			if (context['selectedBuilding'].buy(context['character'], 'pie', 1)) {
+			if (context['selectedBuilding'].buy(context['character'], edibles[i], 1)) {
 				return behaviourtree.SUCCESS;
 			}
 		}
