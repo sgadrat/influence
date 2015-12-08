@@ -9,11 +9,13 @@ var buildingClearingHouse = {
 
 		this.tabs.push({
 			title: 'Achat',
-			generateContent: buildingClearingHouse.generateBuyPage
+			generateContent: buildingClearingHouse.generateBuyPage,
+			restricted: false
 		});
 		this.tabs.push({
 			title: 'Vente',
-			generateContent: buildingClearingHouse.generateSellPage
+			generateContent: buildingClearingHouse.generateSellPage,
+			restricted: false
 		});
 
 		this.buy = function (buyerIndex, productId, quantity) {

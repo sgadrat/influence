@@ -18,12 +18,16 @@ var buildingInn = {
 	},
 
 	generateEntrancePage: function(building) {
+		var welcome = 'Bienvenue dans votre auberge.';
+		if (building.owner != influence.currentCharacter.dynasty) {
+			welcome = `Bienvenue dans l'auberge de la famille ${influence.dynasties[building.owner].name}.`;
+		}
 		return `
 			<div>
 				<div style="text-align: center">
 					<img src="${building.portrait}" />
 				</div>
-				<p>Bienvenue dans votre auberge.</p>
+				<p>${welcome}</p>
 				<input type="button" class="btn" value="Prendre un repas" onclick="buildingInn.meal(influence.currentCharacter, influence.selected)" />
 			</div>
 		`;

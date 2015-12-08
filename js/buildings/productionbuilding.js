@@ -10,12 +10,14 @@ var productionBuilding = {
 
 		this.tabs.push({
 			title: 'Entrée',
-			generateContent: productionBuilding.generateEntrancePage
+			generateContent: productionBuilding.generateEntrancePage,
+			restricted: false
 		});
 		tabbedBuilding.addStock(this, 10);
 		this.tabs.push({
 			title: 'Production',
-			generateContent: productionBuilding.generateProductionPage
+			generateContent: productionBuilding.generateProductionPage,
+			restricted: true
 		});
 
 		this.workPossible = function (worker) {
@@ -51,12 +53,13 @@ var productionBuilding = {
 			var owningDynasty = influence.dynasties[this.owner];
 			var workerDynasty = influence.dynasties[worker.dynasty];
 			var productedItem;
-			var materials = influence.productibles[this.production.product].baseMaterials;
+			var materials;
 			var i;
 
 			if (! this.workPossible(worker)) {
 				return false;
 			}
+			materials = influence.productibles[this.production.product].baseMaterials;
 
 			// Pay the wage
 			owningDynasty.wealth -= salary;
@@ -138,11 +141,15 @@ var productionBuilding = {
 	},
 
 	generateEntrancePage: function (building) {
+		var welcome = `Bienvenue dans votre ${building.name}.`;
+		if (building.owner != influence.currentCharacter.dynasty) {
+			welcome = `Bienvenue dans la ${building.name} de la famille ${influence.dynasties[building.owner].name}.`;
+		}
 		return `
 			<div style="text-align: center">
 				<img src="${building.portrait}" />
 			</div>
-			<p>Bienvenue dans votre ${building.name}.</p>
+			<p>${welcome}.</p>
 			<input type="button" class="btn" value="Travailler" onclick="productionBuilding.work(influence.currentCharacter, influence.selected)" />
 		`;
 	},
@@ -156,7 +163,7 @@ var productionBuilding = {
 	},
 
 	changeProduction: function (productId) {
-		influence.selected.changePorduction(productId);
+		influence.selected.changeProduction(productId);
 	},
 
 	work: function (character, building) {

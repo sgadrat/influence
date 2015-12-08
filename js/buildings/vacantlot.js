@@ -19,7 +19,7 @@ var buildingVacantLot = {
 				}
 				content += '</ul>';
 			}else {
-				return;
+				content += `<p>Ce terrain est la propriété de la famille ${influence.dynasties[this.owner].name}</p>`;
 			}
 			document.getElementById('genericcontent').innerHTML = content;
 			guiShowGenericForm([]);

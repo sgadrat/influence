@@ -7,10 +7,14 @@ var tabbedBuilding = {
 			var tabTitles = [];
 			var formBody = '';
 			for (var tabIndex = 0; tabIndex < this.tabs.length; ++tabIndex) {
-				tabTitles.push(this.tabs[tabIndex].title);
+				var tab = this.tabs[tabIndex];
+				if (tab.restricted && influence.currentCharacter.dynasty != this.owner) {
+					continue;
+				}
+				tabTitles.push(tab.title);
 				formBody += `
 					<div id="building.tab.${tabIndex}">
-						${this.tabs[tabIndex].generateContent(this)}
+						${tab.generateContent(this)}
 					</div>
 				`;
 			}
@@ -38,7 +42,9 @@ var tabbedBuilding = {
 				}
 			}
 
-			document.getElementById('building.tab.'+tabIndex).innerHTML = this.tabs[tabIndex].generateContent(this);
+			if (!this.tabs[tabIndex].restricted || influence.currentCharacter.dynasty == this.owner) {
+				document.getElementById('building.tab.'+tabIndex).innerHTML = this.tabs[tabIndex].generateContent(this);
+			}
 		};
 	},
 
@@ -55,7 +61,8 @@ var tabbedBuilding = {
 
 		building.tabs.push({
 			title: 'Stock',
-			generateContent: tabbedBuilding.generateStockPage
+			generateContent: tabbedBuilding.generateStockPage,
+			restricted: true
 		});
 
 		building.refreshPageStock = function () {
