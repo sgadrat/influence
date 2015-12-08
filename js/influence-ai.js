@@ -100,8 +100,12 @@ var aiBehaviourTreeFunctions = {
 	},
 
 	ChangeProduction: function (context) {
+		var character = influence.characters[context['character']];
 		var building = context['selectedBuilding'];
 		if (building === null || typeof building.productibles == 'undefined') {
+			return behaviourtree.FAIL;
+		}
+		if (building.owner != character.dynasty) {
 			return behaviourtree.FAIL;
 		}
 
