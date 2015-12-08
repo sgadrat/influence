@@ -18,11 +18,9 @@ var productionBuilding = {
 			generateContent: productionBuilding.generateProductionPage
 		});
 
-		this.doWork = function (worker) {
+		this.workPossible = function (worker) {
 			var salary = 500;
 			var owningDynasty = influence.dynasties[this.owner];
-			var workerDynasty = influence.dynasties[worker.dynasty];
-			var productedItem;
 			var materials;
 			var i;
 
@@ -43,6 +41,21 @@ var productionBuilding = {
 				if (! this.stock.containItems(needed.material, needed.number)) {
 					return false;
 				}
+			}
+
+			return true;
+		};
+
+		this.doWork = function (worker) {
+			var salary = 500;
+			var owningDynasty = influence.dynasties[this.owner];
+			var workerDynasty = influence.dynasties[worker.dynasty];
+			var productedItem;
+			var materials = influence.productibles[this.production.product].baseMaterials;
+			var i;
+
+			if (! this.workPossible(worker)) {
+				return false;
 			}
 
 			// Pay the wage
@@ -73,6 +86,22 @@ var productionBuilding = {
 			guiEventDynastyModified(worker.dynasty);
 			guiEventDynastyModified(this.owner);
 			this.refreshPageStock();
+			this.refreshPageProduction();
+			return true;
+		};
+
+		this.changeProduction = function (productId) {
+			if (this.productibles.indexOf(productId) == -1) {
+				return false;
+			}
+			if (this.production.product == productId) {
+				return false;
+			}
+
+			this.production = {
+				product: productId,
+				work: 0
+			};
 			this.refreshPageProduction();
 			return true;
 		};
@@ -127,12 +156,7 @@ var productionBuilding = {
 	},
 
 	changeProduction: function (productId) {
-		influence.selected.production = {
-			product: productId,
-			work: 0
-		};
-
-		influence.selected.refreshPageProduction();
+		influence.selected.changePorduction(productId);
 	},
 
 	work: function (character, building) {

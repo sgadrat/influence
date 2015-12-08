@@ -50,6 +50,12 @@ influence.characterAction = {
 			var constructionPossible = params.buildingName in influence.basicBuildings;
 			var buildingInfo = null;
 			if (constructionPossible) {
+				constructionPossible = params.originalLot instanceof buildingVacantLot.VacantLot;
+			}
+			if (constructionPossible) {
+				constructionPossible = (rtge.state.objects.indexOf(params.originalLot) != -1);
+			}
+			if (constructionPossible) {
 				buildingInfo = influence.basicBuildings[params.buildingName];
 				if (influence.dynasties[params.actor.dynasty].wealth < buildingInfo.price) {
 					constructionPossible = false;

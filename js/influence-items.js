@@ -102,16 +102,21 @@ function Inventory(capacity) {
 	 * @return true if there is at least @a number items named @a item in the inventory, false otherwise
 	 */
 	this.containItems = function(item, number) {
-		var found = 0;
+		return this.countItems(item) >= number;
+	};
+
+	/**
+	 * @brief Return the number of items in the inventory.
+	 * @param item Name of the items to count
+	 * @return the number of items named @a item in the inventory
+	 */
+	this.countItems = function(item, number) {
 		for (var i = 0; i < this.slots.length; ++i) {
 			if (this.slots[i] !== null && this.slots[i].itemName == item) {
-				found += this.slots[i].number;
-				if (found >= number) {
-					return true;
-				}
+				return this.slots[i].number;
 			}
 		}
-		return false;
+		return 0;
 	};
 
 	/**

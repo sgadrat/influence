@@ -15,14 +15,7 @@ var AI_CHARACTER_BEHAVIOUR_GRAPH = `
 						SelectMarketWithEdible
 						GoTo
 						BuyEdible
-				?                 (Select an inn to put our meal in)
-					SelectDynastyInn
-					->            (Build an inn to select it)
-						SelectBuyableLot
-						GoTo
-						BuyLot
-						BuildInn
-						SelectDynastyInn
+				SelectDynastyInn
 				GoTo
 				PutEdibleToStock
 		GoTo
@@ -31,28 +24,36 @@ var AI_CHARACTER_BEHAVIOUR_GRAPH = `
 		SelectRandomBuildingType
 		!
 			SelectDynastyBuildingOfType
-		SelectBuyableLot
+		?
+			SelectDynastyLot
+			SelectBuyableLot
 		GoTo
+		?
+			IsDynastyBuilding
+			BuyLot
 		!
 			SelectDynastyBuildingOfType
-		BuyLot
 		BuildSelectedType
-	->                            (Nothing to do, just go for a walk)
+	->                            (Try to find somewhere to do something usefulle)
 		SelectRandomBuilding
 		GoTo
+		->
+			=
+				->                    (Put items consumed by the building in stocks)
+					SelectItemTypesNeededByBuilding
+					PutSomeItemsToStock
+			=
+				?
+					CanWork
+					ChangeProduction
+			=
+				Work
+			->                    (Take produced items in our inventory)
+				SelectItemTypesProducedByBuilding
+				TakeSomeItemsFromStock
 `;
 
 var aiBehaviourTreeFunctions = {
-	BuildInn: function (context) {
-		return aiDoAction(context, {
-			action: 'construct',
-			buildingName: 'inn',
-			actor: influence.characters[context['character']],
-			originalLot: context['selectedBuilding'],
-			callback: aiDefaultActionCallback
-		});
-	},
-
 	BuildSelectedType: function (context) {
 		if (context['selectedBuildingType'] === null) {
 			return behaviourtree.FAIL;
@@ -85,6 +86,36 @@ var aiBehaviourTreeFunctions = {
 		});
 	},
 
+	CanWork: function (context) {
+		var character = influence.characters[context['character']];
+		var building = context['selectedBuilding'];
+
+		if (building === null || typeof building.workPossible == 'undefined') {
+			return behaviourtree.FAIL;
+		}
+		if (! building.workPossible(character)) {
+			return behaviourtree.FAIL;
+		}
+		return behaviourtree.SUCCESS;
+	},
+
+	ChangeProduction: function (context) {
+		var building = context['selectedBuilding'];
+		if (building === null || typeof building.productibles == 'undefined') {
+			return behaviourtree.FAIL;
+		}
+
+		var productibles = building.productibles;
+		var selected = Math.floor(Math.random() * productibles.length);
+		if (productibles.indexOf('strawberry') != -1) { /*HACK: prefere strawberries in farms*/
+			selected = productibles.indexOf('strawberry');
+		}
+		if (building.changeProduction(productibles[selected])) {
+			return behaviourtree.SUCCESS;
+		}
+		return behaviourtree.FAIL;
+	},
+
 	GoTo: function (context) {
 		var character = influence.characters[context['character']];
 		if (character.currentAction == 'move') {
@@ -113,6 +144,16 @@ var aiBehaviourTreeFunctions = {
 		return behaviourtree.FAIL;
 	},
 
+	IsDynastyBuilding: function (context) {
+		var character = influence.characters[context['character']];
+		var building = context['selectedBuilding'];
+
+		if (building.owner == character.dynasty) {
+			return behaviourtree.SUCCESS;
+		}
+		return behaviourtree.FAIL;
+	},
+
 	IsHungry: function (context) {
 		var hoursSinceLastMeal = (getGameDate().getTime() - context['lastEat'].getTime()) / (60*60*1000);
 		if (hoursSinceLastMeal >= 24) {
@@ -125,7 +166,7 @@ var aiBehaviourTreeFunctions = {
 		var character = influence.characters[context['character']];
 		var building = context['selectedBuilding'];
 
-		if (typeof building.stock == 'undefined') {
+		if (typeof building.stock == 'undefined' || building.owner != character.dynasty) {
 			return behaviourtree.FAIL;
 		}
 
@@ -135,6 +176,26 @@ var aiBehaviourTreeFunctions = {
 			if (building.stock.hasSlotForItem(item) && character.inventory.containItems(item, 1)) {
 				character.inventory.removeItems(item, 1);
 				building.stock.addItems(item, 1);
+				return behaviourtree.SUCCESS;
+			}
+		}
+		return behaviourtree.FAIL;
+	},
+
+	PutSomeItemsToStock: function (context) {
+		var character = influence.characters[context['character']];
+		var building = context['selectedBuilding'];
+
+		if (typeof building.stock == 'undefined' || building.owner != character.dynasty) {
+			return behaviourtree.FAIL;
+		}
+
+		for (var i = 0; i < context['selectedItemTypes'].length; ++i) {
+			var item = context['selectedItemTypes'][i];
+			var num = character.inventory.countItems(item);
+			if (num > 0 && building.stock.hasSlotForItem(item)) {
+				character.inventory.removeItems(item, num);
+				building.stock.addItems(item, num);
 				return behaviourtree.SUCCESS;
 			}
 		}
@@ -194,6 +255,16 @@ var aiBehaviourTreeFunctions = {
 		});
 	},
 
+	SelectDynastyLot: function (context) {
+		var dynastyIndex = influence.characters[context['character']].dynasty;
+		return aiSelectBuilding(context, function(building) {
+			return (
+				building instanceof buildingVacantLot.VacantLot &&
+				building.owner == dynastyIndex
+			);
+		});
+	},
+
 	SelectInnWithMeal: function (context) {
 		return aiSelectBuilding(context, function(building) {
 			return (
@@ -205,6 +276,50 @@ var aiBehaviourTreeFunctions = {
 		});
 	},
 
+	SelectItemTypesNeededByBuilding: function (context) {
+		var building = context['selectedBuilding'];
+		var neededItems = [];
+		if (building === null) {
+			return behaviourtree.FAIL;
+		}
+
+		// Add items needed by consumation buildings
+		if (building instanceof buildingInn.Inn) {
+			neededItems.push('pie');
+			neededItems.push('jam');
+		}
+
+		// Automatically add items needed by production buildings
+		if (typeof building.productibles != 'undefined') {
+			for (var productIndex = 0; productIndex < building.productibles.length; ++productIndex) {
+				var productId = building.productibles[productIndex];
+				var materials = influence.productibles[productId].baseMaterials;
+				for (var materialIndex = 0; materialIndex < materials.length; ++materialIndex) {
+					var materialId = materials[materialIndex].material;
+					if (neededItems.indexOf(materialId) == -1) {
+						neededItems.push(materialId);
+					}
+				}
+			}
+		}
+
+		// Select needed items or fail if no item is needed
+		if (neededItems.length == 0) {
+			return behaviourtree.FAIL;
+		}
+		context['selectedItemTypes'] = neededItems;
+		return behaviourtree.SUCCESS;
+	},
+
+	SelectItemTypesProducedByBuilding: function (context) {
+		var building = context['selectedBuilding'];
+		if (building === null || typeof building.productibles == 'undefined') {
+			return behaviourtree.FAIL;
+		}
+		context['selectedItemTypes'] = building.productibles;
+		return behaviourtree.SUCCESS;
+	},
+
 	SelectRandomBuilding: function (context) {
 		var buildings = getBuildingsList();
 		var selected = Math.floor(Math.random() * buildings.length);
@@ -213,8 +328,7 @@ var aiBehaviourTreeFunctions = {
 	},
 
 	SelectRandomBuildingType: function (context) {
-		var buildingsTypes = Object.getOwnPropertyNames(influence.basicBuildings)
-		console.log('buildingtypes: [' + buildingsTypes + ']');
+		var buildingsTypes = Object.getOwnPropertyNames(influence.basicBuildings);
 		var selected = Math.floor(Math.random() * buildingsTypes.length);
 		context['selectedBuildingType'] = buildingsTypes[selected];
 		return behaviourtree.SUCCESS;
@@ -224,7 +338,7 @@ var aiBehaviourTreeFunctions = {
 		var character = influence.characters[context['character']];
 		var building = context['selectedBuilding'];
 
-		if (typeof building.stock == 'undefined') {
+		if (typeof building.stock == 'undefined' || building.owner != character.dynasty) {
 			return behaviourtree.FAIL;
 		}
 
@@ -254,6 +368,45 @@ var aiBehaviourTreeFunctions = {
 			context['lastEat'] = getGameDate();
 		}
 		return res;
+	},
+
+	TakeSomeItemsFromStock: function (context) {
+		var character = influence.characters[context['character']];
+		var building = context['selectedBuilding'];
+
+		if (typeof building.stock == 'undefined' || building.owner != character.dynasty) {
+			return behaviourtree.FAIL;
+		}
+
+		for (var i = 0; i < context['selectedItemTypes'].length; ++i) {
+			var item = context['selectedItemTypes'][i];
+			var num = building.stock.countItems(item);
+			if (num > 0 && character.inventory.hasSlotForItem(item)) {
+				building.stock.removeItems(item, num);
+				character.inventory.addItems(item, num);
+				return behaviourtree.SUCCESS;
+			}
+		}
+		return behaviourtree.FAIL;
+	},
+
+	Work: function (context) {
+		var character = influence.characters[context['character']];
+		var building = context['selectedBuilding'];
+
+		if (building === null || typeof building.workPossible == 'undefined') {
+			return behaviourtree.FAIL;
+		}
+		if (! building.workPossible(character)) {
+			return behaviourtree.FAIL;
+		}
+
+		return aiDoAction(context, {
+			action: 'work',
+			actor: character,
+			building: building,
+			callback: aiDefaultActionCallback
+		});
 	}
 };
 
@@ -269,10 +422,12 @@ function aiCompileNode(lines, lineNum) {
 		node = {type: 'selector'};
 	}else if (nodeName == '!') {
 		node = {type: 'inverter'};
+	}else if (nodeName == '=') {
+		node = {type: 'identity'};
 	}else {
 		var action = aiBehaviourTreeFunctions[nodeName];
 		if (typeof action == 'undefined') {
-			console.log('influence-ai: unknown BT node "'+ nodeName +'"');
+			//console.warn('influence-ai: unknown BT node "'+ nodeName +'"');
 			action = function (context) {
 				return false;
 			};
@@ -339,6 +494,7 @@ function aiBehaviourVillagerTick(character) {
 			'lastEat': getGameDate(),
 			'selectedBuilding': null,
 			'selectedBuildingType': null,
+			'selectedItemTypes': [],
 		};
 	}
 
