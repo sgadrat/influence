@@ -3,6 +3,20 @@ Concept:
 
 Something like a game with primary the objective of implementing things I read on the internet, like A* pathfinding or behaviour trees AI. All this in Javascript.
 
+Cloning instructions:
+=====================
+
+This project uses submodules, so you have to use the "--recursive" option:
+
+git clone --recursive https://github.com/sgadrat/influence.git
+
+Or you can do it in two steps :
+
+git clone https://github.com/sgadrat/influence.git
+cd influence/rtge
+git submodule init
+git submodule update
+
 Browser compatibility:
 ======================
 
