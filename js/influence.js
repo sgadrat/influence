@@ -12,6 +12,7 @@ var influence = {
 	basicBuildings: {},  // Filled in buildings/*.js
 	productibles: {},    // Filled in influence-items.js
 	gods: [],            // Filled in influence-gods.js
+	map: {},             // Filled in influence-map.js
 };
 
 function init() {
@@ -135,13 +136,16 @@ function init() {
 	rtge.init(
 		'view',
 		{
-			'terrain': 'imgs/map.jpg',
+			'terrain': 'tilemaps/map',
 			'objects': objects
 		},
 		animations,
 		[],
 		[
-			'imgs/map.jpg',
+			{
+				'name': 'tilemaps/map',
+				'tilemap': influence.map
+			},
 			'imgs/case.jpg',
 			'imgs/vacantlot.jpg',
 			'imgs/baker.jpg',

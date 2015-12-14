@@ -12,6 +12,9 @@ construct
 guiHideGenericForm
 init'
 
+# Ignored files
+ignored='js/influence-map.js'
+
 # Let override defaults
 if [ -f ~/.influence-eslint.defaults ]; then
 	. ~/.influence-eslint.defaults
@@ -30,8 +33,17 @@ done
 
 # Generate an aggregated js file
 for f in `grep 'script src=' "$root_dir/$html_path" | sed 's/\t<script src="\([^"]\+\)".\+/\1/'`; do
-	echo -e "\n/* === $f === */\n" >> "$js_out"
-	cat "$root_dir/$f" >> "$js_out"
+	verified=1
+	for i in $ignored; do
+		if [ "x$i" == "x$f" ]; then
+			verified=0
+		fi
+	done
+
+	if [ $verified -eq 1 ]; then
+		echo -e "\n/* === $f === */\n" >> "$js_out"
+		cat "$root_dir/$f" >> "$js_out"
+	fi
 done
 
 # Generate config file
