@@ -95,6 +95,9 @@ function init() {
 	];
 	animations['chars.0.walk.left'].durations = [100, 100, 100];
 
+	influence.maze = new pathfinder.Maze();
+	mapMazeToRtgeMaze();
+
 	var objects = getBuildingsFromMap();
 
 	influence.dynasties.push(new Dynasty('Ramorre', 100000));
@@ -102,12 +105,14 @@ function init() {
 	influence.dynasties.push(new Dynasty('Delvillajo', 1000000));
 	godsEventNewDynasty();
 
-	influence.currentCharacter = new Citizen('0', 'George', 0, 81*16, 48*16);
+	var spawn = getRandomWaypoint();
+	influence.currentCharacter = new Citizen('0', 'George', 0, spawn.x, spawn.y);
 	objects.push(influence.currentCharacter);
 
 	var firstNames = ['Robert', 'Bob', 'Jean', 'Sylvain', 'Joël', 'Florent', 'Marc'];
 	for (var i = 0; i < firstNames.length; ++i) {
-		var c = new Citizen('0', firstNames[i], 1, 81*16, 48*16, aiBehaviourVillagerTick);
+		spawn = getRandomWaypoint();
+		var c = new Citizen('0', firstNames[i], 1, spawn.x, spawn.y, aiBehaviourVillagerTick);
 		objects.push(c);
 	}
 
@@ -172,9 +177,6 @@ function init() {
 		},
 		camera
 	);
-
-	influence.maze = new pathfinder.Maze();
-	mapMazeToRtgeMaze();
 
 	guiEventReinit();
 }
@@ -356,6 +358,11 @@ function getWaypoint(x, y) {
 		}
 	}
 	return null;
+}
+
+function getRandomWaypoint() {
+	var selected = Math.floor(Math.random() * influence.maze.waypoints.length);
+	return influence.maze.waypoints[selected];
 }
 
 function getMapLayerData(layerName) {
