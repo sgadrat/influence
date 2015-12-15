@@ -95,23 +95,7 @@ function init() {
 	];
 	animations['chars.0.walk.left'].durations = [100, 100, 100];
 
-	var objects = [
-		new buildingVacantLot.VacantLot(58*16, 10*16),
-		new buildingVacantLot.VacantLot(73*16, 10*16),
-		new buildingVacantLot.VacantLot(8*16, 22*16),
-		new buildingVacantLot.VacantLot(23*16, 22*16),
-		new buildingVacantLot.VacantLot(40*16, 22*16),
-		new buildingVacantLot.VacantLot(58*16, 22*16),
-		new buildingVacantLot.VacantLot(73*16, 22*16),
-		new buildingVacantLot.VacantLot(8*16, 34*16),
-		new buildingVacantLot.VacantLot(23*16, 34*16),
-		new buildingTemple.Temple(58*16, 34*16),
-		new buildingVacantLot.VacantLot(73*16, 34*16),
-		new buildingVacantLot.VacantLot(8*16, 46*16),
-		new buildingVacantLot.VacantLot(23*16, 46*16),
-		new buildingVacantLot.VacantLot(58*16, 46*16),
-		new buildingVacantLot.VacantLot(73*16, 46*16),
-	];
+	var objects = getBuildingsFromMap();
 
 	influence.dynasties.push(new Dynasty('Ramorre', 100000));
 	godsEventNewDynasty();
@@ -254,6 +238,34 @@ function getBuildingsList() {
 		}
 	}
 	return buildings;
+}
+
+function getBuildingsFromMap() {
+	var res = [];
+
+	// Get the buildings info from the tilemap
+	var mapBuildings = getMapLayerData('buildings');
+	if (mapBuildings === null) {
+		alert('getBuildingsFromMap: no building info in map');
+		return;
+	}
+
+	// Create buildings as indicated
+	var creators = [buildingTemple.Temple, buildingVacantLot.VacantLot];
+	for (var dataIndex = 0; dataIndex < mapBuildings.length; ++dataIndex) {
+		var buildingNum = mapBuildings[dataIndex];
+		if (buildingNum == 0 || buildingNum > creators.length) {
+			continue;
+		}
+
+		var x = dataIndex % influence.map.width;
+		var y = Math.floor(dataIndex / influence.map.width);
+		var worldX = x * 16;
+		var worldY = y * 16;
+		res.push(new creators[buildingNum-1](worldX, worldY));
+	}
+
+	return res;
 }
 
 function mapMazeToRtgeMaze() {
