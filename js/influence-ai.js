@@ -483,28 +483,30 @@ function aiCompileBehaviourTree(graph) {
 
 var AI_CHARACTER_BEHAVIOUR = aiCompileBehaviourTree(AI_CHARACTER_BEHAVIOUR_GRAPH);
 
-function aiBehaviourVillagerTick(character) {
-	// Do nothing if already busy
-	if (character.currentAction != 'idle') {
-		return;
-	}
+influence.aiBehaviours = {
+	'BasicNpcBehaviour': function(character) {
+		// Do nothing if already busy
+		if (character.currentAction != 'idle') {
+			return;
+		}
 
-	// Create context if not already done
-	if (typeof character.aiContext === 'undefined') {
-		character.aiContext = {
-			'actionstate': {},
-			'btdata': behaviourtree.initContext(AI_CHARACTER_BEHAVIOUR),
-			'character': character.index,
-			'lastEat': getGameDate(),
-			'selectedBuilding': null,
-			'selectedBuildingType': null,
-			'selectedItemTypes': [],
-		};
-	}
+		// Create context if not already done
+		if (typeof character.aiContext === 'undefined') {
+			character.aiContext = {
+				'actionstate': {},
+				'btdata': behaviourtree.initContext(AI_CHARACTER_BEHAVIOUR),
+				'character': character.index,
+				'lastEat': getGameDate(),
+				'selectedBuilding': null,
+				'selectedBuildingType': null,
+				'selectedItemTypes': [],
+			};
+		}
 
-	// Tick the behaviour tree
-	behaviourtree.tick(character.aiContext['btdata'], character.aiContext);
-}
+		// Tick the behaviour tree
+		behaviourtree.tick(character.aiContext['btdata'], character.aiContext);
+	}
+};
 
 function aiDefaultActionCallback(characterIndex, actionOrder, res) {
 	influence.characters[characterIndex].aiContext['actionstate'][actionOrder.action] = res;

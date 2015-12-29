@@ -43,8 +43,139 @@ influence.map = { "height":51,
          "width":84,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "height":0,
+         "name":"objects",
+         "objects":[
+                {
+                 "height":16,
+                 "id":5,
+                 "name":"Jean Delvilajo",
+                 "properties":
+                    {
+                     "behaviour":"BasicNpcBehaviour",
+                     "dynasty":"Delvillajo",
+                     "firstName":"Jean"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":640,
+                 "y":576
+                }, 
+                {
+                 "height":16,
+                 "id":6,
+                 "name":"Robert Delvilajo",
+                 "properties":
+                    {
+                     "behaviour":"BasicNpcBehaviour",
+                     "dynasty":"Delvillajo",
+                     "firstName":"Robert"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":768,
+                 "y":576
+                }, 
+                {
+                 "height":16,
+                 "id":7,
+                 "name":"Bob Delvilajo",
+                 "properties":
+                    {
+                     "behaviour":"BasicNpcBehaviour",
+                     "dynasty":"Delvillajo",
+                     "firstName":"Bob"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":528,
+                 "y":576
+                }, 
+                {
+                 "height":16,
+                 "id":8,
+                 "name":"Sylvain Delvilajo",
+                 "properties":
+                    {
+                     "behaviour":"BasicNpcBehaviour",
+                     "dynasty":"Delvillajo",
+                     "firstName":"Sylvain"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":528,
+                 "y":768
+                }, 
+                {
+                 "height":16,
+                 "id":9,
+                 "name":"Jo\u00ebl Delvilajo",
+                 "properties":
+                    {
+                     "behaviour":"BasicNpcBehaviour",
+                     "dynasty":"Delvillajo",
+                     "firstName":"Jo\u00ebl"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":640,
+                 "y":768
+                }, 
+                {
+                 "height":16,
+                 "id":10,
+                 "name":"Florent Delvilajo",
+                 "properties":
+                    {
+                     "behaviour":"BasicNpcBehaviour",
+                     "dynasty":"Delvillajo",
+                     "firstName":"Florent"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":768,
+                 "y":768
+                }, 
+                {
+                 "height":16,
+                 "id":11,
+                 "name":"Marc Delvilajo",
+                 "properties":
+                    {
+                     "behaviour":"BasicNpcBehaviour",
+                     "dynasty":"Delvillajo",
+                     "firstName":"Marc"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":768,
+                 "y":384
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":false,
+         "width":0,
+         "x":0,
+         "y":0
         }],
- "nextobjectid":1,
+ "nextobjectid":12,
  "orientation":"orthogonal",
  "properties":
     {

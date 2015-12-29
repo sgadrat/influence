@@ -13,6 +13,7 @@ var influence = {
 	productibles: {},    // Filled in influence-items.js
 	gods: [],            // Filled in influence-gods.js
 	map: {},             // Filled in influence-map.js
+	aiBehaviours: {},    // Filled in influence-ai.js
 };
 
 function init() {
@@ -109,12 +110,7 @@ function init() {
 	influence.currentCharacter = new Citizen('0', 'George', 0, spawn.x, spawn.y);
 	objects.push(influence.currentCharacter);
 
-	var firstNames = ['Robert', 'Bob', 'Jean', 'Sylvain', 'Joël', 'Florent', 'Marc'];
-	for (var i = 0; i < firstNames.length; ++i) {
-		spawn = getRandomWaypoint();
-		var c = new Citizen('0', firstNames[i], 1, spawn.x, spawn.y, aiBehaviourVillagerTick);
-		objects.push(c);
-	}
+	addNpcsFromMap(objects);
 
 	var camera = new rtge.Camera();
 	camera.tick = function(timeDiff) {
@@ -365,11 +361,57 @@ function getRandomWaypoint() {
 	return influence.maze.waypoints[selected];
 }
 
-function getMapLayerData(layerName) {
+function getMapLayer(layerName) {
 	for (var layerIndex = 0; layerIndex < influence.map.layers.length; ++layerIndex) {
 		if (influence.map.layers[layerIndex].name == layerName) {
-			return influence.map.layers[layerIndex].data;
+			return influence.map.layers[layerIndex];
 		}
 	}
 	return null;
+}
+
+function getMapLayerData(layerName) {
+	var layer = getMapLayer(layerName);
+	if (layer === null) {
+		return null;
+	}
+	return layer.data;
+}
+
+function addNpcsFromMap(collection) {
+	var layer = getMapLayer('objects');
+	if (layer === null) {
+		return;
+	}
+	for (var objectIndex = 0; objectIndex < layer.objects.length; ++objectIndex) {
+		var object = layer.objects[objectIndex];
+
+		var firstName = object.properties.firstName;
+		var dynasty = getDynastyIndexFromName(object.properties.dynasty);
+		if (dynasty >= influence.dynasties.length) {
+			alert('Unknown dynasty "'+ object.properties.dynasty + '" in map data');
+			continue;
+		}
+		var behaviour = null;
+		if (typeof object.properties.behaviour != 'undefined') {
+			behaviour = influence.aiBehaviours[object.properties.behaviour];
+			if (typeof behaviour == 'undefined') {
+				alert('Unknown behaviour "'+ object.properties.behaviour +'" in map data');
+				behaviour = null;
+			}
+		}
+
+		var npc = new Citizen('0', firstName, dynasty, object.x, object.y, behaviour);
+		collection.push(npc);
+	}
+}
+
+function getDynastyIndexFromName(name) {
+	var dynastyIndex;
+	for (dynastyIndex = 0; dynastyIndex < influence.dynasties.length; ++dynastyIndex) {
+		if (influence.dynasties[dynastyIndex].name == name) {
+			break;
+		}
+	}
+	return dynastyIndex;
 }
