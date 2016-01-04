@@ -61,9 +61,12 @@ function MovingObject(x, y) {
 	};
 }
 
-function Citizen(type, firstName, dynasty, x, y, behaviour) {
+function Citizen(type, firstName, dynasty, x, y, behaviour, dialog) {
 	if (typeof behaviour == 'undefined') {
 		behaviour = null;
+	}
+	if (typeof dialog == 'undefined') {
+		dialog = null;
 	}
 
 	MovingObject.call(this, x, y);
@@ -86,6 +89,7 @@ function Citizen(type, firstName, dynasty, x, y, behaviour) {
 	this.currentAction = 'idle';
 	this.actionTimeout = null;
 	this.indoorDestination = false;
+	this.dialog = dialog;
 
 	this.index = influence.characters.length;
 	influence.characters.push(this);
@@ -93,6 +97,12 @@ function Citizen(type, firstName, dynasty, x, y, behaviour) {
 	this.setCurrentAction = function(val) {
 		this.currentAction = val;
 		guiEventCharacterActionChanged(this.index);
+	};
+
+	this.click = function() {
+		if (this.dialog !== null) {
+			guiStartDialog(this.index, this.dialog());
+		}
 	};
 
 	this.lastDir = 'bot';

@@ -124,3 +124,39 @@ function guiEventReinit() {
 function guiFormatDate(date) {
 	return date.getUTCDate()+'/'+(date.getUTCMonth()+1)+'/'+date.getUTCFullYear();
 }
+
+function guiStartDialog(speakerIndex, dialog) {
+	influence.guiVariables['dialog'] = dialog;
+	guiFillDialogForm();
+	document.getElementById('formdialog').style.visibility = 'visible';
+}
+
+function guiFillDialogForm() {
+	var dialog = influence.guiVariables['dialog'];
+	document.getElementById('dialogtext').innerHTML = dialog.currentText();
+
+	var optionsList = document.getElementById('dialogoptions');
+	optionsList.innerHTML = '';
+	var choices = dialog.currentOptions();
+	for (var choiceIndex = 0; choiceIndex < choices.length; ++choiceIndex) {
+		var optionIndex = choices[choiceIndex];
+		var option = dialog.getOption(optionIndex);
+		optionsList.innerHTML += `
+			<li onclick="guiDialogOption(${choiceIndex})">${option.text}</li>
+		`;
+	}
+}
+
+function guiDialogOption(index) {
+	var dialog = influence.guiVariables['dialog'];
+	dialog.takeOption(index);
+	if (dialog.currentStep() !== null) {
+		guiFillDialogForm();
+	}else {
+		guiHideDialogForm();
+	}
+}
+
+function guiHideDialogForm() {
+	document.getElementById('formdialog').style.visibility = 'hidden';
+}

@@ -14,6 +14,7 @@ var influence = {
 	gods: [],            // Filled in influence-gods.js
 	map: {},             // Filled in influence-map.js
 	aiBehaviours: {},    // Filled in influence-ai.js
+	dialogs: {},         // Filled in influence-dialogs.js
 };
 
 function init() {
@@ -392,18 +393,28 @@ function addNpcsFromMap(collection) {
 			alert('Unknown dynasty "'+ object.properties.dynasty + '" in map data');
 			continue;
 		}
-		var behaviour = null;
-		if (typeof object.properties.behaviour != 'undefined') {
-			behaviour = influence.aiBehaviours[object.properties.behaviour];
-			if (typeof behaviour == 'undefined') {
-				alert('Unknown behaviour "'+ object.properties.behaviour +'" in map data');
-				behaviour = null;
-			}
-		}
+		var behaviour = getObjectFromMapObjectProperty(
+			object, 'behaviour', influence.aiBehaviours
+		);
+		var dialog = getObjectFromMapObjectProperty(
+			object, 'dialog', influence.dialogs
+		);
 
-		var npc = new Citizen('0', firstName, dynasty, object.x, object.y, behaviour);
+		var npc = new Citizen('0', firstName, dynasty, object.x, object.y, behaviour, dialog);
 		collection.push(npc);
 	}
+}
+
+function getObjectFromMapObjectProperty(object, property, collection) {
+	var res = null;
+	if (typeof object.properties[property] != 'undefined') {
+		res = collection[object.properties[property]];
+		if (typeof res == 'undefined') {
+			alert('Unknown property "'+ object.properties[property] +'" in map data');
+			res = null;
+		}
+	}
+	return res;
 }
 
 function getDynastyIndexFromName(name) {

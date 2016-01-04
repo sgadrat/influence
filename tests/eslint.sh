@@ -9,6 +9,7 @@ conf_file='/tmp/eslint.conf' # File to store eslint config
 # Variables used indirectly (mainly by gui)
 exports='Case
 construct
+guiDialogOption
 guiHideGenericForm
 init'
 

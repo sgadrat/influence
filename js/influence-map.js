@@ -167,6 +167,23 @@ influence.map = { "height":51,
                  "width":16,
                  "x":768,
                  "y":384
+                }, 
+                {
+                 "height":16,
+                 "id":12,
+                 "name":"Grand sage",
+                 "properties":
+                    {
+					 "dialog":"TestDialog",
+                     "dynasty":"Delvillajo",
+                     "firstName":"Sage"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":16,
+                 "x":528,
+                 "y":384
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -175,7 +192,7 @@ influence.map = { "height":51,
          "x":0,
          "y":0
         }],
- "nextobjectid":12,
+ "nextobjectid":13,
  "orientation":"orthogonal",
  "properties":
     {

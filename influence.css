@@ -31,6 +31,45 @@
 	vertical-align: top;
 }
 
+#dialogcontent .portrait {
+	display: inline-block;
+	width: 12%;
+	padding: 0;
+	margin: 0;
+	vertical-align: top;
+	text-align: center;
+}
+
+#dialogcontent .portrait img {
+	height: 100%;
+}
+
+#dialogcontent .content {
+	display: inline-block;
+	width: 76%;
+	padding: 0;
+	margin: 0;
+	vertical-align: top;
+	font-size: x-large;
+	overflow-y: auto;
+	max-height: 100%;
+	padding: 0 0.5em;
+	box-sizing: border-box;
+}
+
+#dialogoptions {
+	text-align: right;
+	list-style-position: inside;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+#dialogoptions li:hover {
+	list-style-type: circle;
+	background-color: #CCCCCC;
+}
+
 .window {
 	background-color: white;
 	color: black;
