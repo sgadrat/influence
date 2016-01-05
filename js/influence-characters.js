@@ -4,7 +4,7 @@ function MovingObject(x, y) {
 	this.y = y;
 	this.z = 1;
 	this.anchorY = 11;
-	this.animation = 'chars.0.idle.bot';
+	this.animation = null;
 
 	this.path = [];
 	this.movingTime = 0;
@@ -61,7 +61,7 @@ function MovingObject(x, y) {
 	};
 }
 
-function Citizen(type, firstName, dynasty, x, y, behaviour, dialog) {
+function Citizen(skin, graphics, animations, firstName, dynasty, x, y, behaviour, dialog) {
 	if (typeof behaviour == 'undefined') {
 		behaviour = null;
 	}
@@ -70,22 +70,25 @@ function Citizen(type, firstName, dynasty, x, y, behaviour, dialog) {
 	}
 
 	MovingObject.call(this, x, y);
+	this.skin = skin;
+	var skinId = getSkinId(this.skin);
+	buildAnimations(this.skin, graphics, animations);
 	this.firstName = firstName;
 	this.dynasty = dynasty;
 	this.inventory = new Inventory(2);
-	this.animTop = 'chars.'+ type +'.walk.top';
-	this.animRight = 'chars.'+ type +'.walk.right';
-	this.animBot = 'chars.'+ type +'.walk.bot';
-	this.animLeft = 'chars.'+ type +'.walk.left';
-	this.idleTop = 'chars.'+ type +'.idle.top';
-	this.idleRight = 'chars.'+ type +'.idle.right';
-	this.idleBot = 'chars.'+ type +'.idle.bot';
-	this.idleLeft = 'chars.'+ type +'.idle.left';
+	this.animTop = `chars.${skinId}.walk.top`;
+	this.animRight = `chars.${skinId}.walk.right`;
+	this.animBot = `chars.${skinId}.walk.bot`;
+	this.animLeft = `chars.${skinId}.walk.left`;
+	this.idleTop = `chars.${skinId}.idle.top`;
+	this.idleRight = `chars.${skinId}.idle.right`;
+	this.idleBot = `chars.${skinId}.idle.bot`;
+	this.idleLeft = `chars.${skinId}.idle.left`;
+	this.animation = this.idleBot;
 	if (behaviour !== null) {
 		this.tickers['Citizen.behaviour'] = function(_this, timeElasped) { behaviour(_this); };
 	}
 
-	this.portrait = 'imgs/chars/'+ type +'_portrait.png';
 	this.currentAction = 'idle';
 	this.actionTimeout = null;
 	this.indoorDestination = false;
@@ -190,4 +193,97 @@ Citizen.prototype = new MovingObject(0, 0);
 function Dynasty(name, wealth) {
 	this.name = name;
 	this.wealth = wealth;
+}
+
+function buildAnimations(skin, graphics, animations) {
+	var gender = skin.gender;
+	var body = skin.body;
+	var clothes = skin.clothes;
+	var hair = skin.hair;
+	var skinId = getSkinId(skin);
+
+	// Add portrait components
+	/* no use for the composite, portraits are only displayed in gui */
+	addGraphic(graphics, `imgs/chars/${gender}/body/${body}/portrait_neutral.png`);
+	addGraphic(graphics, `imgs/chars/${gender}/clothes/${clothes}/portrait_neutral.png`);
+	addGraphic(graphics, `imgs/chars/${gender}/hair/${hair}/portrait_neutral.png`);
+
+	// Create animations
+	var directions = ['top', 'right', 'bot', 'left'];
+	//var parts = [['body', body], ['clothes', clothes], ['hair', hair]];
+	for (var directionIndex = 0; directionIndex < directions.length; ++directionIndex) {
+		var direction = directions[directionIndex];
+
+		// Add composite graphics
+		var animSteps = [ `walk_${direction}_0`, `idle_${direction}`, `walk_${direction}_2`];
+		for (var animStepIndex = 0; animStepIndex < animSteps.length; ++animStepIndex) {
+			var animStep = animSteps[animStepIndex];
+			addGraphic(
+				graphics,
+				{
+					'name': `composites/chars/${skinId}/${animStep}`,
+					'data': {
+						'type': 'composite',
+						'width': 16,
+						'height': 27,
+						'components': [
+							`imgs/chars/${gender}/body/${body}/${animStep}.png`,
+							`imgs/chars/${gender}/clothes/${clothes}/${animStep}.png`,
+							`imgs/chars/${gender}/hair/${hair}/${animStep}.png`
+						]
+					}
+				}
+			);
+		}
+
+		// Add the animations for this direction
+		animations[`chars.${skinId}.idle.${direction}`] = new rtge.Animation();
+		animations[`chars.${skinId}.idle.${direction}`].steps = [
+			`composites/chars/${skinId}/idle_${direction}`
+		];
+		animations[`chars.${skinId}.idle.${direction}`].durations = [600000];
+
+		animations[`chars.${skinId}.walk.${direction}`] = new rtge.Animation();
+		animations[`chars.${skinId}.walk.${direction}`].steps = [
+			`composites/chars/${skinId}/walk_${direction}_0`,
+			`composites/chars/${skinId}/idle_${direction}`,
+			`composites/chars/${skinId}/walk_${direction}_2`
+		];
+		animations[`chars.${skinId}.walk.${direction}`].durations = [100, 100, 100];
+	}
+}
+
+function getSkinId(skin) {
+	return `${skin.gender}.${skin.body}.${skin.clothes}.${skin.hair}`;
+}
+
+function addGraphic(graphics, graphic) {
+	var name = graphic;
+	if (typeof graphic == 'object') {
+		name = graphic['name'];
+	}
+
+	if (! graphicExists(name, graphics)) {
+		graphics.push(graphic);
+	}
+}
+
+function graphicExists(graphicId, graphics) {
+	for (var graphicIndex = 0; graphicIndex < graphics.length; ++graphicIndex) {
+		if (
+			typeof graphics[graphicIndex] == 'string' &&
+			graphics[graphicIndex] == graphicId
+		)
+		{
+			return true;
+		}
+		if (
+			typeof graphics[graphicIndex] == 'object' &&
+			graphics[graphicIndex]['name'] == graphicId
+		)
+		{
+			return true;
+		}
+	}
+	return false;
 }

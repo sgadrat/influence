@@ -3,11 +3,22 @@ function guiShowCharacter(character) {
 	if (action == undefined) {
 		return;
 	}
-	document.getElementById('charportrait').src = character.portrait;
+	guiDrawPortrait(
+		character.skin,
+		document.getElementById('charbody'),
+		document.getElementById('charclothes'),
+		document.getElementById('charhair')
+	);
 	document.getElementById('charicon').src = action.icon;
 	document.getElementById('charaction').innerHTML = action.description;
 	document.getElementById('charname').innerHTML = character.firstName +' '+influence.dynasties[character.dynasty].name;
 	document.getElementById('character').style.visibility = 'visible';
+}
+
+function guiDrawPortrait(skin, body, clothes, hair) {
+	body.src = `imgs/chars/${skin.gender}/body/${skin.body}/portrait_neutral.png`;
+	clothes.src = `imgs/chars/${skin.gender}/clothes/${skin.clothes}/portrait_neutral.png`;
+	hair.src = `imgs/chars/${skin.gender}/hair/${skin.hair}/portrait_neutral.png`;
 }
 
 function guiShowDynasty(dynastyIndex) {
@@ -126,13 +137,16 @@ function guiFormatDate(date) {
 }
 
 function guiStartDialog(speakerIndex, dialog) {
-	influence.guiVariables['dialog'] = dialog;
+	influence.guiVariables['dialog'] = {
+		dialog: dialog,
+		speakerIndex: speakerIndex
+	};
 	guiFillDialogForm();
 	document.getElementById('formdialog').style.visibility = 'visible';
 }
 
 function guiFillDialogForm() {
-	var dialog = influence.guiVariables['dialog'];
+	var dialog = influence.guiVariables['dialog'].dialog;
 	document.getElementById('dialogtext').innerHTML = dialog.currentText();
 
 	var optionsList = document.getElementById('dialogoptions');
@@ -145,10 +159,24 @@ function guiFillDialogForm() {
 			<li onclick="guiDialogOption(${choiceIndex})">${option.text}</li>
 		`;
 	}
+
+	var speakerSkin = influence.characters[influence.guiVariables['dialog'].speakerIndex].skin;
+	guiDrawPortrait(
+		speakerSkin,
+		document.getElementById('dialogspeekerbody'),
+		document.getElementById('dialogspeekerclothes'),
+		document.getElementById('dialogspeekerhair')
+	);
+	guiDrawPortrait(
+		influence.currentCharacter.skin,
+		document.getElementById('dialogcharacterbody'),
+		document.getElementById('dialogcharacterclothes'),
+		document.getElementById('dialogcharacterhair')
+	);
 }
 
 function guiDialogOption(index) {
-	var dialog = influence.guiVariables['dialog'];
+	var dialog = influence.guiVariables['dialog'].dialog;
 	dialog.takeOption(index);
 	if (dialog.currentStep() !== null) {
 		guiFillDialogForm();

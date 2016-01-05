@@ -174,9 +174,13 @@ influence.map = { "height":51,
                  "name":"Grand sage",
                  "properties":
                     {
+					 "body":"0",
+					 "clothes":"0",
 					 "dialog":"TestDialog",
                      "dynasty":"Delvillajo",
-                     "firstName":"Sage"
+                     "firstName":"Sage",
+					 "gender":"male",
+					 "hair":"1"
                     },
                  "rotation":0,
                  "type":"",

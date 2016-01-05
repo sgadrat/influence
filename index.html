@@ -34,7 +34,9 @@
 
 	<div id="character" style="position:absolute; left:0; top:0; visibility:hidden; z-index:1">
 		<div style="background-color: black">
-			<img id="charportrait" style="border-style:outset; border-width:3px; border-color:brown" />
+			<img id="charbody" class="portraitpart" style="border-style:outset; border-width:3px; border-color:brown" />
+			<img id="charclothes" class="portraitpart" style="border-style:outset; border-width:3px; border-color:brown" />
+			<img id="charhair" class="portraitfinal" style="border-style:outset; border-width:3px; border-color:brown" />
 		</div>
 		<div style="background-color:black">
 			<span id="charname" style="color:white"></span>
@@ -73,17 +75,21 @@
 		</div>
 	</div>
 
-	<div id="formdialog" class="fullscreen" style="visibility:hidden; z-index:2">
+	<div id="formdialog" class="fullscreen" style="visibility:hidden; z-index:3">
 		<div style="position:absolute; left:0; bottom:0; width:100%; height:25%; padding:0">
 			<div id="dialogcontent" class="window" style="box-sizing:border-box; height:100%">
 				<div class="portrait">
-					<img id="dialogspeeker" src="imgs/chars/0_portrait.png" />
+					<img id="dialogspeekerbody" class="portraitpart" />
+					<img id="dialogspeekerclothes" class="portraitpart" />
+					<img id="dialogspeekerhair" class="portraitfinal" />
 				</div><div class="content">
 					<div id="dialogtext"></div>
 					<ul id="dialogoptions">
 					</ul>
 				</div><div class="portrait">
-					<img id="dialogcharacter" src="imgs/chars/0_portrait.png" />
+					<img id="dialogcharacterbody" class="portraitpart" />
+					<img id="dialogcharacterclothes" class="portraitpart" />
+					<img id="dialogcharacterhair" class="portraitfinal" />
 				</div>
 			</div>
 		</div>

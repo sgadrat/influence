@@ -15,6 +15,14 @@
 	width: 2em;
 }
 
+img.portraitpart {
+	position: absolute;
+}
+
+img.portraitfinal {
+	position: relative;
+}
+
 .fullscreen {
 	position: absolute;
 	left: 0;
@@ -32,6 +40,7 @@
 }
 
 #dialogcontent .portrait {
+	position: relative;
 	display: inline-block;
 	width: 12%;
 	padding: 0;

@@ -18,6 +18,38 @@ var influence = {
 };
 
 function init() {
+	var graphics = [
+		{
+			'name': 'tilemaps/map',
+			'data': {
+				'type': 'tilemap',
+				'tilemap': influence.map
+			}
+		},
+		'imgs/case.jpg',
+		'imgs/vacantlot.jpg',
+		'imgs/baker.jpg',
+		'imgs/farm.jpg',
+		'imgs/inn.jpg',
+		'imgs/clearinghouse.jpg',
+		'imgs/temple.jpg',
+		'imgs/icons/action/buy.png',
+		'imgs/icons/action/manage.png',
+		'imgs/icons/action/meal.png',
+		'imgs/icons/action/auction.png',
+		'imgs/icons/action/pray.png',
+		'imgs/icons/buildings/baker.png',
+		'imgs/icons/buildings/clearinghouse.png',
+		'imgs/icons/buildings/farm.png',
+		'imgs/icons/buildings/inn.png',
+		'imgs/icons/action/tiny_idle.png',
+		'imgs/icons/action/tiny_move.png',
+		'imgs/icons/action/tiny_meal.png',
+		'imgs/icons/action/tiny_pray.png',
+		'imgs/icons/action/tiny_construct.png',
+		'imgs/icons/tiny_money.png',
+	];
+
 	var animations = {};
 
 	var animBuildingCase = new rtge.Animation();
@@ -49,54 +81,6 @@ function init() {
 	animations['building.inn'].steps = ['imgs/inn.jpg'];
 	animations['building.inn'].durations = [600000];
 
-	animations['chars.0.idle.top'] = new rtge.Animation();
-	animations['chars.0.idle.top'].steps = ['imgs/chars/0_idle_top.png'];
-	animations['chars.0.idle.top'].durations = [600000];
-
-	animations['chars.0.idle.right'] = new rtge.Animation();
-	animations['chars.0.idle.right'].steps = ['imgs/chars/0_idle_right.png'];
-	animations['chars.0.idle.right'].durations = [600000];
-
-	animations['chars.0.idle.bot'] = new rtge.Animation();
-	animations['chars.0.idle.bot'].steps = ['imgs/chars/0_idle_bot.png'];
-	animations['chars.0.idle.bot'].durations = [600000];
-
-	animations['chars.0.idle.left'] = new rtge.Animation();
-	animations['chars.0.idle.left'].steps = ['imgs/chars/0_idle_left.png'];
-	animations['chars.0.idle.left'].durations = [600000];
-
-	animations['chars.0.walk.top'] = new rtge.Animation();
-	animations['chars.0.walk.top'].steps = [
-		'imgs/chars/0_walk_top_0.png',
-		'imgs/chars/0_idle_top.png',
-		'imgs/chars/0_walk_top_2.png',
-	];
-	animations['chars.0.walk.top'].durations = [100, 100, 100];
-
-	animations['chars.0.walk.right'] = new rtge.Animation();
-	animations['chars.0.walk.right'].steps = [
-		'imgs/chars/0_walk_right_0.png',
-		'imgs/chars/0_idle_right.png',
-		'imgs/chars/0_walk_right_2.png',
-	];
-	animations['chars.0.walk.right'].durations = [100, 100, 100];
-
-	animations['chars.0.walk.bot'] = new rtge.Animation();
-	animations['chars.0.walk.bot'].steps = [
-		'imgs/chars/0_walk_bot_0.png',
-		'imgs/chars/0_idle_bot.png',
-		'imgs/chars/0_walk_bot_2.png',
-	];
-	animations['chars.0.walk.bot'].durations = [100, 100, 100];
-
-	animations['chars.0.walk.left'] = new rtge.Animation();
-	animations['chars.0.walk.left'].steps = [
-		'imgs/chars/0_walk_left_0.png',
-		'imgs/chars/0_idle_left.png',
-		'imgs/chars/0_walk_left_2.png',
-	];
-	animations['chars.0.walk.left'].durations = [100, 100, 100];
-
 	influence.maze = new pathfinder.Maze();
 	mapMazeToRtgeMaze();
 
@@ -108,10 +92,18 @@ function init() {
 	godsEventNewDynasty();
 
 	var spawn = getRandomWaypoint();
-	influence.currentCharacter = new Citizen('0', 'George', 0, spawn.x, spawn.y);
+	influence.currentCharacter = new Citizen(
+		{
+			gender: 'male',
+			body: 0,
+			clothes: 0,
+			hair: 0
+		},
+		graphics, animations, 'George', 0, spawn.x, spawn.y
+	);
 	objects.push(influence.currentCharacter);
 
-	addNpcsFromMap(objects);
+	addNpcsFromMap(objects, graphics, animations);
 
 	var camera = new rtge.Camera();
 	camera.tick = function(timeDiff) {
@@ -127,47 +119,7 @@ function init() {
 		},
 		animations,
 		[],
-		[
-			{
-				'name': 'tilemaps/map',
-				'tilemap': influence.map
-			},
-			'imgs/case.jpg',
-			'imgs/vacantlot.jpg',
-			'imgs/baker.jpg',
-			'imgs/farm.jpg',
-			'imgs/inn.jpg',
-			'imgs/clearinghouse.jpg',
-			'imgs/temple.jpg',
-			'imgs/icons/action/buy.png',
-			'imgs/icons/action/manage.png',
-			'imgs/icons/action/meal.png',
-			'imgs/icons/action/auction.png',
-			'imgs/icons/action/pray.png',
-			'imgs/icons/buildings/baker.png',
-			'imgs/icons/buildings/clearinghouse.png',
-			'imgs/icons/buildings/farm.png',
-			'imgs/icons/buildings/inn.png',
-			'imgs/chars/0_walk_top_0.png',
-			'imgs/chars/0_idle_top.png',
-			'imgs/chars/0_walk_top_2.png',
-			'imgs/chars/0_walk_right_0.png',
-			'imgs/chars/0_idle_right.png',
-			'imgs/chars/0_walk_right_2.png',
-			'imgs/chars/0_walk_bot_0.png',
-			'imgs/chars/0_idle_bot.png',
-			'imgs/chars/0_walk_bot_2.png',
-			'imgs/chars/0_walk_left_0.png',
-			'imgs/chars/0_idle_left.png',
-			'imgs/chars/0_walk_left_2.png',
-			'imgs/chars/0_portrait.png',
-			'imgs/icons/action/tiny_idle.png',
-			'imgs/icons/action/tiny_move.png',
-			'imgs/icons/action/tiny_meal.png',
-			'imgs/icons/action/tiny_pray.png',
-			'imgs/icons/action/tiny_construct.png',
-			'imgs/icons/tiny_money.png',
-		],
+		graphics,
 		{
 			'worldClick': moveTo,
 			'globalTick': globalTick,
@@ -379,7 +331,7 @@ function getMapLayerData(layerName) {
 	return layer.data;
 }
 
-function addNpcsFromMap(collection) {
+function addNpcsFromMap(collection, graphics, animations) {
 	var layer = getMapLayer('objects');
 	if (layer === null) {
 		return;
@@ -400,9 +352,24 @@ function addNpcsFromMap(collection) {
 			object, 'dialog', influence.dialogs
 		);
 
-		var npc = new Citizen('0', firstName, dynasty, object.x, object.y, behaviour, dialog);
+		var npc = new Citizen(
+			{
+				gender: getDefault(object.properties, 'gender', 'male'),
+				body: getDefault(object.properties, 'body', 0),
+				clothes: getDefault(object.properties, 'clothes', 0),
+				hair: getDefault(object.properties, 'hair', 0)
+			},
+			graphics, animations, firstName, dynasty, object.x, object.y, behaviour, dialog
+		);
 		collection.push(npc);
 	}
+}
+
+function getDefault(object, key, defaultValue) {
+	if (typeof object[key] == 'undefined') {
+		return defaultValue;
+	}
+	return object[key];
 }
 
 function getObjectFromMapObjectProperty(object, property, collection) {
