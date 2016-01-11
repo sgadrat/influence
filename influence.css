@@ -15,12 +15,18 @@
 	width: 2em;
 }
 
-img.portraitpart {
+.portrait img {
 	position: absolute;
 }
 
-img.portraitfinal {
+.portrait img:last-child {
 	position: relative;
+}
+
+#charportrait img {
+	border-style: outset;
+	border-width: 3px;
+	border-color: brown;
 }
 
 .fullscreen {

@@ -3,22 +3,19 @@ function guiShowCharacter(character) {
 	if (action == undefined) {
 		return;
 	}
-	guiDrawPortrait(
-		character.skin,
-		document.getElementById('charbody'),
-		document.getElementById('charclothes'),
-		document.getElementById('charhair')
-	);
+	document.getElementById('charportrait').innerHTML = guiPortraitHtml(character.skin);
 	document.getElementById('charicon').src = action.icon;
 	document.getElementById('charaction').innerHTML = action.description;
 	document.getElementById('charname').innerHTML = character.firstName +' '+influence.dynasties[character.dynasty].name;
 	document.getElementById('character').style.visibility = 'visible';
 }
 
-function guiDrawPortrait(skin, body, clothes, hair) {
-	body.src = `imgs/chars/${skin.gender}/body/${skin.body}/portrait_neutral.png`;
-	clothes.src = `imgs/chars/${skin.gender}/clothes/${skin.clothes}/portrait_neutral.png`;
-	hair.src = `imgs/chars/${skin.gender}/hair/${skin.hair}/portrait_neutral.png`;
+function guiPortraitHtml(skin) {
+	return `
+		<img src="imgs/chars/${skin.gender}/body/${skin.body}/portrait_neutral.png" />
+		<img src="imgs/chars/${skin.gender}/clothes/${skin.clothes}/portrait_neutral.png" />
+		<img src="imgs/chars/${skin.gender}/hair/${skin.hair}/portrait_neutral.png" />
+	`;
 }
 
 function guiShowDynasty(dynastyIndex) {
@@ -161,18 +158,8 @@ function guiFillDialogForm() {
 	}
 
 	var speakerSkin = influence.characters[influence.guiVariables['dialog'].speakerIndex].skin;
-	guiDrawPortrait(
-		speakerSkin,
-		document.getElementById('dialogspeekerbody'),
-		document.getElementById('dialogspeekerclothes'),
-		document.getElementById('dialogspeekerhair')
-	);
-	guiDrawPortrait(
-		influence.currentCharacter.skin,
-		document.getElementById('dialogcharacterbody'),
-		document.getElementById('dialogcharacterclothes'),
-		document.getElementById('dialogcharacterhair')
-	);
+	document.getElementById('dialogspeeker').innerHTML = guiPortraitHtml(speakerSkin);
+	document.getElementById('dialogcharacter').innerHTML = guiPortraitHtml(influence.currentCharacter.skin);
 }
 
 function guiDialogOption(index) {
