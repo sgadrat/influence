@@ -119,7 +119,6 @@ influence.characterAction = {
 			influence.dynasties[params.building.owner].wealth += price;
 			params.building.stock.removeItems(willEat, 1);
 
-			params.building.mealTaken();
 			guiEventDynastyModified(params.actor.dynasty);
 			return true;
 		}

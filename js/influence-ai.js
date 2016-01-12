@@ -20,6 +20,13 @@ var AI_CHARACTER_BEHAVIOUR_GRAPH = `
 				PutEdibleToStock
 		GoTo
 		TakeMeal
+	->                            (Go to work)
+		HasJob
+		!
+			WorkedToday
+		SelectWorkPlace
+		GoTo
+		Work
 	->                            (Construct building not owned by the dynasty)
 		SelectRandomBuildingType
 		!
@@ -34,8 +41,8 @@ var AI_CHARACTER_BEHAVIOUR_GRAPH = `
 		!
 			SelectDynastyBuildingOfType
 		BuildSelectedType
-	->                            (Try to find somewhere to do something usefulle)
-		SelectRandomBuilding
+	->                            (Try to find somewhere to do something usefull)
+		SelectRandomDynastyBuilding
 		GoTo
 		->
 			=
@@ -43,14 +50,13 @@ var AI_CHARACTER_BEHAVIOUR_GRAPH = `
 					SelectItemTypesNeededByBuilding
 					PutSomeItemsToStock
 			=
-				?
-					CanWork
-					ChangeProduction
-			=
-				Work
+				OptimizeProduction
 			->                    (Take produced items in our inventory)
 				SelectItemTypesProducedByBuilding
 				TakeSomeItemsFromStock
+	->                            (Juste take a walk around the town)
+		SelectRandomBuilding
+		GoTo
 `;
 
 var aiBehaviourTreeFunctions = {
@@ -86,35 +92,9 @@ var aiBehaviourTreeFunctions = {
 		});
 	},
 
-	CanWork: function (context) {
+	HasJob: function (context) {
 		var character = influence.characters[context['character']];
-		var building = context['selectedBuilding'];
-
-		if (building === null || typeof building.workPossible == 'undefined') {
-			return behaviourtree.FAIL;
-		}
-		if (! building.workPossible(character)) {
-			return behaviourtree.FAIL;
-		}
-		return behaviourtree.SUCCESS;
-	},
-
-	ChangeProduction: function (context) {
-		var character = influence.characters[context['character']];
-		var building = context['selectedBuilding'];
-		if (building === null || typeof building.productibles == 'undefined') {
-			return behaviourtree.FAIL;
-		}
-		if (building.owner != character.dynasty) {
-			return behaviourtree.FAIL;
-		}
-
-		var productibles = building.productibles;
-		var selected = Math.floor(Math.random() * productibles.length);
-		if (productibles.indexOf('strawberry') != -1) { /*HACK: prefere strawberries in farms*/
-			selected = productibles.indexOf('strawberry');
-		}
-		if (building.changeProduction(productibles[selected])) {
+		if (character.workPlace !== null) {
 			return behaviourtree.SUCCESS;
 		}
 		return behaviourtree.FAIL;
@@ -164,6 +144,57 @@ var aiBehaviourTreeFunctions = {
 			return behaviourtree.SUCCESS;
 		}
 		return behaviourtree.FAIL;
+	},
+
+	OptimizeProduction: function (context) {
+		var character = influence.characters[context['character']];
+		var building = context['selectedBuilding'];
+
+		if (typeof building.stock == 'undefined' || building.owner != character.dynasty) {
+			return behaviourtree.FAIL;
+		}
+		if (typeof building.changeProduction == 'undefined') {
+			return behaviourtree.FAIL;
+		}
+
+		// List items needed by dynasty's buildings and productible in this one
+		var buildings = getBuildingsList();
+		var neededProducts = [];
+		for (var buildingIndex = 0; buildingIndex < buildings.length; ++buildingIndex) {
+			var consumerBuilding = buildings[buildingIndex];
+			if (consumerBuilding.owner == character.dynasty && typeof consumerBuilding.productibles != 'undefined') {
+				for (var productibleIndex = 0; productibleIndex < consumerBuilding.productibles.length; ++productibleIndex) {
+					var productible = consumerBuilding.productibles[productibleIndex];
+					var materials = influence.productibles[productible].baseMaterials;
+					for (var materialIndex = 0; materialIndex < materials.length; ++materialIndex) {
+						var material = materials[materialIndex].material;
+						if (building.productibles.indexOf(material) != -1 && neededProducts.indexOf(material) == -1) {
+							neededProducts.push(material);
+						}
+					}
+				}
+			}
+		}
+
+		// If we do not need anything special, do a little bit of everything
+		if (neededProducts.length == 0) {
+			neededProducts = building.productibles;
+		}
+
+		// Hire staff if necessary
+		while (building.staff.length < Math.min(neededProducts.length, building.maxStaff)) {
+			var employee = aiGetCheapestEmployableCharacter(building);
+			if ( employee === null || !building.employ(employee)) {
+				break;
+			}
+		}
+
+		// Affect staff to needed items
+		for (var staffIndex = 0; staffIndex < building.staff.length; ++staffIndex) {
+			building.changeProduction(staffIndex, neededProducts[staffIndex % neededProducts.length]);
+		}
+
+		return behaviourtree.SUCCESS;
 	},
 
 	PutEdibleToStock: function (context) {
@@ -331,11 +362,27 @@ var aiBehaviourTreeFunctions = {
 		return behaviourtree.SUCCESS;
 	},
 
+	SelectRandomDynastyBuilding: function (context) {
+		var dynastyIndex = influence.characters[context['character']].dynasty;
+		return aiSelectBuilding(context, function(building) {
+			return building.owner == dynastyIndex;
+		});
+	},
+
 	SelectRandomBuildingType: function (context) {
 		var buildingsTypes = Object.getOwnPropertyNames(influence.basicBuildings);
 		var selected = Math.floor(Math.random() * buildingsTypes.length);
 		context['selectedBuildingType'] = buildingsTypes[selected];
 		return behaviourtree.SUCCESS;
+	},
+
+	SelectWorkPlace: function (context) {
+		var character = influence.characters[context['character']];
+		if (character.workPlace !== null) {
+			context['selectedBuilding'] = character.workPlace;
+			return behaviourtree.SUCCESS;
+		}
+		return behaviourtree.FAIL;
 	},
 
 	TakeEdibleFromStock: function (context) {
@@ -402,16 +449,31 @@ var aiBehaviourTreeFunctions = {
 			return behaviourtree.FAIL;
 		}
 		if (! building.workPossible(character)) {
+			context['workHappiness'][building.owner] -= 10;
 			return behaviourtree.FAIL;
 		}
 
-		return aiDoAction(context, {
+		context['lastWork'] = getGameDate();
+		var res = aiDoAction(context, {
 			action: 'work',
 			actor: character,
 			building: building,
 			callback: aiDefaultActionCallback
 		});
-	}
+		if (res == behaviourtree.FAIL) {
+			context['workHappiness'][building.owner] -= 10;
+		}
+		return res;
+	},
+
+	WorkedToday: function (context) {
+		var today = Math.floor(getGameDate().getTime() / (1000*60*60*24));
+		var lastWork = Math.floor(context['lastWork'].getTime() / (1000*60*60*24));
+		if (lastWork == today) {
+			return behaviourtree.SUCCESS;
+		}
+		return behaviourtree.FAIL;
+	},
 };
 
 function aiCompileNode(lines, lineNum) {
@@ -497,10 +559,28 @@ influence.aiBehaviours = {
 				'btdata': behaviourtree.initContext(AI_CHARACTER_BEHAVIOUR),
 				'character': character.index,
 				'lastEat': getGameDate(),
+				'lastWork': getGameDate(),
 				'selectedBuilding': null,
 				'selectedBuildingType': null,
 				'selectedItemTypes': [],
+				'workHappiness': [],
+				'getEmployementConditions': function(building) {
+					var character = influence.characters[this.character];
+					var employable = false;
+					if (character.workPlace === null) {
+						employable = true;
+					}else if (this.workHappiness[building.owner] > this.workHappiness[character.workPlace.owner] + 10) {
+						employable = true;
+					}
+					return {
+						employable: employable,
+						wage: 10
+					};
+				}
 			};
+			for (var i = 0; i < influence.dynasties.length; ++i) {
+				character.aiContext['workHappiness'].push(100);
+			}
 		}
 
 		// Tick the behaviour tree
@@ -577,4 +657,48 @@ function aiSelectBuilding(context, filter) {
 	var selectedBuilding = Math.floor(Math.random() * eligibleBuildings.length);
 	context['selectedBuilding'] = eligibleBuildings[selectedBuilding];
 	return behaviourtree.SUCCESS;
+}
+
+function aiGetCheapestEmployableCharacter(building) {
+	var res = null;
+	var cheapestPrice = null;
+	for (var characterIndex = 0; characterIndex < influence.characters.length; ++characterIndex) {
+		var character = influence.characters[characterIndex];
+		if (character === influence.currentCharacter) {
+			continue;
+		}
+		if (character.workPlace !== null && character.workPlace.owner == building.owner) {
+			continue;
+		}
+		var conditions = aiGetEmployementConditions(characterIndex, building);
+		if (! conditions.employable) {
+			continue;
+		}
+
+		if (cheapestPrice === null || cheapestPrice > conditions.wage) {
+			res = characterIndex;
+			cheapestPrice = conditions.wage;
+		}
+	}
+	return res;
+}
+
+function aiGetWorkHappiness(characterIndex) {
+	var character = influence.characters[characterIndex];
+	if (character.workPlace === null || typeof character.aiContext == 'undefined') {
+		return null;
+	}
+	return character.aiContext['workHappiness'][character.workPlace.owner];
+}
+
+function aiGetEmployementConditions(characterIndex, building) {
+	var character = influence.characters[characterIndex];
+	if (typeof character.aiContext == 'undefined') {
+		return {
+			employable: false,
+			wage: 10
+		};
+	}
+
+	return  character.aiContext.getEmployementConditions(building);
 }

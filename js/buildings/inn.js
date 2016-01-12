@@ -11,10 +11,6 @@ var buildingInn = {
 			generateContent: buildingInn.generateEntrancePage
 		});
 		tabbedBuilding.addStock(this, 10);
-
-		this.mealTaken = function() {
-			this.refreshPageStock();
-		};
 	},
 
 	generateEntrancePage: function(building) {

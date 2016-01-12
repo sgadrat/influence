@@ -30,6 +30,7 @@ influence.productibles = {
  * Constructor of objects easing the handling of an inventory
  */
 function Inventory(capacity) {
+	this.listeners = [];
 	this.slots = new Array(capacity);
 	for (var i = 0; i < this.slots.length; ++i) {
 		this.slots[i] = null;
@@ -61,6 +62,7 @@ function Inventory(capacity) {
 		}else {
 			this.slots[i].number += number;
 		}
+		this.propagateChangeEvent();
 		return true;
 	};
 
@@ -86,6 +88,7 @@ function Inventory(capacity) {
 				}
 				if (number == 0) {
 					this.reorganize();
+					this.propagateChangeEvent();
 					return true;
 				}
 			}
@@ -110,7 +113,7 @@ function Inventory(capacity) {
 	 * @param item Name of the items to count
 	 * @return the number of items named @a item in the inventory
 	 */
-	this.countItems = function(item, number) {
+	this.countItems = function(item) {
 		for (var i = 0; i < this.slots.length; ++i) {
 			if (this.slots[i] !== null && this.slots[i].itemName == item) {
 				return this.slots[i].number;
@@ -157,6 +160,17 @@ function Inventory(capacity) {
 	};
 
 	/**
+	 * @brief Add a listener to be watch changes in this inventory
+	 * @param listener object listening object
+	 *
+	 * The listener object will be called on it's function 'inventoryChanged()' whenever
+	 * the inventory is modified.
+	 */
+	this.addChangeListener = function(listener) {
+		this.listeners.push(listener);
+	};
+
+	/**
 	 * @brief Reorganize the inventory to avoid split stacks and other ugly things.
 	 *
 	 * Note: Code using Inventory should not need to call this function directly.
@@ -175,6 +189,18 @@ function Inventory(capacity) {
 					}
 				}
 			}
+		}
+	};
+
+	/**
+	 * @brief Propagate change event to listeners.
+	 *
+	 * Note: Code using Inventory should not need to call this function directly.
+	 *       Events are propagated automatically by Inventory instances.
+	 */
+	this.propagateChangeEvent = function() {
+		for (var listenerIndex = 0; listenerIndex < this.listeners.length; ++listenerIndex) {
+			this.listeners[listenerIndex].inventoryChanged();
 		}
 	};
 }

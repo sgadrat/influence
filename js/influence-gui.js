@@ -119,6 +119,14 @@ function guiEventCharacterActionChanged(characterIndex) {
 	}
 }
 
+function guiEventCurrentInventoryChanged() {
+	if (influence.selected !== null) {
+		if (typeof influence.selected.refreshPageStock != 'undefined') {
+			influence.selected.refreshPageStock();
+		}
+	}
+}
+
 function guiEventDateChanged() {
 	document.getElementById('dyntime').innerHTML = 'Date: '+guiFormatDate(getGameDate());
 }

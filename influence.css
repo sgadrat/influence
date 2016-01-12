@@ -15,6 +15,14 @@
 	width: 2em;
 }
 
+.warning {
+	color: red;
+}
+
+.portrait {
+	position: relative;
+}
+
 .portrait img {
 	position: absolute;
 }
@@ -27,6 +35,59 @@
 	border-style: outset;
 	border-width: 3px;
 	border-color: brown;
+}
+
+ul.staff {
+	list-style-type: none;
+	padding: 0;
+	padding: 0;
+}
+
+ul.staff p {
+	margin: 0;
+	padding: 0;
+}
+
+ul.staff h1 {
+	margin: 0;
+}
+
+ul.staff div.portrait {
+	vertical-align: top;
+	display: inline-block;
+	padding: 0;
+	margin: 0;
+}
+
+ul.staff div.info {
+	vertical-align: top;
+	display: inline-block;
+	font-size: x-large;
+}
+
+ul.production {
+	list-style-type: none;
+	padding: 0;
+}
+
+ul.production li p {
+	margin: 0;
+}
+
+ul.production li div {
+	padding-left: 2em;
+	font-size: small;
+}
+
+ul.production li div ul {
+	display: inline-block;
+	padding: 0;
+	vertical-align: middle;
+}
+
+ul.production li div ul li {
+	display: inline-block;
+	vertical-align: top;
 }
 
 .fullscreen {
@@ -46,7 +107,6 @@
 }
 
 #dialogcontent .portrait {
-	position: relative;
 	display: inline-block;
 	width: 12%;
 	padding: 0;

@@ -93,6 +93,7 @@ function Citizen(skin, graphics, animations, firstName, dynasty, x, y, behaviour
 	this.actionTimeout = null;
 	this.indoorDestination = false;
 	this.dialog = dialog;
+	this.workPlace = null;
 
 	this.index = influence.characters.length;
 	influence.characters.push(this);

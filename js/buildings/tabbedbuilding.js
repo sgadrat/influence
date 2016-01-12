@@ -58,6 +58,12 @@ var tabbedBuilding = {
 
 	addStock: function (building, size) {
 		building.stock = new Inventory(size);
+		building.stock.addChangeListener({
+			building: building,
+			inventoryChanged: function() {
+				this.building.refreshPageStock();
+			}
+		});
 
 		building.tabs.push({
 			title: 'Stock',
@@ -136,8 +142,106 @@ var tabbedBuilding = {
 		}
 		tabbedBuilding.movingProduct = null;
 		document.getElementById('modal').style.visibility = 'hidden';
-		influence.selected.refreshPageStock();
 	},
 
-	movingProduct: null
+	movingProduct: null,
+
+	//
+	// Staff: Add staff management to the building, allowing it to employ citizens
+	//
+
+	addStaff: function (building, size) {
+		building.staff = [];
+		building.maxStaff = size;
+
+		building.tabs.push({
+			title: 'Staff',
+			generateContent: tabbedBuilding.generateStaffPage,
+			restricted: true
+		});
+	},
+
+	generateStaffPage: function(building) {
+		var res = `
+			<button onclick="tabbedBuilding.employStaff()">Embaucher</button> ${building.staff.length} / ${building.maxStaff}
+			<ul class="staff">
+		`;
+		for (var staffIndex = 0; staffIndex < building.staff.length; ++staffIndex) {
+			var staffSlot = building.staff[staffIndex];
+			var character = influence.characters[staffSlot.characterIndex];
+			var dynasty = influence.dynasties[character.dynasty];
+			var wage = staffSlot.wage;
+			res += `
+				<li>
+					<h1>${character.firstName} ${dynasty.name}</h1>
+					<div class="portrait">
+						${guiPortraitHtml(character.skin)}
+					</div><div class="info">
+						<p>Salaire : <span class="price">${wage}</span> par jour</p>
+						<p>Contentement : ${aiGetWorkHappiness(character.index)}</p>
+						<p>
+							Poste :
+							${tabbedBuilding.generateStaffProductList(building, staffIndex)}
+						</p>
+					</div>
+				</li>
+			`;
+		}
+		res += '</ul>';
+		return res;
+	},
+
+	generateStaffProductList: function(building, staffIndex) {
+		var staffSlot = building.staff[staffIndex];
+		var currentProductId = staffSlot.product;
+		var currentProductIcon = 'emptyslot';
+		if (currentProductId !== null) {
+			currentProductIcon = currentProductId;
+		}
+
+		var res = `
+			<span class="productname"><img src="imgs/icons/products/${currentProductIcon}.png" /></span>
+			<select onchange="tabbedBuilding.changeStaffProduction(${staffIndex}, this.value)">
+		`;
+		for (var productIndex = 0; productIndex < building.productibles.length; ++productIndex) {
+			var productId = building.productibles[productIndex];
+			var selected = productId == currentProductId;
+			res += '<option value="' + productId + '"';
+			if (selected) {
+				res += ' selected="selected"';
+			}
+			res += '>' + influence.productibles[productId].name + '</option>';
+		}
+		res += '<option value="(none)"';
+		if (currentProductId === null) {
+			res += ' selected="selected"';
+		}
+		res += '>Ne rien produire</option>';
+
+		res += '</select>';
+		return res;
+	},
+
+	employStaff: function() {
+		var building = influence.selected;
+		for (var characterIndex = 0; characterIndex < influence.characters.length; ++characterIndex) {
+			// Check if we want this employee
+			var character = influence.characters[characterIndex];
+			if (character.workPlace !== null && character.workPlace.owner == building.owner) {
+				continue;
+			}
+
+			// Employ the character
+			if (building.employ(characterIndex)) {
+				break;
+			}
+		}
+	},
+
+	changeStaffProduction: function(staffIndex, newProduct) {
+		if (newProduct == '(none)') {
+			newProduct = null;
+		}
+		influence.selected.changeProduction(staffIndex, newProduct);
+	},
 };

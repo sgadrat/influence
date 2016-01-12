@@ -101,6 +101,11 @@ function init() {
 		},
 		graphics, animations, 'George', 0, spawn.x, spawn.y
 	);
+	influence.currentCharacter.inventory.addChangeListener({
+		inventoryChanged: function() {
+			guiEventCurrentInventoryChanged();
+		}
+	});
 	objects.push(influence.currentCharacter);
 
 	addNpcsFromMap(objects, graphics, animations);

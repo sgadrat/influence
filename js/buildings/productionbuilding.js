@@ -3,10 +3,8 @@ var productionBuilding = {
 		tabbedBuilding.TabbedBuilding.call(this, x, y, owner);
 		this.name = name;
 		this.productibles = [];
-		this.production = {
-			product: null,
-			work: 0
-		};
+		this.production = {};
+		this.eventListener = {};
 
 		this.tabs.push({
 			title: 'Entrée',
@@ -19,9 +17,30 @@ var productionBuilding = {
 			generateContent: productionBuilding.generateProductionPage,
 			restricted: true
 		});
+		tabbedBuilding.addStaff(this, 3);
+
+		this.eventListener.building = this;
+		this.eventListener.inventoryChanged = function() {
+			// Warning, reference headache :
+			//  We are in a special scope where *this* means
+			//  the eventListener (most of the time)
+			this.building.refreshPageProduction();
+		};
+		this.stock.addChangeListener(this.eventListener);
 
 		this.workPossible = function (worker) {
-			var salary = 500;
+			var staffIndex;
+			for (staffIndex = 0; staffIndex < this.staff.length; ++staffIndex) {
+				if (this.staff[staffIndex].characterIndex == worker.index) {
+					break;
+				}
+			}
+			if (staffIndex >= this.staff.length) {
+				return false;
+			}
+
+			var salary = this.staff[staffIndex].wage;
+			var product = this.staff[staffIndex].product;
 			var owningDynasty = influence.dynasties[this.owner];
 			var materials;
 			var i;
@@ -31,13 +50,13 @@ var productionBuilding = {
 				return false;
 			}
 
-			// Check that the building is actually producting something
-			if (this.production.product === null) {
+			// Check that the worker is actually producting something
+			if (product === null) {
 				return false;
 			}
 
 			// Check that base materials are present
-			materials = influence.productibles[this.production.product].baseMaterials;
+			materials = influence.productibles[product].baseMaterials;
 			for (i = 0; i < materials.length; ++i) {
 				var needed = materials[i];
 				if (! this.stock.containItems(needed.material, needed.number)) {
@@ -49,9 +68,11 @@ var productionBuilding = {
 		};
 
 		this.doWork = function (worker) {
-			var salary = 500;
+			var staffIndex;
+			var salary;
 			var owningDynasty = influence.dynasties[this.owner];
 			var workerDynasty = influence.dynasties[worker.dynasty];
+			var product;
 			var productedItem;
 			var materials;
 			var i;
@@ -59,18 +80,32 @@ var productionBuilding = {
 			if (! this.workPossible(worker)) {
 				return false;
 			}
-			materials = influence.productibles[this.production.product].baseMaterials;
+
+			// Compute usefull variables
+			for (staffIndex = 0; staffIndex < this.staff.length; ++staffIndex) {
+				if (this.staff[staffIndex].characterIndex == worker.index) {
+					break;
+				}
+			}
+			salary = this.staff[staffIndex].wage;
+			product = this.staff[staffIndex].product;
+			materials = influence.productibles[product].baseMaterials;
 
 			// Pay the wage
 			owningDynasty.wealth -= salary;
 			workerDynasty.wealth += salary;
 
 			// Add the work to the production
-			this.production.work += 1;
+			if (typeof this.production[product] == 'undefined') {
+				this.production[product] = {
+					work: 0,
+				};
+			}
+			this.production[product].work += 1;
 
 			// Actually product the item
-			productedItem = influence.productibles[this.production.product];
-			if (this.production.work >= productedItem.work) {
+			productedItem = influence.productibles[product];
+			if (this.production[product].work >= productedItem.work) {
 				// Consume base materials
 				for (i = 0; i < materials.length; ++i) {
 					if (! this.stock.removeItems(materials[i].material, materials[i].number)) {
@@ -79,60 +114,69 @@ var productionBuilding = {
 				}
 
 				// Create new item
-				this.stock.addItems(this.production.product, 1);
+				this.stock.addItems(product, 1);
 
 				// Reset work done on next item
-				this.production.work = 0;
+				this.production[product].work = 0;
 			}
 
 			// Fire events
 			guiEventDynastyModified(worker.dynasty);
 			guiEventDynastyModified(this.owner);
-			this.refreshPageStock();
+			return true;
+		};
+
+		this.changeProduction = function (staffIndex, productId) {
+			if (productId !== null && this.productibles.indexOf(productId) == -1) {
+				return false;
+			}
+			if (this.staff[staffIndex].product == productId) {
+				return false;
+			}
+			this.staff[staffIndex].product = productId;
+			this.refreshTab('Staff');
 			this.refreshPageProduction();
 			return true;
 		};
 
-		this.changeProduction = function (productId) {
-			if (this.productibles.indexOf(productId) == -1) {
+		this.employ = function (characterIndex) {
+			// Check if we want this employee
+			if (this.staff.length >= this.maxStaff) {
 				return false;
 			}
-			if (this.production.product == productId) {
+			if (characterIndex == influence.currentCharacter.index) {
+				return false;
+			}
+			var conditions = aiGetEmployementConditions(characterIndex, this);
+			if (! conditions.employable) {
 				return false;
 			}
 
-			this.production = {
-				product: productId,
-				work: 0
-			};
-			this.refreshPageProduction();
-			return true;
-		};
-
-		this.productionHtml = function () {
-			if (this.production.product === null) {
-				return '<p>Le batiment ne produit actuellement rien</p>';
-			}else {
-				var product = influence.productibles[this.production.product];
-				return `
-					<p>Production actuelle : <span class="productname"><img src="imgs/icons/products/${this.production.product}.png" /> ${product.name}</span></p>
-					<p>La prochaine récolte nécessite encore ${product.work - this.production.work} jours de travail.</p>
-				`;
-			}
-		};
-
-		this.productionButtons = function () {
-			var buttons = '';
-			if (this.production.product !== null) {
-				buttons += '<input type="button" class="btn" value="Arreter tout" onclick="productionBuilding.changeProduction(null)" />';
-			}
-			for (var i = 0; i < this.productibles.length; ++i) {
-				var name = influence.productibles[this.productibles[i]].name;
-				if (this.productibles[i] != this.production.product) {
-					buttons += `<input type="button" class="btn" value="Produire des ${name}s" onclick="productionBuilding.changeProduction('${this.productibles[i]}')" />`;
+			// Leave character's previous job
+			var character = influence.characters[characterIndex];
+			if (character.workPlace !== null) {
+				var staffIndex;
+				for (staffIndex = 0; staffIndex < character.workPlace.staff.length; ++staffIndex) {
+					if (character.workPlace.staff[staffIndex].characterIndex == characterIndex) {
+						break;
+					}
 				}
+				if (staffIndex < character.workPlace.staff.length) {
+					character.workPlace.staff.splice(staffIndex, 1);
+				}
+				character.workPlace = null;
 			}
-			return buttons;
+
+			// Employ the character
+			this.staff.push({
+				characterIndex: character.index,
+				wage: conditions.wage,
+				product: null
+			});
+			character.workPlace = this;
+
+			this.refreshTab('Staff');
+			return true;
 		};
 
 		this.refreshPageProduction = function () {
@@ -150,27 +194,67 @@ var productionBuilding = {
 				<img src="${building.portrait}" />
 			</div>
 			<p>${welcome}.</p>
-			<input type="button" class="btn" value="Travailler" onclick="productionBuilding.work(influence.currentCharacter, influence.selected)" />
 		`;
 	},
 
 	generateProductionPage: function (building) {
-		return `
-			${building.productionHtml()}
-			<p>Changer la production ?</p>
-			${building.productionButtons()}
-		`;
-	},
+		var res = '<ul class="production">';
+		for (var productibleIndex = 0; productibleIndex < building.productibles.length; ++productibleIndex) {
+			var product = building.productibles[productibleIndex];
+			var nbWorkers = 0;
+			for (var workerIndex = 0; workerIndex < building.staff.length; ++workerIndex) {
+				if (building.staff[workerIndex].product == product) {
+					++nbWorkers;
+				}
+			}
+			var workNeeded = influence.productibles[product].work;
 
-	changeProduction: function (productId) {
-		influence.selected.changeProduction(productId);
-	},
+			var dailyVolumeHtml;
+			if (nbWorkers == 0) {
+				dailyVolumeHtml = '<span class="warning">Production interrompue (Aucun personnel affecté)</span>';
+			}else {
+				if (nbWorkers >= workNeeded) {
+					dailyVolumeHtml = `x${Math.floor(nbWorkers / workNeeded)} par jour`;
+				}else {
+					dailyVolumeHtml = `1 tous les ${Math.ceil(workNeeded / nbWorkers)} jours`;
+				}
+			}
+			res += `
+				<li>
+					<p>
+						<span class="productname">
+							<img src="imgs/icons/products/${product}.png" /> ${influence.productibles[product].name}
+						</span> ${dailyVolumeHtml}
+					</p>
+			`;
+			var materials = influence.productibles[product].baseMaterials;
+			if (materials.length > 0) {
+				res += `
+						<div>
+							Ingrédients :
+							<ul>
+				`;
+				for (var materialIndex = 0; materialIndex < materials.length; ++materialIndex) {
+					var needed = materials[materialIndex];
+					var inStock = building.stock.countItems(needed.material);
+					var stockStatusHtml = '';
+					if (inStock == 0) {
+						stockStatusHtml = '<br /><span class="warning">(Stock épuisé)</span>';
+					}else if (inStock < needed.number) {
+						stockStatusHtml = '<br /><span class="warning">(Stock insuffisant)</span>';
+					}
+					res += `
+						<li>
+							<span class="productname"><img src="imgs/icons/products/${needed.material}.png" /> ${influence.productibles[needed.material].name}</span> x${needed.number}${stockStatusHtml}
+						</li>
+					`;
+				}
+				res += '</ul></div>';
+			}
+			res += '</li>';
+		}
+		res += '</ul>';
 
-	work: function (character, building) {
-		character.executeAction({
-			action: 'work',
-			actor: character,
-			building: building
-		});
-	}
+		return res;
+	},
 };
