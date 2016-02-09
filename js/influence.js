@@ -13,8 +13,9 @@ var influence = {
 	productibles: {},    // Filled in influence-items.js
 	gods: [],            // Filled in influence-gods.js
 	map: {},             // Filled in influence-map.js
-	aiBehaviours: {},    // Filled in influence-ai.js
-	aiInit: [],          // Filled in influence-ai.js
+	aiBehaviours: {},    // Filled in ai/*.js
+	aiGraphs: {},        // Filled in ai/*.js
+	aiInit: [],          // Filled in ai/*.js
 	dialogs: {},         // Filled in influence-dialogs.js
 };
 

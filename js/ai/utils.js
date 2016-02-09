@@ -429,6 +429,17 @@ function aiCompileNode(lines, lineNum) {
 		node = {type: 'inverter'};
 	}else if (nodeName == '=') {
 		node = {type: 'identity'};
+	}else if (nodeName[0] == '%') {
+		var subGraphName = nodeName.substring(1);
+		if (subGraphName == '' || typeof influence.aiGraphs[subGraphName] == 'undefined') {
+			alert('aiCompileNode: unknown subgraph "' + subGraphName + '"');
+			node = {
+				type: 'leaf',
+				action: function() {}
+			};
+		}else {
+			node = aiCompileBehaviourTree(influence.aiGraphs[subGraphName]);
+		}
 	}else {
 		var action = aiBehaviourTreeFunctions[nodeName];
 		if (typeof action == 'undefined') {
