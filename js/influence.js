@@ -14,6 +14,7 @@ var influence = {
 	gods: [],            // Filled in influence-gods.js
 	map: {},             // Filled in influence-map.js
 	aiBehaviours: {},    // Filled in influence-ai.js
+	aiInit: [],          // Filled in influence-ai.js
 	dialogs: {},         // Filled in influence-dialogs.js
 };
 
@@ -131,6 +132,10 @@ function init() {
 		},
 		camera
 	);
+
+	for (var aiInitFnIndex = 0; aiInitFnIndex < influence.aiInit.length; ++aiInitFnIndex) {
+		influence.aiInit[aiInitFnIndex]();
+	}
 
 	guiEventReinit();
 }
