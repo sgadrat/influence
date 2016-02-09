@@ -1,10 +1,14 @@
 influence.aiGraphs['basic_npc_behaviour'] = `
 ?
-	%go_to_the_pub
-	%go_to_work
-	%construct
+	%daily_tasks
 	%optimize_production
 	%walk_around
+`;
+
+influence.aiGraphs['daily_tasks'] = `
+?
+	%go_to_the_pub
+	%go_to_work
 `;
 
 influence.aiGraphs['go_to_the_pub'] = `
@@ -38,23 +42,6 @@ influence.aiGraphs['go_to_work'] = `
 	SelectWorkPlace
 	GoTo
 	Work
-`;
-
-influence.aiGraphs['construct'] = `
-->                            (Construct building not owned by the dynasty)
-	SelectRandomBuildingType
-	!
-		SelectDynastyBuildingOfType
-	?
-		SelectDynastyLot
-		SelectBuyableLot
-	GoTo
-	?
-		IsDynastyBuilding
-		BuyLot
-	!
-		SelectDynastyBuildingOfType
-	BuildSelectedType
 `;
 
 influence.aiGraphs['optimize_production'] = `
@@ -93,33 +80,7 @@ influence.aiBehaviours['BasicNpcBehaviour'] = function(character) {
 
 	// Create context if not already done
 	if (typeof character.aiContext === 'undefined') {
-		character.aiContext = {
-			'actionstate': {},
-			'btdata': behaviourtree.initContext(AI_CHARACTER_BEHAVIOUR),
-			'character': character.index,
-			'lastEat': getGameDate(),
-			'lastWork': getGameDate(),
-			'selectedBuilding': null,
-			'selectedBuildingType': null,
-			'selectedItemTypes': [],
-			'workHappiness': [],
-			'getEmployementConditions': function(building) {
-				var character = influence.characters[this.character];
-				var employable = false;
-				if (character.workPlace === null) {
-					employable = true;
-				}else if (this.workHappiness[building.owner] > this.workHappiness[character.workPlace.owner] + 10) {
-					employable = true;
-				}
-				return {
-					employable: employable,
-					wage: 10
-				};
-			}
-		};
-		for (var i = 0; i < influence.dynasties.length; ++i) {
-			character.aiContext['workHappiness'].push(100);
-		}
+		character.aiContext = aiCreateCharacterContext(character.index, AI_CHARACTER_BEHAVIOUR);
 	}
 
 	// Tick the behaviour tree

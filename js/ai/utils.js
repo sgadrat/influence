@@ -607,3 +607,34 @@ function aiGetEmployementConditions(characterIndex, building) {
 
 	return  character.aiContext.getEmployementConditions(building);
 }
+
+function aiCreateCharacterContext(characterIndex, behaviour) {
+	var res = {
+		'actionstate': {},
+		'btdata': behaviourtree.initContext(behaviour),
+		'character': characterIndex,
+		'lastEat': getGameDate(),
+		'lastWork': getGameDate(),
+		'selectedBuilding': null,
+		'selectedBuildingType': null,
+		'selectedItemTypes': [],
+		'workHappiness': [],
+		'getEmployementConditions': function(building) {
+			var character = influence.characters[this.character];
+			var employable = false;
+			if (character.workPlace === null) {
+				employable = true;
+			}else if (this.workHappiness[building.owner] > this.workHappiness[character.workPlace.owner] + 10) {
+				employable = true;
+			}
+			return {
+				employable: employable,
+				wage: 10
+			};
+		}
+	};
+	for (var i = 0; i < influence.dynasties.length; ++i) {
+		res['workHappiness'].push(100);
+	}
+	return res;
+}
