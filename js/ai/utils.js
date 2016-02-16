@@ -22,6 +22,22 @@ var aiBehaviourTreeFunctions = {
 		return behaviourtree.FAIL;
 	},
 
+	BuyItemTypes: function (context) {
+		var selectedItemTypes = context['selectedItemTypes'];
+		var res = behaviourtree.FAIL;
+		for (var itemIndex = 0; itemIndex < selectedItemTypes.length; ++itemIndex) {
+			var item = selectedItemTypes[itemIndex];
+			for (var buyCount = 0; buyCount < 10; ++buyCount) {
+				if (context['selectedBuilding'].buy(context['character'], item, 1)) {
+					res = behaviourtree.SUCCESS;
+				}else {
+					break;
+				}
+			}
+		}
+		return res;
+	},
+
 	BuyLot: function (context) {
 		return aiDoAction(context, {
 			action: 'buy',
@@ -196,12 +212,96 @@ var aiBehaviourTreeFunctions = {
 		});
 	},
 
+	SelectMarketWithItemTypes: function (context) {
+		var selectedItemTypes = context['selectedItemTypes'];
+		return aiSelectBuilding(context, function(building) {
+			if (!(building instanceof buildingClearingHouse.ClearingHouse)) {
+				return false;
+			}
+			for (var itemIndex = 0; itemIndex < selectedItemTypes.length; ++itemIndex) {
+				var item = selectedItemTypes[itemIndex];
+				if (building.have(item)) {
+					return true;
+				}
+			}
+			return false;
+		});
+	},
+
 	SelectDynastyBuildingOfType: function (context) {
 		var dynastyIndex = influence.characters[context['character']].dynasty;
 		return aiSelectBuilding(context, function(building) {
 			return (
 				building.owner == dynastyIndex &&
 				building.type == context['selectedBuildingType']
+			);
+		});
+	},
+
+	SelectDynastyBuildingLackingItems: function (context) {
+		var dynastyIndex = influence.characters[context['character']].dynasty;
+		return aiSelectBuilding(context, function(building) {
+			if (building.owner != dynastyIndex || typeof building.stock == 'undefined') {
+				return false;
+			}
+			var neededItems = aiGetItemsNeededByBuilding(building);
+			for (var itemIndex = 0; itemIndex < neededItems.items.length; ++itemIndex) {
+				var item = neededItems.items[itemIndex];
+				var quantity = neededItems.quantities[itemIndex];
+				if (!building.stock.containItems(item, quantity)) {
+					return true;
+				}
+			}
+			return false;
+		});
+	},
+
+	SelectDynastyBuildingLackingItemTypes: function (context) {
+		var dynastyIndex = influence.characters[context['character']].dynasty;
+		return aiSelectBuilding(context, function(building) {
+			if (typeof building.stock == 'undefined') {
+				return false;
+			}
+			var someLackingItemsAreSelected = false;
+			if (building.owner == dynastyIndex) {
+				var neededItems = aiGetItemsNeededByBuilding(building);
+				for (var i = 0; i < context['selectedItemTypes'].length; ++i) {
+					var neededItem = context['selectedItemTypes'][i];
+					var neededItemIndex = neededItems.items.indexOf(neededItem);
+					var neededQuantity = (neededItemIndex == -1 ? 0 : neededItems.quantities[neededItemIndex]);
+					if (
+						neededItemIndex != -1 &&
+						!building.stock.containItems(neededItem, neededQuantity)
+					)
+					{
+						someLackingItemsAreSelected = true;
+						break;
+					}
+				}
+			}
+			return (
+				building.owner == dynastyIndex &&
+				someLackingItemsAreSelected
+			);
+		});
+	},
+
+	SelectDynastyBuildingNeedingItemTypes: function (context) {
+		var dynastyIndex = influence.characters[context['character']].dynasty;
+		return aiSelectBuilding(context, function(building) {
+			var someNeededItemsAreSelected = false;
+			if (building.owner == dynastyIndex) {
+				var neededItems = aiGetItemsNeededByBuilding(building).items;
+				for (var i = 0; i < context['selectedItemTypes'].length; ++i) {
+					if (neededItems.indexOf(context['selectedItemTypes'][i]) != -1) {
+						someNeededItemsAreSelected = true;
+						break;
+					}
+				}
+			}
+			return (
+				building.owner == dynastyIndex &&
+				someNeededItemsAreSelected
 			);
 		});
 	},
@@ -216,6 +316,27 @@ var aiBehaviourTreeFunctions = {
 					building.stock.containItems('pie', 1)
 				)
 			);
+		});
+	},
+
+	SelectDynastyBuildingWithUnusedItemTypes: function (context) {
+		var dynastyIndex = influence.characters[context['character']].dynasty;
+		return aiSelectBuilding(context, function(building) {
+			if (building.owner != dynastyIndex || typeof building.stock == 'undefined') {
+				return false;
+			}
+			var neededItems = aiGetItemsNeededByBuilding(building).items;
+			for (var itemIndex = 0; itemIndex < context['selectedItemTypes'].length; ++itemIndex) {
+				var item = context['selectedItemTypes'][itemIndex];
+				if (
+					neededItems.indexOf(item) == -1 &&
+					building.stock.containItems(item, 1)
+				)
+				{
+					return true;
+				}
+			}
+			return false;
 		});
 	},
 
@@ -250,6 +371,49 @@ var aiBehaviourTreeFunctions = {
 		});
 	},
 
+	SelectItemTypesInInventory: function(context) {
+		var inventory = influence.characters[context['character']].inventory;
+		var itemTypes = [];
+
+		for (var slotIndex = 0; slotIndex < inventory.getNumberOfSlots(); ++slotIndex) {
+			var slot = inventory.getSlot(slotIndex);
+			if (slot !== null) {
+				itemTypes.push(slot.itemName);
+			}
+		}
+
+		if (itemTypes.length == 0) {
+			return behaviourtree.FAIL;
+		}
+		context['selectedItemTypes'] = itemTypes;
+		return behaviourtree.SUCCESS;
+	},
+
+	SelectItemTypesLackedByBuilding: function (context) {
+		var building = context['selectedBuilding'];
+		var neededItems = {};
+		var lackingItems = [];
+		var itemIndex, item, quantity;
+		if (building === null) {
+			return behaviourtree.FAIL;
+		}
+
+		// Select needed items or fail if no item is needed
+		neededItems = aiGetItemsNeededByBuilding(building);
+		for (itemIndex = 0; itemIndex < neededItems.items.length; ++itemIndex) {
+			item = neededItems.items[itemIndex];
+			quantity = neededItems.quantities[itemIndex];
+			if (!building.stock.containItems(item, quantity)) {
+				lackingItems.push(item);
+			}
+		}
+		if (lackingItems.length == 0) {
+			return behaviourtree.FAIL;
+		}
+		context['selectedItemTypes'] = lackingItems;
+		return behaviourtree.SUCCESS;
+	},
+
 	SelectItemTypesNeededByBuilding: function (context) {
 		var building = context['selectedBuilding'];
 		var neededItems = [];
@@ -257,27 +421,8 @@ var aiBehaviourTreeFunctions = {
 			return behaviourtree.FAIL;
 		}
 
-		// Add items needed by consumation buildings
-		if (building instanceof buildingInn.Inn) {
-			neededItems.push('pie');
-			neededItems.push('jam');
-		}
-
-		// Automatically add items needed by production buildings
-		if (typeof building.productibles != 'undefined') {
-			for (var productIndex = 0; productIndex < building.productibles.length; ++productIndex) {
-				var productId = building.productibles[productIndex];
-				var materials = influence.productibles[productId].baseMaterials;
-				for (var materialIndex = 0; materialIndex < materials.length; ++materialIndex) {
-					var materialId = materials[materialIndex].material;
-					if (neededItems.indexOf(materialId) == -1) {
-						neededItems.push(materialId);
-					}
-				}
-			}
-		}
-
 		// Select needed items or fail if no item is needed
+		neededItems = aiGetItemsNeededByBuilding(building).items;
 		if (neededItems.length == 0) {
 			return behaviourtree.FAIL;
 		}
@@ -586,6 +731,39 @@ function aiGetCheapestEmployableCharacter(building) {
 		}
 	}
 	return res;
+}
+
+function aiGetItemsNeededByBuilding(building) {
+	var neededItems = [];
+	var neededQuantities = [];
+
+	// Add items needed by consumation buildings
+	if (building instanceof buildingInn.Inn) {
+		neededItems.push('pie');
+		neededItems.push('jam');
+	}
+
+	// Automatically add items needed by production buildings
+	if (typeof building.productibles != 'undefined') {
+		for (var productIndex = 0; productIndex < building.productibles.length; ++productIndex) {
+			var productId = building.productibles[productIndex];
+			var materials = influence.productibles[productId].baseMaterials;
+			for (var materialIndex = 0; materialIndex < materials.length; ++materialIndex) {
+				var materialId = materials[materialIndex].material;
+				var quantity = materials[materialIndex].number;
+				var itemIndex = neededItems.indexOf(materialId);
+				if (itemIndex == -1) {
+					itemIndex = neededItems.length;
+					neededItems.push(materialId);
+					neededQuantities.push(quantity);
+				}else if (quantity > neededQuantities[itemIndex]) {
+					neededQuantities[itemIndex] = quantity;
+				}
+			}
+		}
+	}
+
+	return {items:neededItems, quantities:neededQuantities};
 }
 
 function aiGetWorkHappiness(characterIndex) {

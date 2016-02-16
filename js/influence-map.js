@@ -140,7 +140,7 @@ influence.map = { "height":51,
                  "name":"Florent Delvilajo",
                  "properties":
                     {
-                     "behaviour":"BasicNpcBehaviour",
+                     "behaviour":"TraderBehaviour",
                      "dynasty":"Delvillajo",
                      "firstName":"Florent"
                     },

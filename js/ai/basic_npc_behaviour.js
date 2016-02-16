@@ -1,7 +1,6 @@
 influence.aiGraphs['basic_npc_behaviour'] = `
 ?
 	%daily_tasks
-	%optimize_production
 	%walk_around
 `;
 
@@ -42,22 +41,6 @@ influence.aiGraphs['go_to_work'] = `
 	SelectWorkPlace
 	GoTo
 	Work
-`;
-
-influence.aiGraphs['optimize_production'] = `
-->                            (Try to find somewhere to do something usefull)
-	SelectRandomDynastyBuilding
-	GoTo
-	->
-		=
-			->                    (Put items consumed by the building in stocks)
-				SelectItemTypesNeededByBuilding
-				PutSomeItemsToStock
-		=
-			OptimizeProduction
-		->                    (Take produced items in our inventory)
-			SelectItemTypesProducedByBuilding
-			TakeSomeItemsFromStock
 `;
 
 influence.aiGraphs['walk_around'] = `
